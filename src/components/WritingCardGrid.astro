@@ -12,7 +12,7 @@ interface WritingArticle {
   summary: string;
   href: string;
   cover?: string;
-  avatar: string;
+  avatar?: string;
 }
 
 interface Props {
@@ -20,17 +20,13 @@ interface Props {
 }
 
 const { articles } = Astro.props;
-const assetSrc = (src?: string) => {
-  if (!src) return "";
-  return src.startsWith("http") ? src : withBase(src);
-};
 
 // 七日書 freewrite palette tints — 卡片 4 種色塊輪替
 const tints = [
-  { bg: "#F0F9FE", line: "rgba(131,186,209,0.55)" },
-  { bg: "#FFF3DF", line: "rgba(255,198,136,0.6)" },
-  { bg: "#F2FAF7", line: "rgba(112,179,136,0.45)" },
-  { bg: "#FFFCE1", line: "rgba(224,180,2,0.35)" },
+  { bg: "#F0F9FE", line: "rgba(131,186,209,0.55)", accent: "#045898" },
+  { bg: "#FFF3DF", line: "rgba(255,198,136,0.6)", accent: "#8A4F1E" },
+  { bg: "#F2FAF7", line: "rgba(112,179,136,0.45)", accent: "#2D8700" },
+  { bg: "#FFFCE1", line: "rgba(224,180,2,0.35)", accent: "#8A6B2C" },
 ];
 ---
 
@@ -51,23 +47,17 @@ const tints = [
             tabindex="0"
             role="button"
             aria-label={`翻看 ${article.title}`}
-            style={`--card-bg: ${tint.bg}; --card-line: ${tint.line};`}
+            style={`--card-bg: ${tint.bg}; --card-line: ${tint.line}; --card-accent: ${tint.accent};`}
           >
             <div class="writing-card__inner">
               <div class="writing-card__face writing-card__face--front">
-                <div class="writing-card__author">
-                  <img
-                    class="writing-card__avatar"
-                    src={assetSrc(article.avatar)}
-                    alt=""
-                    loading="lazy"
-                    draggable="false"
-                  />
-                  <span>{article.author}</span>
-                </div>
+                <span class="writing-card__eyebrow">七日書 · 我的職場人格</span>
                 <h3>{article.title}</h3>
                 <p class="writing-card__summary">{article.summary}</p>
-                <span class="writing-card__cta">翻開摘句 →</span>
+                <div class="writing-card__foot">
+                  <span class="writing-card__byline">{article.author}</span>
+                  <span class="writing-card__cta">翻開摘句 →</span>
+                </div>
               </div>
               <div class="writing-card__face writing-card__face--back">
                 <span class="writing-card__back-meta">— {article.author}</span>

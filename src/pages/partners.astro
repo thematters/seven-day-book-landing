@@ -1,9 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import GrandBadge from "../components/GrandBadge.astro";
-import LectureIcon from "../components/LectureIcon.astro";
 import MattersWordmark from "../components/MattersWordmark.astro";
-import ThemeIcon from "../components/ThemeIcon.astro";
 import WritingCardGrid from "../components/WritingCardGrid.astro";
 import {
   contactEmail,
@@ -73,7 +71,7 @@ const lectureTints = [
       <section class="hero hero--stacked" aria-labelledby="partner-hero-title">
         <div class="hero__banner" aria-hidden="true">
           <img
-            src={assetSrc(partnerPage.caseStudy.image)}
+            src={assetSrc(partnerPage.heroBanner)}
             alt=""
             loading="eager"
           />
@@ -91,7 +89,7 @@ const lectureTints = [
             <a class="button button--primary" href={shared.contactHref}
               >洽談合作</a
             >
-            <a class="button button--quiet" href={homeHref}>加入寫作</a>
+            <a class="button button--soft" href={homeHref}>加入寫作</a>
           </div>
         </div>
       </section>
@@ -358,10 +356,11 @@ const lectureTints = [
             {
               partnerPage.packages.map((item) => (
                 <article class="package-card">
-                  <span class="package-card__icon" aria-hidden="true">
-                    {item.iconKind === "theme" && <ThemeIcon size={56} />}
-                    {item.iconKind === "lecture" && <LectureIcon size={56} />}
-                    {item.iconKind === "badge" && <GrandBadge size={48} />}
+                  <span
+                    class={`package-card__icon package-card__icon--${item.iconKind}`}
+                    aria-hidden="true"
+                  >
+                    <GrandBadge size={44} title={item.title} />
                   </span>
                   <h3>{item.title}</h3>
                   <p>{item.body}</p>
@@ -369,6 +368,9 @@ const lectureTints = [
               ))
             }
           </div>
+          <p class="note-line">
+            合作模組對應的圖示為書寫憑證徽章暫代，後續會由 Matters 設計團隊自 Figma 提供主題共創與名家講座的對應 icon。
+          </p>
         </div>
       </section>
 
@@ -405,7 +407,7 @@ const lectureTints = [
               <a class="button button--primary" href={shared.contactHref}
                 >{partnerPage.cta.primaryLabel}</a
               >
-              <a class="button button--quiet" href={homeHref}
+              <a class="button button--soft" href={homeHref}
                 >{partnerPage.cta.secondaryLabel}</a
               >
             </div>

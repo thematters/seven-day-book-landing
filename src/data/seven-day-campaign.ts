@@ -2,7 +2,7 @@ import { sevenDayBookLanding as legacy } from "./seven-day-book";
 
 const CDN = "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod";
 
-export const contactEmail = "freewrite@matters.town";
+export const contactEmail = "hi@matters.town";
 
 // Matters 官方 campaign cover (imagedelivery CDN) — 本期主視覺．
 // 早期版本嘗試以 AI 生成 placeholder 但品質不合格，改回官方素材。
@@ -133,6 +133,8 @@ export const partnerPage = {
   title: "七日書｜機構合作",
   description:
     "七日書機構合作頁，整理歷次主題、參與數據、執行內容、講座與合作案例，提供文化機構與品牌洽談七日書共創。",
+  // 機構頁 hero banner — 用「說聲告別，走向新的自己」主視覺，氣質適合對機構說明
+  heroBanner: `${CDN}/campaignCover/94525f57-eb5e-4e4a-9b5c-88af2ccb097f.png/w=1376,h=5504,fit=scale-down,anim=false`,
   hero: {
     eyebrow: "For partners",
     headline: "把你的命題，交給上千個真實生活來回答。",

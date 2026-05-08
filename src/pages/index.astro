@@ -16,6 +16,7 @@ import "../styles/seven-day-campaign.css";
 import { withBase } from "../utils/paths";
 
 const partnersHref = withBase(shared.partnersHref);
+const archiveHref = withBase("archive/");
 const assetSrc = (src?: string) => {
   if (!src) return "";
   return src.startsWith("http") ? src : withBase(src);
@@ -303,6 +304,12 @@ const lectureTints = [
                 ))
               }
             </nav>
+
+            <p class="theme-pager__more">
+              <a class="button button--quiet" href={archiveHref}
+                >看完整七日書歷來主題 →</a
+              >
+            </p>
           </div>
         </div>
       </section>

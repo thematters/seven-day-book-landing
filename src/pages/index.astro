@@ -9,6 +9,7 @@ import {
   contactEmail,
   latestArticles,
   lectures,
+  milestones,
   pastThemes,
   shared,
 } from "../data/seven-day-campaign";
@@ -32,6 +33,7 @@ const nav = [
   { href: "#badge", label: "大滿貫" },
   { href: "#themes", label: "過去主題" },
   { href: "#lectures", label: "名家講座" },
+  { href: "#milestones", label: "歷年里程" },
   { href: "#faq", label: "FAQ" },
 ];
 const marqueeAvatars = [
@@ -269,21 +271,25 @@ const lectureTints = [
                   {page.map((theme) => (
                     <a
                       class="theme-card theme-card--landscape"
-                      href={theme.href}
+                      href={theme.announceHref}
                       target="_blank"
                       rel="noopener"
                     >
                       <div class="theme-card__media">
                         <img
-                          src={assetSrc(theme.visual ?? theme.cover)}
+                          src={assetSrc(theme.announceCover)}
                           alt=""
                           loading="lazy"
                         />
                       </div>
                       <div class="theme-card__body">
-                        <span class="theme-card__meta">{theme.monthLabel}</span>
+                        <span class="theme-card__meta">{theme.monthLabel} · {theme.series}</span>
                         <h3>{theme.name}</h3>
-                        <p>{theme.description}</p>
+                        <p>
+                          {theme.announceSummary && theme.announceSummary.length > 70
+                            ? theme.announceSummary.slice(0, 70) + "…"
+                            : theme.announceSummary}
+                        </p>
                       </div>
                     </a>
                   ))}
@@ -328,13 +334,18 @@ const lectureTints = [
             </p>
           </header>
 
-          <div class="lecture-grid">
+          <p class="section__sublead">
+            從 2024 年至今已邀請 {lectures.length} 位作家、詩人、研究者陪文友書寫。
+            其中 {lectures.filter((l) => l.hasTranscript).length} 場有完整文字精華。
+          </p>
+
+          <div class="lecture-grid lecture-grid--dense">
             {
               lectures.map((lecture, idx) => {
                 const tint = lectureTints[idx % lectureTints.length];
                 const monogram = lecture.speaker.slice(0, 1);
                 return (
-                  <article class="lecture-card">
+                  <article class="lecture-card lecture-card--compact">
                     <div class="lecture-card__speaker">
                       <span
                         class="lecture-card__monogram"
@@ -350,16 +361,29 @@ const lectureTints = [
                         </span>
                       </div>
                     </div>
-                    <h3>{lecture.title}</h3>
-                    <p>{lecture.summary}</p>
-                    <a
-                      class="lecture-card__link"
-                      href={lecture.href}
-                      target="_blank"
-                      rel="noopener"
-                    >
-                      {lecture.hasTranscript ? "閱讀講座文字稿" : "查看講座資訊"} →
-                    </a>
+                    {lecture.hasTranscript ? (
+                      <>
+                        <p class="lecture-card__excerpt">
+                          {lecture.summary &&
+                            (lecture.summary.length > 80
+                              ? lecture.summary.slice(0, 80) + "…"
+                              : lecture.summary)}
+                        </p>
+                        <a
+                          class="lecture-card__link"
+                          href={lecture.href}
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          閱讀文字精華 →
+                        </a>
+                      </>
+                    ) : (
+                      <>
+                        <p class="lecture-card__excerpt">{lecture.note}</p>
+                        <span class="lecture-card__pill">講座記錄整理中</span>
+                      </>
+                    )}
                   </article>
                 );
               })
@@ -369,8 +393,46 @@ const lectureTints = [
       </section>
 
       <section
-        id="faq"
+        id="milestones"
         class="section section--paper"
+        aria-labelledby="milestones-title"
+      >
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">{audiencePage.milestonesHeading}</p>
+            <h2 id="milestones-title">從第一期到 9,000 篇人生。</h2>
+            <p>
+              2024 春開始，每一個月一期，到 2026 年累積出來的時間軸。每個節點都連回 Matters 上的官方公告。
+            </p>
+          </header>
+
+          <ol class="milestone-timeline">
+            {
+              milestones.map((m) => (
+                <li>
+                  <span class="milestone-timeline__date">{m.date}</span>
+                  <div>
+                    <h3>{m.title}</h3>
+                    <p>{m.body}</p>
+                    <a
+                      class="lecture-card__link"
+                      href={m.href}
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      閱讀公告 →
+                    </a>
+                  </div>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </section>
+
+      <section
+        id="faq"
+        class="section section--soft"
         aria-labelledby="faq-title"
       >
         <div class="section__inner">

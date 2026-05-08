@@ -2,8 +2,8 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import MattersWordmark from "../components/MattersWordmark.astro";
 import {
+  allThemes,
   contactEmail,
-  historicalThemes,
   shared,
 } from "../data/seven-day-campaign";
 import "../styles/seven-day-campaign.css";
@@ -16,10 +16,8 @@ const assetSrc = (src?: string) => {
   return src.startsWith("http") ? src : withBase(src);
 };
 
-// 歷來主題以 season 倒序排序（最新在前）
-const archiveThemes = [...historicalThemes].sort((a, b) =>
-  a.season < b.season ? 1 : -1,
-);
+// 24 期主題倒序：最新在前
+const archiveThemes = [...allThemes].reverse();
 ---
 
 <BaseLayout
@@ -61,8 +59,8 @@ const archiveThemes = [...historicalThemes].sort((a, b) =>
           <p class="eyebrow">Archive · 歷來主題</p>
           <h1 id="archive-title">每一期，都是一本已經完成的小書。</h1>
           <p class="archive-hero__lead">
-            七日書從 2024 春開始，每個月打開一組七天題目。{archiveThemes.length}
-            期累積的主視覺與題目都收進這裡，你可以隨時回到任何一期，找到下一次想寫的入口。
+            七日書從 2024 春開始，每個月打開一組七天題目。共 {archiveThemes.length}
+            期，累積近 3,200 位文友、9,000 篇文章。每張卡都連回 Matters 的活動頁，可以從任何一期開始讀。
           </p>
         </div>
       </section>
@@ -73,24 +71,32 @@ const archiveThemes = [...historicalThemes].sort((a, b) =>
             archiveThemes.map((theme) => (
               <a
                 class="archive-card"
-                href={theme.href}
+                href={theme.announceHref}
                 target="_blank"
                 rel="noopener"
               >
                 <div class="archive-card__media">
                   <img
-                    src={assetSrc(theme.visual ?? theme.cover)}
+                    src={assetSrc(theme.announceCover)}
                     alt={`${theme.name} 主視覺`}
                     loading="lazy"
                   />
                 </div>
                 <div class="archive-card__caption">
-                  <span class="archive-card__month">{theme.monthLabel}</span>
+                  <div class="archive-card__caption-top">
+                    <span class="archive-card__month">{theme.monthLabel}</span>
+                    {theme.phase && (
+                      <span class={`archive-card__phase archive-card__phase--${theme.phase === "進行中" ? "live" : "done"}`}>
+                        {theme.phase}
+                      </span>
+                    )}
+                  </div>
                   <h2>{theme.name}</h2>
-                  {theme.phase && (
-                    <span class={`archive-card__phase archive-card__phase--${theme.phase === "進行中" ? "live" : "done"}`}>
-                      {theme.phase}
-                    </span>
+                  {theme.participants && (
+                    <p class="archive-card__meta">
+                      {theme.participants} 位文友參與
+                      {theme.newcomers && ` · 其中 ${theme.newcomers} 位新作者`}
+                    </p>
                   )}
                 </div>
               </a>

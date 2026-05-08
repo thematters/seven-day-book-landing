@@ -4,10 +4,330 @@ const CDN = "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod";
 
 export const contactEmail = "hi@matters.town";
 
-// Matters 官方 campaign cover (imagedelivery CDN) — 本期主視覺．
-// 早期版本嘗試以 AI 生成 placeholder 但品質不合格，改回官方素材。
+// === 24 期完整主題（資料來自 matters-lifeboat 抓 @freewrite 後解析）===
+// 每期包含：series 編號、月份、名稱、進行中/完結 phase、報名與完結文章封面與
+// 摘要、實際參與人次／新文友／大滿貫人數（來自完結報告）。
+
+export const allThemes = [
+  {
+    series: "S1",
+    monthLabel: "2024 / 4",
+    name: "七日書 #1 · 自由寫",
+    phase: "完結",
+    announceCover: `${CDN}/embed/545d0541-ef8a-4f0d-a115-1f246a402faa.png/public`,
+    announceHref: "https://matters.town/a/e6tu274xo8q1",
+    announceSummary: "馬特市自由寫「七日書」，持續七天的書寫活動，接受報名中。",
+  },
+  {
+    series: "S2",
+    monthLabel: "2024 / 6",
+    name: "書寫家與故鄉",
+    phase: "完結",
+    announceCover: `${CDN}/embed/464e3aac-2ca4-442b-b656-489e111a00b1.png/public`,
+    announceHref: "https://matters.town/a/u3qna0i5t2m5",
+    announceSummary: "第一期「七日書」反應熱烈，馬特市自由寫「七日書」第二期再度歸來！即日起開放報名到 6 月 2 日，6 月 3 日起展開七天寫作。",
+  },
+  {
+    series: "S3",
+    monthLabel: "2024 / 6",
+    name: "愛與親密關係",
+    phase: "完結",
+    announceCover: `${CDN}/embed/9136c47b-19d6-4286-9959-265b3aac52c9.png/public`,
+    announceHref: "https://matters.town/a/kbv6vz8uhxb8",
+    announceSummary: "自由寫「七日書」第三期開始報名，之前兩期的報名人數分別為 122 人及139人，反應熱烈，本次的主題為「愛與親密關係」，持續七天的書寫活動，即日起開放報名到 6 月 30 日，7 月 1 日起展開七天寫作。",
+    wrapCover: `${CDN}/cover/693ab9de-b850-43fb-bf2b-b924df7896e4.png/public`,
+    wrapHref: "https://matters.town/a/m9g60f0e1civ",
+    wrapSummary: "恭喜本次獲得大滿貫的文友！本週四（7月11日）晚上 19:30 將有「七日書聊天分享會」，邀請所有文友線上相會，一起深入交流。",
+  },
+  {
+    series: "S4",
+    monthLabel: "2024 / 7",
+    name: "我的人生飯桌",
+    phase: "完結",
+    announceCover: `${CDN}/embed/81ca5e47-c4bd-43b1-a9c1-03fa23731b28.png/public`,
+    announceHref: "https://matters.town/a/d20ozorij4yg",
+    announceSummary: "「七日書」第四期開始報名！本期主題為「我的人生飯桌」，搭配全新七日書活動功能，讓你報名、發文、閱讀文章更方便。即日起報名到 8 月 4 日截止，8 月 5 日開始寫作，參與七日書，分享你與食物的人生故事。亦邀請到作家洪愛珠舉辦講座，分享如何從食物寫出人生的千百種滋味。",
+    wrapCover: `${CDN}/cover/9f693119-3def-4c17-8803-9afa63bf6c47.jpeg/public`,
+    wrapHref: "https://matters.town/a/u1510gz5by6o",
+    wrapSummary: "「人生餐桌」精彩落幕，我們將為前四期獲得大滿貫的 189 位文友送上大滿貫徽章及鏈上憑證、為 103 位文友送上「參與證明鏈上憑證」，只要在 8 月 21 日 前綁定錢包即可收到憑證，讓你的寫作足跡永久留存。活動方面，下週邀請到作家洪愛珠作客七日書，分享如何從食物寫出人生的千百種滋味。而下一期「七日書」活動將於八月底開始報名！",
+  },
+  {
+    series: "S5",
+    monthLabel: "2024 / 8",
+    name: "與自我對話：成長軌跡",
+    phase: "完結",
+    announceCover: `${CDN}/embed/74e592a8-16f8-4fac-87eb-0b2966d47a9a.png/public`,
+    announceHref: "https://matters.town/a/bv7slyxpxckf",
+    announceSummary: "「七日書」第五期開始報名！本期主題「我的成長軌跡」，分享你人生一路走來的足跡。即日起報名到 9 月 1 日截止，9 月 2 日開始寫作。本期活動亦邀請到作家許菁芳擔任講者，分享如何用文字深度關照自我，寫出人生的風景。",
+    wrapCover: `${CDN}/cover/5518314b-d93a-4476-910c-2397e67049f9.png/public`,
+    wrapHref: "https://matters.town/a/nbc5xw9ab6g9",
+    wrapSummary: "第五期七日書共有 235 位文友正式報名，「晚鳥參與」有 39 位晚鳥文友加入，總參與人數有 274 人，其中 157 人是首次參加。本次活動共有 57 位文友寫滿七篇文章，可獲得「大滿貫」徽章及「大滿貫鏈上參與憑證」。同時本期共有 37 位文友可獲得「參與證明鏈上憑證」。",
+    participants: 235,
+    completers: 57,
+  },
+  {
+    series: "S6",
+    monthLabel: "2024 / 10",
+    name: "島嶼精神",
+    phase: "完結",
+    announceCover: `${CDN}/embed/474f9cfd-d78c-419d-a8aa-a4d60bb83f60.png/public`,
+    announceHref: "https://matters.town/a/mj4v2fosf1h7",
+    announceSummary: "「七日書」第六期開始報名！本期主題以「島嶼」為核心發想，寫的是另類生活、各種事物之間的邊界。即日起報名到 11 月 3 日截止，11 月 4 日開始寫作，參與七日書，寫出你人生故事的另一面向。本期亦邀請到移居日本的華語作家庫索進行線上分享會，分享她的島嶼書寫視角，參加就有機會獲得《離島》一書與島啤酒徽章！",
+    wrapCover: ``,
+    wrapHref: "https://matters.town/a/fq34sm1stmot",
+    wrapSummary: "第六期七日書共有 215 位文友正式報名，其中 104 人是首次參加。本次活動共有 47 位文友寫滿七篇文章，恭喜你們堅持了七天寫作！可獲得「大滿貫」徽章及「大滿貫鏈上參與憑證」。同時本期共有 16 位文友完成超過一半或以上的文章，可獲得「參與證明鏈上憑證」。",
+    participants: 215,
+    completers: 47,
+  },
+  {
+    series: "S7",
+    monthLabel: "2024 / 11",
+    name: "物的體系",
+    phase: "完結",
+    announceCover: `${CDN}/embed/12e61bc5-210e-4661-be4d-264518d6aa0c.png/public`,
+    announceHref: "https://matters.town/a/y5lvdojbpace",
+    announceSummary: "「七日書」第七期開始報名！本期主題以「物件」為主題，對你而言，重要的物件是甚麼？它盛載了怎樣的自己、自己和他人的關係？當中又有著怎樣的回憶、情懷與意義？即日起報名到 12 月 1 日截止，12 月 2 日開始寫作，參與七日書，寫出你的人生故事。本期亦邀請到香港作家李智良進行線上分享會，分享他的寫作經驗與生命狀態。",
+    wrapCover: ``,
+    wrapHref: "https://matters.town/a/9ek26v38xr24",
+    wrapSummary: "第七期七日書共有 188 位文友正式報名，其中 84 人是首次參加。本次活動共有 35 位文友寫滿七篇文章，恭喜你們堅持了七天寫作！可獲得「大滿貫」徽章及「大滿貫鏈上參與憑證」。同時本期共有 16 位文友完成超過一半或以上的文章，可獲得「參與證明鏈上憑證」。",
+    participants: 188,
+    completers: 35,
+  },
+  {
+    series: "S8",
+    monthLabel: "2024 / 12",
+    name: "我的（不）完美人生",
+    phase: "完結",
+    announceCover: `${CDN}/embed/1e247419-c16c-420a-8a4d-f90d93fcbc49.png/public`,
+    announceHref: "https://matters.town/a/l526pey4n6hu",
+    announceSummary: "一月「七日書」開始報名！本期主題是「我的（不）完美人生」。你對人生的想像是什麼？有沒有什麼經歷，讓你重新審視對理想人生的定義？即日起報名到 1 月 5 日截止，1 月 6 日開始寫作。本期亦邀請到以華語寫作的日本作家吉井忍線上分享，談談如何重新想像生活，並書寫非主流的生活樣貌。",
+    wrapCover: `${CDN}/embed/193da3aa-7110-48c3-9fe0-97b428149c95.png/public`,
+    wrapHref: "https://matters.town/a/qhmfbr8f4zbf",
+    wrapSummary: "2025 年第一次的七日書圓滿結束了，總共有 281 位文友參與，並歡迎其中第一次參與的 150 位作者。本週三晚上作家講座，邀請吉井忍老師以《東京八平米》為出發點，談談如何重新想像生活，並書寫非主流的生活樣貌。",
+    participants: 281,
+    newcomers: 150,
+  },
+  {
+    series: "S9",
+    monthLabel: "2025 / 1",
+    name: "人間鬼故事",
+    phase: "完結",
+    announceCover: `${CDN}/embed/09c54291-6e76-41fb-a10c-4a0f5c7e0ee2.png/public`,
+    announceHref: "https://matters.town/a/5t00nmr6xsqp",
+    announceSummary: "七日書這次要寫「人間鬼故事」！「鬼」有很多種模樣，那些不可訴說的經歷、無法釋懷的事，或讓你面目全非的生命時刻，像鬼一樣，難以言說，或看不見卻時時影響著你。這是一次揭開內心深處鬼影的勇者之旅。本期講座邀請台灣作家陳思宏，他的知名小說《鬼地方》正是圍繞著「鬼」這個意象，探討人與內心深處的陰影和未竟之事的糾纏。講座將於 2 月 20 日舉行（原講座日期為 19 號，改期到 20 號）。",
+    wrapCover: `${CDN}/embed/88c4f56c-1c3c-45f1-b1aa-fb00bbc74645.png/public`,
+    wrapHref: "https://matters.town/a/5m3yp2jfs24g",
+    wrapSummary: "「人間鬼故事」七日書圓滿結束，總共有 141 位文友參與，並歡迎其中第一次參與的 61 位作者。要注意的是，線上作家講座將由 2 月 19 日（三）改期至 2 月 20 日（四），時間同樣是晚上七時半（東八區），有興趣的文友不要錯過！本次作家講座，邀請到以代表作《鬼地方》成名的陳思宏老師，分享他的人間鬼故事。",
+    participants: 141,
+    newcomers: 61,
+  },
+  {
+    series: "S10",
+    monthLabel: "2025 / 2",
+    name: "我的家庭故事",
+    phase: "完結",
+    announceCover: `${CDN}/embed/ec74e8c9-77e6-444c-b034-6342e83519bd.png/public`,
+    announceHref: "https://matters.town/a/lnu9azqfyj20",
+    announceSummary: "這次七日書的主題為「我的家庭故事」，家庭作為原生之地有著許多模樣：自小長大的家庭、出走過的家庭；與之親密或有距離的家庭，在每段時間都深深影響著你，今期邀請你寫下家庭故事，甚或是埋在心裡的秘密。本期講座邀請到香港作家譚蕙芸，她是香港中文大學新聞與傳播學院講師，以家庭為主題的散文見於主流媒體，出版包括《文字欲: 回應時代的特寫新聞》、《天愈黑，星愈亮》等。講座將於 3 月 19 日晚上舉行。",
+    wrapCover: `${CDN}/embed/a065896f-608c-401c-807a-903171965c99.png/public`,
+    wrapHref: "https://matters.town/a/4t8r4oe22a7m",
+    wrapSummary: "「我的家庭故事」七日書圓滿結束，總共有 176 位文友參與，並歡迎其中第一次參與的 85 位作者。本期講座邀請到香港作家譚蕙芸，她是香港中文大學新聞與傳播學院講師，以家庭為主題的散文見於主流媒體，出版包括《文字欲: 回應時代的特寫新聞》、《天愈黑，星愈亮》等。講座將於 3 月 19 日晚上舉行。",
+    participants: 176,
+    newcomers: 85,
+  },
+  {
+    series: "S11",
+    monthLabel: "2025 / 3",
+    name: "書寫地方",
+    phase: "完結",
+    announceCover: `${CDN}/embed/90d95b03-e273-4f6b-b4df-a93cc0ee5850.png/public`,
+    announceHref: "https://matters.town/a/dh2xfd9t0zc8",
+    announceSummary: "「地方感」是指你在某處生活的感情、與外在連結的能力，也能感受人與所在的關係。你最愛到哪個地方流連？哪個地方曾為你帶來感官與心靈上的衝撃？甚至是分享一個微小的路上的風景，都是個人在生活中的提煉。地方書寫是屬於每個人的，大家都可以來寫。本期七日書講座，邀請到香港作家黃宇軒，談談如何透過散步及地方書寫，探索集體的故事與記憶。線上講座將於 4 月 24 日（週四）東八區 19:30 舉行。",
+    wrapCover: `${CDN}/embed/57bc7d41-52c1-4e28-8ba5-b40b736978a1.png/public`,
+    wrapHref: "https://matters.town/a/24a9mapb7gqt",
+    wrapSummary: "「書寫地方」七日書圓滿結束，總共有 191 位文友參與，並歡迎其中第一次參與的 95 位作者。邀請到香港作家黃宇軒，他的知名著作《城市散步學》帶動了近年公眾以散步形式觀察城市的風潮，這次我們邀請他來談談，如何透過散步及地方書寫，探索集體的故事與記憶。講座將於  4 月 24 日（週四）東八區 19:30 舉行。",
+    participants: 191,
+    newcomers: 95,
+  },
+  {
+    series: "S12",
+    monthLabel: "2025 / 4",
+    name: "人生的靈魂提問（一週年）",
+    phase: "完結",
+    announceCover: `${CDN}/cover/de381255-e0e9-44c5-932b-11360d2f8a0e.png/public`,
+    announceHref: "https://matters.town/a/n6bdy23k29ra",
+    announceSummary: "你有沒有「非常想對自己提問」的人生問題？我們從社區問卷收到各式各樣的寫作主題建議，孤獨與自由，愛與失敗，時間之於人的意義，寫作對你的影響…本月活動以七日書文友的靈感為基礎，邀請大家一起來書寫「靈魂提問」。自由寫一週年，更多活動即將公佈，請關注本帳戶公告。",
+    wrapCover: `${CDN}/cover/2b3833d6-1309-4784-b9f2-b741d4871bb6.png/public`,
+    wrapHref: "https://matters.town/a/qqde3qpnmf7i",
+    wrapSummary: "「人生的靈魂提問」七日書圓滿結束，總共有 180 位文友參與，並歡迎其中第一次參與的 70 位作者。七日書一週年，你曾經寫到失眠痛哭嗎？或者寫完更加喜歡自己一點點？我們設計了圈圈樂小遊戲，邀請你圈起用文字走過的足跡。",
+    participants: 180,
+    newcomers: 70,
+  },
+  {
+    series: "S13",
+    monthLabel: "2025 / 5",
+    name: "What If 人生有如果",
+    phase: "完結",
+    announceCover: `${CDN}/cover/852dac20-0110-4109-8ba3-7e714aadb13a.png/public`,
+    announceHref: "https://matters.town/a/x7argsbyr0dj",
+    announceSummary: "這次七日書的主題為「What If 人生有如果」。如果，人生可以超出目前的框架，有著各種想像，包括回到過去、改變一些決定、擁有超能力、重新定義身份，那會是怎樣的生活？可能有些想像是想超越當下，也有可能是想有一個重新的自己。在這七天的書寫旅程裡，離開目前的人生，盡快發揮想像吧。",
+    wrapCover: `${CDN}/cover/8bbeaee1-d003-4f1f-8e28-07a3db41304d.png/public`,
+    wrapHref: "https://matters.town/a/yxa1gen0z7jd",
+    wrapSummary: "「What If 人生有如果」七日書圓滿結束，今次總共有 172 位文友參與，並歡迎其中第一次參與的 71 位作者。在這七天的旅程中，大家擴闊想像，寫出了人生七篇的「如果」。在這七天，大家透過書寫反思當下、超越對人生的想像，又或是，對現在的生活感到滿足。",
+    participants: 172,
+    newcomers: 71,
+  },
+  {
+    series: "S14",
+    monthLabel: "2025 / 6",
+    name: "長女症候群（三日書）",
+    phase: "完結",
+    announceCover: `${CDN}/embed/ccec5a8a-b255-4ffc-b2a1-8ab699402de7.png/public`,
+    announceHref: "https://matters.town/a/qwyyg2pml91j",
+    announceSummary: "「長女症候群」意指燃燒自己、照亮他人的特質，這群人常被寄予懂事、負責的期待。這些期待背後，是怎樣的故事？不論你是長女／長子／媳婦，若你被寄予「理所當然」的厚望與責任，或是你認識這樣的人，誠邀你寫下故事。本期講座邀請台灣作家張慧慈，談談她的新書《長女病》和社會學想像、個人故事如何引起共感。線上講座將於 7 月 17 日（四）東八區 19:30 舉行。",
+    wrapCover: `${CDN}/embed/3f026860-916e-4b85-9212-edc6a9006b03.png/public`,
+    wrapHref: "https://matters.town/a/kwe25da52gc3",
+    wrapSummary: "「被過度期待的人：燃燒自我的故事」三日書經已結束，今次總共有 109 位文友參與，並歡迎其中第一次參與的 57 位作者。在這個旅程中，大家寫下被寄予「理所當然」的厚望的故事。七月十七日（四）晚上七時半（東八區），台灣作家張慧慈（小花媽）將談她的新書《長女病》和社會學想像、個人故事如何引起共感。",
+    participants: 109,
+    newcomers: 57,
+  },
+  {
+    series: "S15",
+    monthLabel: "2025 / 7",
+    name: "兩廳院藝術出走 · 關於人生",
+    phase: "完結",
+    announceCover: `${CDN}/cover/372bc503-6ba7-414e-a4d2-a3e3adf8195d.jpeg/public`,
+    announceHref: "https://matters.town/a/oaoi6csb4v5i",
+    announceSummary: "在人生的不同階段，你是否曾有話想對自己說？那些話可能是寫給年輕時的自己，也可能是寫給正在努力生活的現在，甚至寫給那個還在未來等你的自己。今年八月與九月，我們邀請你參加「兩廳院藝術出走：給自己的情書『三日書』徵文活動」，寫一封屬於自己的情書，回望、整理，也與自己重新相遇。兩個月份，分別邀請郭強生與楊翠擔任客座講師，不僅與大家一同展開三日書的書寫，也舉辦延伸講座，帶領大家從文字中看見自我、整理人生。",
+  },
+  {
+    series: "S16",
+    monthLabel: "2025 / 8",
+    name: "兩廳院藝術出走 · 標記回憶",
+    phase: "完結",
+    announceCover: `${CDN}/cover/b16cc0d2-5d77-4796-9d0c-62bf3b3478e0.jpeg/public`,
+    announceHref: "https://matters.town/a/kha011y5f2my",
+    announceSummary: "九月繼續邀請你參加「兩廳院藝術出走：給自己的情書『三日書』徵文活動」，寫出人生的高低起伏，你曾經歷哪些人生的重要轉折點？有光有影，便是人生。9 月 16 日邀請楊翠老師舉辦線上講座，當你踏上記憶的逆旅，重新啟動與自我的對話，如何透過寫作找到屬於自己的「通關密語」，體會生命真正的收成？",
+    wrapCover: `${CDN}/cover/402fc6a3-6ba5-4aeb-860c-aaaa1ccbc7bd.png/public`,
+    wrapHref: "https://matters.town/a/saxy7wofhvxo",
+    wrapSummary: "兩個月的情書寫作活動，總共有將近 500 位朋友參與；我們也邀請了作家郭強生跟楊翠舉辦講座，談生命、死亡、家族與通關密語。活動會截止，但寫給自己的情書永不過時，歡迎隨時重溫題目，加入寫作行列。",
+    participants: 500,
+  },
+  {
+    series: "S17",
+    monthLabel: "2025 / 9",
+    name: "曖昧時刻",
+    phase: "完結",
+    announceCover: `${CDN}/cover/3691f81a-0f0c-42b9-9de6-e27308cdd47f.png/public`,
+    announceHref: "https://matters.town/a/ahogdo23dc73",
+    announceSummary: "你有沒有在關係中，走到某一個位置，心裡想著：不知這樣下去，行不行？關係千變萬化，相信你身處其中曾問過自己許多問題。邀請你來寫寫那些讓你重新思考與自我認識的故事，在人和人的各種關係狀態再走深一點。本期講座邀請台灣作家許俐葳，從她的小說《我有一個關於不倫的，小問題》談起，分享如何將困惑與模糊化為小說的語言，並在文字中找到與自己對話的可能。",
+    wrapCover: `${CDN}/cover/b586cf2c-14fd-4add-b31e-3b86db6e1634.png/public`,
+    wrapHref: "https://matters.town/a/09f9iv4ohe9e",
+    wrapSummary: "「曖昧時刻」七日書經已結束，今次總共有 95 位文友參與，並歡迎其中第一次參與的 27 位作者。在這個旅程中，大家寫下在不同時期的曖昧時刻，當中包括溫柔、刺激、害羞的故事。10月22日（三）晚上七時半（東八區），台灣作家許俐葳（神小風）將透過作品《我有一個關於不倫的，小問題》，分享小說人物的曖昧、掙扎與矛盾，展開對自身與關係的追問。",
+    participants: 95,
+    newcomers: 27,
+  },
+  {
+    series: "S18",
+    monthLabel: "2025 / 10",
+    name: "重構生活",
+    phase: "完結",
+    announceCover: `${CDN}/cover/ffa38b65-bad9-4030-ab7a-94deb2ab94b4.png/public`,
+    announceHref: "https://matters.town/a/3f6bdmbon9pu",
+    announceSummary: "生活照著既定的秩序前行，但也許有某個瞬間，你開始思考，真的想繼續這樣活嗎？本月七日書邀請你把焦點放回自己，去看那些被環境形塑、被規則綁住、被角色包裹的「我」，重新審視自己想留下什麼、放下什麼。作家講座邀請《認識我的人慢慢忘了我》作者周慧，她「四十歲離職寫作，五十歲悄然出版」，新書受到廣大注目，她將分享如何將日常轉化為文字，讓生活成為書寫的土壤。七日書讀者可享有購書優惠。",
+    wrapCover: `${CDN}/embed/5d0758a3-3e45-46df-a499-9562556a9fa5.png/public`,
+    wrapHref: "https://matters.town/a/kumhjizkvlg1",
+    wrapSummary: "「重構生活」七日書經已結束，今次總共有 185 位文友參與，並歡迎其中第一次參與的 76 位作者。在這個旅程中，大家寫下人生中的重構生活故事，當中包括反思當下、重整步調，繼而再出發。11月18日（二）晚上七時半（東八區），作家周慧將透過作品《《認識我的人慢慢忘了我》，分享她四十歲之後離開都市、搬往鄉村的生活日常，並談及這個過程中的重構經驗。",
+    participants: 185,
+    newcomers: 76,
+  },
+  {
+    series: "S19",
+    monthLabel: "2025 / 11",
+    name: "說聲告別，走向新的自己",
+    phase: "完結",
+    announceCover: `${CDN}/embed/9e5ab949-a2ae-47fd-b2a9-66620f1bf4ab.png/public`,
+    announceHref: "https://matters.town/a/zc31yhwhxmsw",
+    announceSummary: "一年之終，望著日曆上漸少的日子，你有沒有浮起一聲低語：是時候舉行一場告別的儀式了？有些事情，可能是時候說再見，然後走往新的自己。本月七日書邀請你一步步走過這場年底儀式，在再出發的曙光中看到新的自己。",
+    wrapCover: ``,
+    wrapHref: "https://matters.town/a/2w84mmr3nq52",
+    wrapSummary: "「說聲告別，走向新的自己」七日書經已結束，今次總共有 135 位文友參與，並歡迎其中第一次參與的 51 位作者。在這個旅程中，大家寫下過去的自己、新的自己。有些文友說，告別不是一次性的、明顯的、巨大的，而是在日常生活中慢慢覺察得來的，它不定是動態的，可以是靜態的。如「七日書」的初心一樣，在細水長流的日子裡，一步步理解自己、梳理自己。",
+    participants: 135,
+    newcomers: 51,
+  },
+  {
+    series: "S20",
+    monthLabel: "2025 / 12",
+    name: "衣櫥裡的自我",
+    phase: "完結",
+    announceCover: `${CDN}/cover/6ed73fe0-159d-46b8-a532-098bc1cf0765.png/public`,
+    announceHref: "https://matters.town/a/3clxahow8238",
+    announceSummary: "衣服不只是保暖的布料，它是你的第二層皮膚，是身形的變化、自我的肯定、更是想像的投射。衣櫥不僅是用來存放衣物的，它是一座我們私密的博物館。這個月，請打開你的衣櫥，寫出那些藏在衣褶裡的生命故事。1 月 21 號線上講座邀請作家陳雪，分享她從衣櫥出發的自我探問，更多資訊請點入本公告。",
+    wrapCover: `${CDN}/embed/6fd927a4-b33d-4b38-bf70-2183d03efe77.png/public`,
+    wrapHref: "https://matters.town/a/ksufaptd49f9",
+    wrapSummary: "「衣櫥裡的自我」七日書經已結束，今次總共有 93 位文友參與，並歡迎其中第一次參與的 35 位作者。在這個旅程中，大家寫下在衣櫥裡不同的衣物，包括不願捨棄的、一直保留下來的，也有許多從穿衣中看到自己的時刻。1月21日（三）晚上七時半（東八區），台灣作家陳雪將從衣櫥出發，分享如何從日常的著裝與外表中察覺自我，並將之轉化為深刻的文學敘事。期待到時能看到你！",
+    participants: 93,
+    newcomers: 35,
+  },
+  {
+    series: "S21",
+    monthLabel: "2026 / 1",
+    name: "數位雲端的我",
+    phase: "完結",
+    announceCover: `${CDN}/embed/bf0063ed-71fd-45e9-a6f5-2d994207e338.png/public`,
+    announceHref: "https://matters.town/a/i42ejg5kdbkd",
+    announceSummary: "數位時代，我們每個人都擁有一具「數位分身」。它住在雲端硬碟裡，活在社交平台的濾鏡中，由演算法餵養，被點讚數定義。當現實生活中的「我」感到疲憊時，雲端上的「我」是否依然在努力經營著優雅？當我們越滑手機越感到空虛時，是哪個部分被掏空了？本月的「七日書」，我們以網絡、雲端、日常使用為題，邀請你寫下數位雲端上的自己。",
+    wrapCover: `${CDN}/cover/3dc70a25-1483-4b49-b806-59a2ff2694b7.png/public`,
+    wrapHref: "https://matters.town/a/8f8zgewm2jz0",
+    wrapSummary: "「數位雲端的我」七日書經已結束，今次總共有 116 位文友參與，並歡迎其中第一次參與的 37 位作者。在這個旅程中，大家寫下數位雲端的各種故事，包括保持剛好距離的人、如何斷捨離並判斷哪些為不重要的事物、讓自己對世界保持好奇心的演算法、如何使用大號小號等，透過七天的書寫，回看自己在數位世界裡的角色。",
+    participants: 116,
+    newcomers: 37,
+  },
+  {
+    series: "S22",
+    monthLabel: "2026 / 2",
+    name: "我的人生帳本",
+    phase: "完結",
+    announceCover: `${CDN}/embed/e05a4b15-fbe8-4faf-82e8-f10a28ab1782.png/public`,
+    announceHref: "https://matters.town/a/wwydvkijfwwa",
+    announceSummary: "物質流動的時代，我們都攜帶著一本「人生帳本」，它藏在錢包收據裡、記在每月的轉帳通知。我們生命中有著正數與負數的時刻；有時感到足夠，也容易過得焦慮。帳本背後，更多的是階級碰撞、安全感的匱乏。本月，我們邀請你翻開那可能鮮有跟人談起的人生帳本。本月線上講座邀請到台灣作家宋尚緯，他是台灣著名詩人，近年時常在臉書分享日常，從求醫、問神一路寫到理財。3月18號晚上，邀請讀者一起聽聽他怎麼從寫「錢」到「人生」。",
+    wrapCover: `${CDN}/embed/93f52a64-cc21-402e-bc5e-64190fddc483.png/public`,
+    wrapHref: "https://matters.town/a/zl1tkmcgkx3s",
+    wrapSummary: "「我的人生帳本」七日書經已結束，今次總共有 101 位文友參與，並歡迎其中第一次參與的 27 位作者。在這個旅程中，大家寫下自己的金錢故事，包括第一次付得起帳單的閃閃發亮回憶、學會與自己共存的負數人生等。3月18日（三）晚上七時半（東八區），台灣作家宋尚緯將從分享「人生與金錢」這個話題。如何用自己的人生經歷寫「錢」？期待屆時能看到你！",
+    participants: 101,
+    newcomers: 27,
+  },
+  {
+    series: "S23",
+    monthLabel: "2026 / 3",
+    name: "氣味博物館",
+    phase: "完結",
+    announceCover: `${CDN}/embed/ed23993d-d395-47b5-9110-d9caec4ea4ba.png/public`,
+    announceHref: "https://matters.town/a/x756zczkpn1h",
+    announceSummary: "普魯斯特在《追憶似水年華》中，咬下一口沾了瑪德蓮蛋糕，久遠的童年回憶便瞬間湧上心頭。在人類的感官中，最能召喚記憶的，往往是那些看不見、摸不著的「氣」與「味」。這個月的七日書，我們將展開一場「感官與記憶」之旅。連續七天，七個關於氣味的提問，邀請你走進這座「氣味博物館」，打開那些封存已久的抽屜，把那些看不見的滋味與氣味，書寫下來。",
+    wrapCover: `${CDN}/cover/7df1ba60-9177-41cb-979f-d22e2ce6f36c.png/public`,
+    wrapHref: "https://matters.town/a/o3bjg1at7gjt",
+    wrapSummary: "「氣味博物館」七日書經已結束，今次總共有 88 位文友參與，並歡迎其中第一次參與的 26 位作者。在這個旅程中，大家寫下各種氣味的故事，包括讓自己感覺成為大人的味道、讓人想起家裡或親人的氣味、感到有安全感的味道，還有許多生命裡的感人故事，透過七天的書寫，回想與追尋感官世界。",
+    participants: 88,
+    newcomers: 26,
+  },
+  {
+    series: "S24",
+    monthLabel: "2026 / 4",
+    name: "我的職場人格",
+    phase: "進行中",
+    announceCover: `${CDN}/embed/d1b2e4db-2e37-4c63-9c8d-25fb013f991a.png/public`,
+    announceHref: "https://matters.town/a/kp08wnkn1p0o",
+    announceSummary: "在成為老闆，又或是某人的下屬、主管或同事之前，我們首先是那個擁有體溫、渴望理解與被理解的的自己。職場發展至今，已是一場關於自我品牌、價值交換的馬拉松。不論你在哪個崗位，每一次職涯選徑，其實都對應著你底層的人格渴望。在這條路上，我們為了在社會上有一席位，刻意經營過怎樣的面具，又或有著怎樣的韌性？勞動節將至，「七日書」邀請你，一起書寫你的職場人格。",
+  },
+];
+
+export const currentTheme = allThemes[allThemes.length - 1];
+export const pastThemes = allThemes.slice(0, -1).reverse();
+// historicalThemes 為向後相容別名，與 allThemes 倒序排列（最新在前）
+export const historicalThemes = [...allThemes].reverse();
+
 const CURRENT_COVER = `${CDN}/campaignCover/b0246b96-bb14-4c82-af86-62fffbd9b14b.png/public`;
-const CURRENT_HERO_COVER = `${CDN}/campaignCover/b0246b96-bb14-4c82-af86-62fffbd9b14b.png/w=1920,h=1080,fit=contain,background=F0F9FE`;
 
 export const currentIssue = {
   title: "我的職場人格",
@@ -17,82 +337,328 @@ export const currentIssue = {
   eventHref: "https://matters.town/e/wem6xy6u7okv",
   announcementHref: "https://matters.town/a/kp08wnkn1p0o",
   cover: CURRENT_COVER,
-  heroCover: CURRENT_HERO_COVER,
+  heroCover: CURRENT_COVER,
   originalCover: CURRENT_COVER,
   summary:
     "這一期，我們把視線從職稱移開，寫那個會疲累、會逞強、會渴望被理解，也仍然想在工作裡保有自己的人。",
   prompts: [
-    {
-      day: "Day 1",
-      date: "5/4",
-      state: "past",
-      title: "職業路徑",
-      prompt:
-        "回望你一路走來的工作選擇：那些轉彎、停留、被推著往前的時刻，怎麼把你帶到今天？",
-    },
-    {
-      day: "Day 2",
-      date: "5/5",
-      state: "past",
-      title: "不像自己的時刻",
-      prompt:
-        "想起一個你在工作裡「演得不像自己」的時刻。那個你是怎麼出現的？又替你擋下了什麼？",
-    },
-    {
-      day: "Day 3",
-      date: "5/6",
-      state: "past",
-      title: "身心痕跡",
-      prompt:
-        "工作曾在你的身體或心裡留下什麼痕跡？可能是一種疲憊、一個姿勢，也可能是很久才懂的警訊。",
-    },
-    {
-      day: "Day 4",
-      date: "5/7",
-      state: "past",
-      title: "經營人設",
-      prompt:
-        "你是否曾經有意識地經營某個職場面向？那個人設幫過你什麼，又讓你失去什麼？",
-    },
-    {
-      day: "Day 5",
-      date: "5/8",
-      state: "today",
-      title: "困難時刻",
-      prompt:
-        "寫下某個很難熬的工作時刻。現在回看，它照出了你哪一種原本沒發現的能力或脆弱？",
-    },
-    {
-      day: "Day 6",
-      date: "5/9",
-      state: "locked",
-      title: "甘願犧牲",
-      prompt:
-        "有沒有哪一次，你明知道會辛苦，仍然選擇多承擔一點？那份甘願背後，是什麼在支撐你？",
-    },
-    {
-      day: "Day 7",
-      date: "5/10",
-      state: "locked",
-      title: "工作也可以這樣",
-      prompt:
-        "寫一個讓你重新想像工作的時刻：原來工作也可以這樣安排、這樣相處，甚至這樣活。",
-    },
+    { day: "Day 1", date: "5/4", state: "past", title: "職業路徑",
+      prompt: "回望你一路走來的工作選擇：那些轉彎、停留、被推著往前的時刻，怎麼把你帶到今天？" },
+    { day: "Day 2", date: "5/5", state: "past", title: "不像自己的時刻",
+      prompt: "想起一個你在工作裡「演得不像自己」的時刻。那個你是怎麼出現的？又替你擋下了什麼？" },
+    { day: "Day 3", date: "5/6", state: "past", title: "身心痕跡",
+      prompt: "工作曾在你的身體或心裡留下什麼痕跡？可能是一種疲憊、一個姿勢，也可能是很久才懂的警訊。" },
+    { day: "Day 4", date: "5/7", state: "past", title: "經營人設",
+      prompt: "你是否曾經有意識地經營某個職場面向？那個人設幫過你什麼，又讓你失去什麼？" },
+    { day: "Day 5", date: "5/8", state: "today", title: "困難時刻",
+      prompt: "寫下某個很難熬的工作時刻。現在回看，它照出了你哪一種原本沒發現的能力或脆弱？" },
+    { day: "Day 6", date: "5/9", state: "locked", title: "甘願犧牲",
+      prompt: "有沒有哪一次，你明知道會辛苦，仍然選擇多承擔一點？那份甘願背後，是什麼在支撐你？" },
+    { day: "Day 7", date: "5/10", state: "locked", title: "工作也可以這樣",
+      prompt: "寫一個讓你重新想像工作的時刻：原來工作也可以這樣安排、這樣相處，甚至這樣活。" },
   ],
 };
 
 export const shared = {
   joinHref: currentIssue.eventHref,
   partnersHref: "partners/",
+  archiveHref: "archive/",
   contactHref: `mailto:${contactEmail}?subject=${encodeURIComponent("七日書合作洽談")}`,
   avatarWall: legacy.avatarWall,
   grandBadge: legacy.passport,
 };
 
+// === 16 位 名家講座 / 工作坊（含 10 場有逐字稿的精華）===
+export const lectures = [
+  {
+    speaker: "馬尼尼為",
+    role: "作家",
+    theme: "愛與親密關係 / 故鄉",
+    date: "2024-06",
+    hasTranscript: true,
+    title: "文字精華版：「故鄉」的愛恨情仇——馬尼尼為線上寫作 Free Write 工作坊",
+    summary: "故鄉和異鄉這兩個題材永遠都寫不完，為什麼會寫不完，不知道大家會不會有這種感覺，故鄉的寫不完是因為你已經離開他了，你離開他後有非常多的想象。故鄉這個題目是每個人寫出來都會非常的溫柔。即便是我看到很多人會有很多的不滿出來，它都會非常的溫柔，在這個不滿之中一定有一種溫柔。",
+    href: "https://matters.town/a/wgwtlo9iopmu",
+  },
+  {
+    speaker: "洪愛珠",
+    role: "作家",
+    theme: "我的人生飯桌",
+    date: "2024-09",
+    hasTranscript: true,
+    title: "文字精華版｜買菜、做飯、留神，而後寫作 --洪愛珠線上講座",
+    summary: "市場的吸引力於我而言是它的獨特「口音」。各地市場，有各自的特色。客庄、閩南，外省，以原住民為主力的市場，氣質不同，連產品都不一樣。我一向對人好奇，傳統市場沒有別的，就是人多。提供了許多觀察與人際交流，這對創作者而言，是大型的田野。",
+    href: "https://matters.town/a/fvr7o38vqy2o",
+  },
+  {
+    speaker: "許菁芳",
+    role: "作家",
+    theme: "與自我對話 · 成長軌跡",
+    date: "2024-10",
+    hasTranscript: true,
+    title: "文字精華版｜在書寫中與自我相遇 ——許菁芳線上講座",
+    summary: "接納是愛的一個重要特質，它意味着理解和共處。療癒是用愛去治癒某些東西，而愛的重要特質是接納，接納就是不批判，接受事物如其所是。所以，通過寫作自我療癒其實很簡單：不用多想，放手去寫，寫什麼都可以，接納一切，不去企圖改變。",
+    href: "https://matters.town/a/waox0uwi5ju2",
+  },
+  {
+    speaker: "庫索",
+    role: "作家",
+    theme: "島嶼精神",
+    date: "2024-11",
+    hasTranscript: true,
+    title: "文字精華版｜ 我如何探索並寫作島嶼——庫索線上講座",
+    summary: "城市來的人往往具備更先進的思維方式，但島上的思維模式可能尚未與時俱進，這就會導致一些理念上的衝突。不過，這裡有一個值得注意的好處——那些選擇移居到島上的人，並非帶著城市人的傲慢。他們往往因為認同並嚮往島嶼的自然生活才選擇定居於此。因此，即使他們明白彼此的思維存在差異，通常也會優先選擇尊重當地的文化。",
+    href: "https://matters.town/a/6jdyyy1nxzg2",
+  },
+  {
+    speaker: "李智良",
+    role: "作家",
+    theme: "物的體系",
+    date: "2025-01",
+    hasTranscript: true,
+    title: "七日書作家分享精華｜李智良：如果寫作不是一個表演，它最後就是通往人軟弱和溫柔的部分",
+    summary: "12月12日晚上，「七日書」請來香港作家李智良分享，在兩小時的對談間，他道出了寫作的經驗、12年沒法好好寫作的因由，在不穩定和碎片化的生活裡，寫作裡沒有完整的世界，卻造就了拼貼式的實驗性寫作。從寫自己經歷精神科治療的著作《房間》，到寫自己之於他人、他人之於自己的作品《渡日若渡海》，他當中思考了許多，也在現實生活裡掙扎良久，一起來看看分享會的對談，讓我們了解，寫作如何觸及脆弱與溫柔的部分。",
+    href: "https://matters.town/a/56lee0tjrquq",
+  },
+  {
+    speaker: "吉井忍",
+    role: "作家",
+    theme: "我的（不）完美人生",
+    date: "2025-02",
+    hasTranscript: false,
+    note: "《東京八平米》以非主流生活樣貌書寫日常",
+  },
+  {
+    speaker: "陳思宏",
+    role: "作家",
+    theme: "人間鬼故事",
+    date: "2025-02",
+    hasTranscript: false,
+    note: "小說《鬼地方》探討人與內心陰影的糾纏",
+  },
+  {
+    speaker: "譚蕙芸",
+    role: "作家",
+    theme: "我的家庭故事",
+    date: "2025-03",
+    hasTranscript: false,
+    note: "《文字欲》、《天愈黑，星愈亮》以家庭為主題的散文",
+  },
+  {
+    speaker: "黃宇軒",
+    role: "作家",
+    theme: "書寫地方",
+    date: "2025-04",
+    hasTranscript: false,
+    note: "《城市散步學》：透過散步觀察城市與書寫",
+  },
+  {
+    speaker: "張慧慈",
+    role: "作家",
+    theme: "長女症候群",
+    date: "2025-08",
+    hasTranscript: true,
+    title: "文字精華：三日書作家講座｜張慧慈：個人故事如何引起共感？《長女病》的寫作策略與社會學想像",
+    summary: "早前，三日書作家講座邀請到台灣作家張慧慈分享《長女病》一書，當晚聽眾反應熱烈，兩個多小時的分享裡，提出不少發問、說出自己的感想。當晚更有兩位聽眾獲得游撃文化送出《長女病》電子書，感謝出版社的支持。本文為講座的精彩內容精華。",
+    href: "https://matters.town/a/4l2vrwhiwfzx",
+  },
+  {
+    speaker: "郭強生",
+    role: "作家",
+    theme: "兩廳院 · 給自己的情書",
+    date: "2025-08",
+    hasTranscript: true,
+    title: "講座文字精華｜從記憶出發的書寫課：郭強生談寫作、生命與死亡｜兩廳院藝術出走：給自己的情書「三日書」系列活動",
+    summary: "8 月 17 號，「兩廳院藝術出走：給自己的情書『三日書』徵文活動」邀請到作家郭強生主講「從記憶出發的書寫課」講座，細聊以寫作整理與療癒人生。主持人是Matters寫作平台、飛地書店創辦人張潔平。活動為兩廳院「藝術出走計劃」一部分，透過藝術回應超高齡社會。活動合作方為 Matters，在8月、9月份進行「給自己的情書」為主題的「三日書」，邀請大家寫下自己的故事。本篇文章是當日講座的精彩分享與發言。",
+    href: "https://matters.town/a/uhw6btkzwf63",
+  },
+  {
+    speaker: "楊翠",
+    role: "作家",
+    theme: "兩廳院 · 給自己的情書",
+    date: "2025-09",
+    hasTranscript: true,
+    title: "講座文字精華｜回頭的風景：楊翠談家族、虧欠與書寫｜兩廳院藝術出走：給自己的情書「三日書」系列活動",
+    summary: "9月，「兩廳院藝術出走：給自己的情書『三日書』徵文活動」邀請到作家楊翠主講「回頭的風景－與中年以後的自己對話」講座，細聊如何透過寫作與自我對話，找到屬於自己的「通關密語」。",
+    href: "https://matters.town/a/y4pklp0w1eav",
+  },
+  {
+    speaker: "許俐葳",
+    role: "作家（神小風）",
+    theme: "曖昧時刻",
+    date: "2025-10",
+    hasTranscript: false,
+    note: "《我有一個關於不倫的，小問題》",
+  },
+  {
+    speaker: "周慧",
+    role: "作家",
+    theme: "重構生活",
+    date: "2025-11",
+    hasTranscript: false,
+    note: "《認識我的人慢慢忘了我》四十歲離開都市的書寫",
+  },
+  {
+    speaker: "陳雪",
+    role: "作家",
+    theme: "衣櫥裡的自我",
+    date: "2026-01",
+    hasTranscript: true,
+    title: "七日書講座文字精華｜陳雪：我與我所穿出的模樣：一場從衣櫥出發的自我探問",
+    summary: "一個人的著裝有時能呈現很多故事，七日書邀請作家陳雪分享衣著打扮的生命經驗，走過困窘、模仿、反抗標籤等不同歷程，進入中年後尋找到自己舒服自在的模樣，來聽陳雪娓娓道來的生命故事。",
+    href: "https://matters.town/a/ij9xgxuznv6a",
+  },
+  {
+    speaker: "宋尚緯",
+    role: "詩人",
+    theme: "我的人生帳本",
+    date: "2026-03",
+    hasTranscript: false,
+    note: "從求醫、問神寫到理財，談人生與金錢",
+  },
+];
+
+// === 自由寫關鍵時刻（給寫作者頁與機構頁的時間軸用）===
+export const milestones = [
+  {
+    date: "2024 / 4",
+    title: "自由寫七日書 #1：陪你完成人生日記",
+    body: "馬特市自由寫第一期上線，邀文友連續七天每天交一篇。",
+    href: "https://matters.town/a/e6tu274xo8q1",
+  },
+  {
+    date: "2024 / 8",
+    title: "首批 189 位大滿貫文友獲得鏈上憑證",
+    body: "走到第四期「我的人生飯桌」結束時，已經有 189 位文友寫滿七篇，獲頒大滿貫徽章與鏈上參與憑證。",
+    href: "https://matters.town/a/u1510gz5by6o",
+  },
+  {
+    date: "2025 / 4",
+    title: "自由寫一週年：人生的靈魂提問",
+    body: "從社區問卷回收的提問中設計題目，邀社群把孤獨、自由、愛與失敗寫下來。並推出「圈圈樂」小遊戲回顧寫作足跡。",
+    href: "https://matters.town/a/zshwcolygqtl",
+  },
+  {
+    date: "2025 / 8 - 10",
+    title: "兩廳院藝術出走 · 給自己的情書",
+    body: "與兩廳院合作三日書徵文，近 500 位文友參與，搭配郭強生與楊翠兩場線上講座。",
+    href: "https://matters.town/a/saxy7wofhvxo",
+  },
+  {
+    date: "2026 / 1",
+    title: "9,000 篇人生：七日書總結回顧",
+    body: "走過 18 期，3,000+ 文友，9,000+ 篇文章，超過 800 萬字的書寫累積。",
+    href: "https://matters.town/a/fmsotswq9g6b",
+  },
+  {
+    date: "2026 / 3",
+    title: "100 道題目實體出版預購",
+    body: "把七日書曾經出過的 100 道題目集結成一本書寫手帳。",
+    href: "https://matters.town/a/7v93q0nyizh8",
+  },
+];
+
+// === 12 篇本期精選文章（取自 matters.town/e/wem6xy6u7okv）===
+export const latestArticles = [
+  {
+    title: "易未央 AI 世界 × 我的職場人格5",
+    author: "因田木",
+    summary: "第五天：職場困難時刻。",
+    href: "https://matters.town/a/3k94y9x4dzaq",
+    avatar: `${CDN}/avatar/36f9d854-6168-46ee-afad-9f3a96f41cd7.jpeg/public`,
+    cover: `${CDN}/cover/07329068-9adb-4788-be2a-312c395fc181.png/public`,
+  },
+  {
+    title: "看不見的暴力，和一本沒人要求我寫的書",
+    author: "mythogen.engine",
+    summary: "「不知道有沒有救到」比「沒救到」更難捱──沒有事實，沒有結論，只有一個永遠不會被回答的問題。",
+    href: "https://matters.town/a/iff4jej2f33p",
+    avatar: `${CDN}/avatar/cf0835df-34d7-473e-a9df-a5d9463e26d8.webp/public`,
+  },
+  {
+    title: "不想當間諜的採購經理，不是好藝術家",
+    author: "Anne",
+    summary: "我那橫跨三界的「專業」人設。",
+    href: "https://matters.town/a/dgkyaadpyvql",
+    avatar: `${CDN}/avatar/233c2fca-f34c-48d6-8cdf-2ccc2579a5d1.jpeg/public`,
+    cover: `${CDN}/embed/1a88a6a6-7cf7-4b5c-872e-d49075b716d9.png/public`,
+  },
+  {
+    title: "職場進化論：從大聲通耳屎到優雅裝軟弱",
+    author: "Anne",
+    summary: "在職場打滾多年，重新理解責任感與清爽的距離。",
+    href: "https://matters.town/a/bmffxkppo9r1",
+    avatar: `${CDN}/avatar/233c2fca-f34c-48d6-8cdf-2ccc2579a5d1.jpeg/public`,
+    cover: `${CDN}/embed/ae9ff14e-7201-4090-9874-28a4a5da2ce2.png/public`,
+  },
+  {
+    title: "七日書 S21.4 — 只有一號表情",
+    author: "Moonleap",
+    summary: "不出錯、不沾鍋、準時下班、不需要說話就不說話。",
+    href: "https://matters.town/a/99r3ryzts7c0",
+    avatar: `${CDN}/avatar/dba0352e-73b1-4254-ba8e-b6b314d9d608.png/public`,
+  },
+  {
+    title: "我的職場人格 — 傳承",
+    author: "黎明之弧",
+    summary: "傳承，是點一盞燈，照亮後來的路。",
+    href: "https://matters.town/a/gjgjbgraujnh",
+    avatar: `${CDN}/avatar/0effabfd-8a41-4a48-bfab-ff6f6386b45a.jpeg/public`,
+    cover: `${CDN}/embed/3aa3b177-bc26-4cbe-8a85-6b5cf1b18c2b.png/public`,
+  },
+  {
+    title: "第五天｜長期業績都是零",
+    author: "waiwaili",
+    summary: "我真的沒這本事，我認輸了。",
+    href: "https://matters.town/a/vzlybqxf53zy",
+    avatar: `${CDN}/avatar/05cf3c7b-6788-4d34-9d63-4f6f671a9975.jpeg/public`,
+    cover: `${CDN}/cover/0e0e689c-e49e-458c-a590-ffb132d95168.jpeg/public`,
+  },
+  {
+    title: "《我職七日書》第五天〈承擔不起的暗潮〉",
+    author: "蘇禕Suy",
+    summary: "我進連鎖文具店前，在藥局工作。沒有醫學背景，卻要面對配藥與過敏注意。",
+    href: "https://matters.town/a/9ei1vs7fypmh",
+    avatar: `${CDN}/avatar/457bc512-a308-4068-bfe9-113d9923dd26.jpeg/public`,
+    cover: `${CDN}/cover/d42f0e4a-85ab-4642-9f24-f6ebc8f24fd0.png/public`,
+  },
+  {
+    title: "別人笑我太瘋癲",
+    author: "陳費雪",
+    summary: "我的職場人設就是「瘋子」。",
+    href: "https://matters.town/a/51l83q4vz0fe",
+    avatar: `${CDN}/avatar/55c2bcde-d024-43ca-a991-b879ee3cb830.jpeg/public`,
+  },
+  {
+    title: "來者不拒是心裡的軟弱",
+    author: "宥縈",
+    summary: "為了滿足主管常常忘了自己也有極限，需要停下來休息。",
+    href: "https://matters.town/a/8c2our5yg4on",
+    avatar: `${CDN}/avatar/609d122b-ed12-41ee-b838-b2aa83c6f776.jpeg/public`,
+    cover: `${CDN}/cover/d78ed590-70ed-4907-ad52-9789acc3d659.jpeg/public`,
+  },
+  {
+    title: "《職場七日書》第四天 — 在溫和與強硬之間遊走",
+    author: "crossing",
+    summary: "職場如戲，我不停切換不同角色。",
+    href: "https://matters.town/a/cqbipbg9pp1g",
+    avatar: `${CDN}/avatar/4bf028dd-9464-4c2e-ad11-3fe17f67c661.png/public`,
+    cover: `${CDN}/embed/b2418da7-5830-4f3d-8321-e976b14870af.png/public`,
+  },
+  {
+    title: "[七日書] 職場人格 — 做老白男 让别人无路可走！",
+    author: "IceYuzu",
+    summary: "我多年的职场观察告诉我，最后赢的人永远都是老白男。",
+    href: "https://matters.town/a/5bvbawrhwh1a",
+    avatar: `${CDN}/avatar/d78220da-1d68-4f94-bf0c-87e0c6181a4f.jpeg/public`,
+    cover: `${CDN}/cover/7fb8c25a-17ef-4aa8-9ff1-0893b8e19979.jpeg/public`,
+  },
+];
+
 export const audiencePage = {
   title: "七日書｜下一個七天，一起寫",
   description:
-    "七日書是 Matters 每月一次的書寫活動：七天、七個題目，和其他文友一起把生活寫成一本小書。",
+    "七日書是 Matters 自由寫每月一次的書寫活動：七天、七個題目，和上千位文友一起把生活寫成一本小書。從 2024 春到今天，已累積 24 期、9,000+ 篇文章。",
   hero: {
     eyebrow: "Matters 自由寫",
     headline: "把一週，寫成一本有人同行的小書。",
@@ -101,19 +667,15 @@ export const audiencePage = {
     secondaryLabel: "洽談合作",
   },
   stats: [
-    {
-      value: currentIssue.participants,
-      label: "本期已加入文友",
-      note: "我的職場人格活動頁",
-    },
-    { value: "3,000+", label: "累積參與人次", note: "自由寫官方整理" },
+    { value: "24", label: "歷來舉辦期數", note: "2024 / 4 至今每月一期" },
+    { value: "3,200+", label: "累積參與人次", note: "由各期完結報告加總" },
     { value: "9,000+", label: "累積作品", note: "寫下超過 800 萬字" },
-    { value: "189", label: "大滿貫完成者", note: "完成七天七篇" },
+    { value: "189+", label: "大滿貫完成者", note: "完成七天七篇" },
   ],
   currentIssue,
   articlesHeading: "他們正在寫這些",
   articlesNote:
-    "從最近一期作品開始讀起。精選不夠時，頁面會接上最新文章，讓正在發生的書寫被看見。",
+    "從最近一期作品開始讀起。可以拖移卡片、翻面看摘句，再點一次進去 Matters 看完整篇。",
   grandBadgeCopy: {
     kicker: "大滿貫徽章",
     title: "七天寫滿，為自己留下一枚時間印記。",
@@ -121,6 +683,7 @@ export const audiencePage = {
   },
   pastThemesHeading: "如果你也想寫更多",
   lecturesHeading: "名家講座",
+  milestonesHeading: "自由寫的這幾年",
   faqHeading: "關於七日書",
   cta: {
     headline: "下一個七天，一起寫。",
@@ -132,8 +695,7 @@ export const audiencePage = {
 export const partnerPage = {
   title: "七日書｜機構合作",
   description:
-    "七日書機構合作頁，整理歷次主題、參與數據、執行內容、講座與合作案例，提供文化機構與品牌洽談七日書共創。",
-  // 機構頁 hero banner — 用「說聲告別，走向新的自己」主視覺，氣質適合對機構說明
+    "七日書機構合作頁，整理 24 期歷史主題、16 位作家講座、累積 3,200+ 人次參與數據與兩廳院藝術出走合作案例，提供文化機構與品牌洽談七日書共創。",
   heroBanner: `${CDN}/campaignCover/94525f57-eb5e-4e4a-9b5c-88af2ccb097f.png/w=1376,h=5504,fit=scale-down,anim=false`,
   hero: {
     eyebrow: "For partners",
@@ -143,10 +705,10 @@ export const partnerPage = {
     secondaryLabel: "加入寫作",
   },
   impact: [
-    { value: "3,000+", label: "累積參與人次", emphasis: true },
-    { value: "9,000+", label: "累積文章", emphasis: true },
-    { value: "58%", label: "近四期七天寫作完成率", emphasis: false },
-    { value: "約 40", label: "每期新加入用戶平均數", emphasis: false },
+    { value: "24", label: "歷來舉辦期數", emphasis: true },
+    { value: "3,200+", label: "累積參與人次", emphasis: true },
+    { value: "9,000+", label: "累積作品篇數", emphasis: false },
+    { value: "16", label: "已邀請名家講座", emphasis: false },
   ],
   businessSignals: [
     {
@@ -155,15 +717,15 @@ export const partnerPage = {
     },
     {
       title: "已被驗證的參與節奏",
-      body: "七道題目、七天完成、徽章回饋，讓一次性徵文變成有節奏、有陪伴感的共同書寫。",
+      body: "七道題目、七天完成、徽章回饋，讓一次性徵文變成有節奏、有陪伴感的共同書寫。每期通常會有 90 至 200 位文友寫到底，4 成為新加入作者。",
     },
     {
       title: "講座與內容資產可延伸",
-      body: "自由寫講座累積出席人次超過 1000，可延伸成文字精華、逐字稿、問答與後續回放。",
+      body: "16 位作家、詩人、研究者已陪七日書走過一輪。每場講座都會整理為文字精華，能繼續被搜尋、引用、轉寄。",
     },
     {
       title: "線上到線下的轉接",
-      body: "合作主題可延伸至實體展覽、入選文章清單、現場陳列與合作方自有社群導流。",
+      body: "兩廳院藝術出走「給自己的情書」三日書合作示範了從線上書寫到實體節目的轉接，500 位文友參與、兩場名家延伸講座。",
     },
   ],
   executionIntro: [
@@ -184,33 +746,53 @@ export const partnerPage = {
     },
   ],
   caseStudy: {
-    ...legacy.caseStudy,
+    title: "兩廳院藝術出走 · 給自己的情書",
     headline: "一起設計下一個，能被上千人持續書寫的題目。",
-    // 第一張為合作活動主視覺；其餘為近期合作脈絡相關 Matters 自由寫主題封面，
-    // 暫作版面節奏輔助。實際兩廳院展場照片仍待 Matters 營運提供。
+    summary: "2025 夏，Matters 與國家兩廳院「藝術出走」合作主題徵文「給自己的情書」三日書，分八月、九月兩期，邀近 500 位文友書寫回應。八月由作家郭強生主講「從記憶出發的書寫課」，九月由作家楊翠主講「回頭的風景：家族、虧欠與書寫」，兩場講座均整理為文字精華長文。",
+    image: `${CDN}/cover/402fc6a3-6ba5-4aeb-860c-aaaa1ccbc7bd.png/public`,
+    href: "https://matters.town/a/saxy7wofhvxo",
+    facts: [
+      "合作形式：主題徵文（雙月份兩期）、兩場線上作家講座、作品集整理",
+      "活動規模：近 500 位文友參與，兩場講座皆有完整逐字稿",
+      "延伸內容：郭強生、楊翠講座文字精華，可長期保存、引用、再傳播",
+    ],
     gallery: [
-      `${CDN}/cover/1060a3d5-cbb9-4140-9b04-a0acb011449a.jpeg/public`,
-      `${CDN}/campaignCover/786b897f-c82d-4d4c-b92b-d20a75fe1218.png/public`,
-      `${CDN}/campaignCover/98d56bea-4411-481f-947b-195438bae79c.png/public`,
+      `${CDN}/cover/402fc6a3-6ba5-4aeb-860c-aaaa1ccbc7bd.png/public`,
+      `${CDN}/cover/372bc503-6ba7-414e-a4d2-a3e3adf8195d.jpeg/public`,
+      `${CDN}/cover/b16cc0d2-5d77-4796-9d0c-62bf3b3478e0.jpeg/public`,
+    ],
+    relatedArticles: [
+      {
+        title: "完結報告：500 位文友的情書",
+        href: "https://matters.town/a/saxy7wofhvxo",
+      },
+      {
+        title: "郭強生講座：從記憶出發的書寫課",
+        href: "https://matters.town/a/uhw6btkzwf63",
+      },
+      {
+        title: "楊翠講座：回頭的風景",
+        href: "https://matters.town/a/y4pklp0w1eav",
+      },
     ],
     extension:
-      "兩廳院合作之實體展覽照片、展場陳列說明與入選文章清單仍待 Matters 營運側補上。目前先以活動主視覺與相鄰主題封面呈現。",
+      "兩廳院合作之實體展覽照片、展場陳列說明與入選文章清單仍待 Matters 營運側補上。",
   },
   packages: [
     {
       title: "主題共創",
       iconKind: "theme",
-      body: "共同設計七道題目，讓你的議題被轉化成具體、可回應、可持續書寫的個人經驗。",
+      body: "共同設計七道題目，讓你的議題被轉化成具體、可回應、可持續書寫的個人經驗。已執行案例包括家庭、地方、長女、職場等橫跨日常與公共議題的命題。",
     },
     {
       title: "名家講座",
       iconKind: "lecture",
-      body: "依主題邀請作家或專家主講，活動後整理文字精華，成為可長期搜尋與分享的內容資產。",
+      body: "依主題邀請作家或專家主講，活動後整理文字精華。已合作過洪愛珠、陳雪、郭強生、楊翠、宋尚緯、許菁芳等 16 位講者。",
     },
     {
       title: "書寫憑證",
       iconKind: "badge",
-      body: "完成者可獲得七日書徽章或鏈上參與憑證，讓參與感從活動週延伸到個人頁與社群關係。",
+      body: "完成者可獲得七日書徽章或鏈上參與憑證，讓參與感從活動週延伸到個人頁與社群關係。已發出超過 189 枚大滿貫徽章。",
     },
   ],
   faqHeading: "如何與七日書合作",
@@ -221,184 +803,6 @@ export const partnerPage = {
     secondaryLabel: "參與七日書寫作",
   },
 };
-
-// 過去主題視覺：直接引用 Matters 官方 campaignCover，避免 AI placeholder 的低完成度
-const studioVisuals: Record<string, string> = {};
-
-// 12 篇取自當期活動頁（matters.town/e/wem6xy6u7okv）SSR/__NEXT_DATA__ 解析；
-// 不放 cover（多數作者未上傳），avatar 直接用真實 Matters CDN。
-export const latestArticles = [
-  {
-    title: "易未央 AI 世界 × 我的職場人格5",
-    author: "因田木",
-    summary: "第五天：職場困難時刻。",
-    href: "https://matters.town/a/3k94y9x4dzaq",
-    avatar: `${CDN}/avatar/36f9d854-6168-46ee-afad-9f3a96f41cd7.jpeg/public`,
-  },
-  {
-    title: "看不見的暴力，和一本沒人要求我寫的書",
-    author: "mythogen.engine",
-    summary: "「不知道有沒有救到」比「沒救到」更難捱──沒有事實，沒有結論，只有一個永遠不會被回答的問題。",
-    href: "https://matters.town/a/iff4jej2f33p",
-    avatar: `${CDN}/avatar/cf0835df-34d7-473e-a9df-a5d9463e26d8.webp/public`,
-  },
-  {
-    title: "不想當間諜的採購經理，不是好藝術家",
-    author: "Anne",
-    summary: "我那橫跨三界的「專業」人設。",
-    href: "https://matters.town/a/dgkyaadpyvql",
-    avatar: `${CDN}/avatar/233c2fca-f34c-48d6-8cdf-2ccc2579a5d1.jpeg/public`,
-  },
-  {
-    title: "職場進化論：從大聲通耳屎到優雅裝軟弱",
-    author: "Anne",
-    summary: "在職場打滾多年，重新理解責任感與清爽的距離。",
-    href: "https://matters.town/a/bmffxkppo9r1",
-    avatar: `${CDN}/avatar/233c2fca-f34c-48d6-8cdf-2ccc2579a5d1.jpeg/public`,
-  },
-  {
-    title: "七日書 S21.4 — 只有一號表情",
-    author: "Moonleap",
-    summary: "不出錯、不沾鍋、準時下班、不需要說話就不說話。",
-    href: "https://matters.town/a/99r3ryzts7c0",
-    avatar: `${CDN}/avatar/dba0352e-73b1-4254-ba8e-b6b314d9d608.png/public`,
-  },
-  {
-    title: "我的職場人格 — 傳承",
-    author: "黎明之弧",
-    summary: "傳承，是點一盞燈，照亮後來的路。",
-    href: "https://matters.town/a/gjgjbgraujnh",
-    avatar: `${CDN}/avatar/0effabfd-8a41-4a48-bfab-ff6f6386b45a.jpeg/public`,
-  },
-  {
-    title: "第五天｜長期業績都是零",
-    author: "waiwaili",
-    summary: "我真的沒這本事，我認輸了。",
-    href: "https://matters.town/a/vzlybqxf53zy",
-    avatar: `${CDN}/avatar/05cf3c7b-6788-4d34-9d63-4f6f671a9975.jpeg/public`,
-  },
-  {
-    title: "《我職七日書》第五天〈承擔不起的暗潮〉",
-    author: "蘇禕Suy",
-    summary: "我進連鎖文具店前，在藥局工作。沒有醫學背景，卻要面對配藥與過敏注意。",
-    href: "https://matters.town/a/9ei1vs7fypmh",
-    avatar: `${CDN}/avatar/457bc512-a308-4068-bfe9-113d9923dd26.jpeg/public`,
-  },
-  {
-    title: "別人笑我太瘋癲",
-    author: "陳費雪",
-    summary: "我的職場人設就是「瘋子」。",
-    href: "https://matters.town/a/51l83q4vz0fe",
-    avatar: `${CDN}/avatar/55c2bcde-d024-43ca-a991-b879ee3cb830.jpeg/public`,
-  },
-  {
-    title: "來者不拒是心裡的軟弱",
-    author: "宥縈",
-    summary: "為了滿足主管常常忘了自己也有極限，需要停下來休息。",
-    href: "https://matters.town/a/8c2our5yg4on",
-    avatar: `${CDN}/avatar/609d122b-ed12-41ee-b838-b2aa83c6f776.jpeg/public`,
-  },
-  {
-    title: "《職場七日書》第四天 — 在溫和與強硬之間遊走",
-    author: "crossing",
-    summary: "職場如戲，我不停切換不同角色。",
-    href: "https://matters.town/a/cqbipbg9pp1g",
-    avatar: `${CDN}/avatar/4bf028dd-9464-4c2e-ad11-3fe17f67c661.png/public`,
-  },
-  {
-    title: "[七日書] 職場人格 — 做老白男 让别人无路可走！",
-    author: "IceYuzu",
-    summary: "我多年的职场观察告诉我，最后赢的人永远都是老白男。",
-    href: "https://matters.town/a/5bvbawrhwh1a",
-    avatar: `${CDN}/avatar/d78220da-1d68-4f94-bf0c-87e0c6181a4f.jpeg/public`,
-  },
-];
-
-// 將 season "YYYY-MM" 改為「YYYY / M」格式，給過去主題卡片用月份替代詳細日期
-const toMonthLabel = (season: string) => {
-  const [y, m] = season.split("-");
-  return `${y} / ${Number(m)}`;
-};
-
-export const historicalThemes = legacy.events.map((event) => {
-  const monthLabel = toMonthLabel(event.season);
-  if (event.name === "我的職場人格") {
-    return {
-      ...event,
-      phase: "進行中",
-      participants: 72,
-      writingWindow: "2026/5/4 - 5/11",
-      monthLabel,
-      description: currentIssue.summary,
-      visual: studioVisuals[event.name] ?? event.cover,
-    };
-  }
-
-  if (event.name === "氣味博物館") {
-    return {
-      ...event,
-      phase: "完結",
-      participants: 88,
-      newcomers: 26,
-      writingWindow: "2026/4/6 - 4/13",
-      monthLabel,
-      visual: studioVisuals[event.name] ?? event.cover,
-    };
-  }
-
-  return {
-    ...event,
-    monthLabel,
-    visual: studioVisuals[event.name] ?? event.cover,
-  };
-});
-
-export const pastThemes = historicalThemes.filter(
-  (theme) => theme.name !== currentIssue.title,
-);
-
-export const lectures = [
-  {
-    speaker: "陳雪",
-    role: "作家",
-    theme: "衣櫥裡的自我",
-    title: "我與我所穿出的模樣：一場從衣櫥出發的自我探問",
-    summary: "從衣著、品味與生命經驗出發，談如何在外界眼光中保護自己的自我。",
-    href: "https://matters.town/a/ij9xgxuznv6a",
-    image: `${CDN}/cover/9253170f-7cda-408f-a8fd-e38abbada800.png/public`,
-    hasTranscript: true,
-  },
-  {
-    speaker: "郭強生",
-    role: "作家",
-    theme: "兩廳院藝術出走 · 給自己的情書",
-    title: "從記憶出發的書寫課：談寫作、生命與死亡",
-    summary: "以寫作整理與療癒人生，把私人記憶轉化為能被閱讀的故事。",
-    href: "https://matters.town/a/uhw6btkzwf63",
-    image: `${CDN}/embed/7ec6e254-0d21-4e30-8bca-65c7b6526faf.jpeg/public`,
-    hasTranscript: true,
-  },
-  {
-    speaker: "宋尚緯",
-    role: "詩人",
-    theme: "我的人生帳本",
-    title: "人生與金錢的書寫",
-    summary: "從金錢、階級與安全感切入，陪文友把帳本背後的生命經驗寫出來。",
-    href: "https://matters.town/a/zl1tkmcgkx3s",
-    image: `${CDN}/campaignCover/2e4aac3f-a9e3-4155-8a4e-7276420e3655.png/public`,
-    hasTranscript: false,
-  },
-  {
-    speaker: "周慧",
-    role: "作家",
-    theme: "重構生活",
-    title: "離開都市之後，如何重新搭起生活",
-    summary: "從四十歲後的生活變動與日常書寫，談重構經驗如何變成作品。",
-    href: "https://matters.town/e/3uskpxsbzmz5",
-    image: `${CDN}/campaignCover/98d56bea-4411-481f-947b-195438bae79c.png/public`,
-    hasTranscript: false,
-  },
-];
 
 export const audienceFaq = [
   {
@@ -411,7 +815,7 @@ export const audienceFaq = [
   },
   {
     q: "沒寫完會怎樣？",
-    a: "沒寫完也沒關係，你已經留下了這一期的一部分。只是大滿貫徽章會保留給完成七篇的文友。",
+    a: "沒寫完也沒關係，你已經留下了這一期的一部分。只是大滿貫徽章會保留給完成七篇的文友。完成超過一半也可獲得「參與證明鏈上憑證」。",
   },
   {
     q: "我的文章會公開嗎？",
@@ -426,7 +830,7 @@ export const partnerFaq = [
   },
   {
     q: "合作可以只做線上活動嗎？",
-    a: "可以。也可以加入講座、展場陳列、選集、實體活動或電子報，視合作方目標與檔期安排。",
+    a: "可以。也可以加入講座、展場陳列、選集、實體活動或電子報，視合作方目標與檔期安排。兩廳院案例就是雙月線上徵文＋兩場線上講座的配置。",
   },
   {
     q: "活動成果可以怎麼交付？",

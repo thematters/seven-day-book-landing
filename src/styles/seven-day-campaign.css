@@ -344,6 +344,14 @@
   line-height: 1.78;
 }
 
+.section__sublead {
+  max-width: 780px;
+  margin: 0 0 24px;
+  color: var(--ink-muted);
+  font-size: 15px;
+  line-height: 1.78;
+}
+
 /* ─── Metrics ────────────────────────────────────────────────── */
 .metrics-grid {
   display: grid;
@@ -638,82 +646,100 @@
   inset: 0;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 22px 22px 18px;
   border: 1px solid var(--card-line);
   border-radius: 14px;
-  background: var(--paper);
+  background: var(--card-bg);
   box-shadow: var(--shadow-shadow1);
   backface-visibility: hidden;
+  overflow: hidden;
 }
 
 .writing-card__face--front {
   transform: rotateY(0deg);
 }
 
-/* Matters 精選選集風格：左側細色條當 accent，標題襯線、署名右下、無頭像 */
-.writing-card__face--front::before {
+/* 文章 cover 刷淡放卡片背景：用 mix-blend 與覆蓋淡膜，確保文字仍可讀 */
+.writing-card__bg {
   position: absolute;
-  top: 22px;
-  bottom: 18px;
-  left: 0;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: var(--card-accent);
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.32;
+  filter: saturate(0.85);
+  pointer-events: none;
+}
+
+.writing-card--has-cover .writing-card__face--front::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.7) 0%,
+    rgba(255, 255, 255, 0.86) 60%,
+    rgba(255, 255, 255, 0.94) 100%
+  );
+  pointer-events: none;
   content: "";
+}
+
+.writing-card__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  padding: 22px;
 }
 
 .writing-card__face--back {
   justify-content: space-between;
+  padding: 22px;
   background: linear-gradient(160deg, var(--paper), var(--card-bg));
   transform: rotateY(180deg);
 }
 
-.writing-card__eyebrow {
-  align-self: flex-start;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: var(--card-bg);
-  color: var(--card-accent);
-  font-size: 12px;
+.writing-card__author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.04em;
+}
+
+.writing-card__avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: var(--paper);
+  pointer-events: none;
 }
 
 .writing-card h3 {
   color: var(--ink);
   font-family: var(--font-reading);
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 600;
-  line-height: 1.34;
+  line-height: 1.32;
 }
 
 .writing-card__summary {
-  color: var(--ink-muted);
+  color: var(--ink);
   font-size: 14px;
-  line-height: 1.74;
+  line-height: 1.7;
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.writing-card__foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: auto;
-  padding-top: 6px;
-  border-top: 1px solid var(--card-line);
-}
-
-.writing-card__byline {
-  color: var(--ink);
-  font-size: 13px;
-  font-weight: 500;
-}
-
 .writing-card__cta {
+  margin-top: auto;
   color: var(--card-accent);
   font-size: 13px;
   font-weight: 500;
@@ -977,10 +1003,31 @@
 }
 
 .theme-row__date {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
   color: var(--campaign-accent-dark);
   font-size: 13px;
   font-weight: 500;
   text-align: right;
+}
+
+.theme-row__series {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--campaign-soft);
+  color: var(--campaign-accent-dark);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.theme-row__participants {
+  margin-top: 6px !important;
+  color: var(--campaign-accent-dark);
+  font-size: 12px;
+  font-weight: 500;
 }
 
 /* ─── Lecture grid ───────────────────────────────────────────── */
@@ -988,6 +1035,53 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
+}
+
+/* 密集版：4 欄排 16 位講者，每張 card padding 縮小 */
+.lecture-grid--dense {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.lecture-card--compact {
+  gap: 8px;
+  padding: 18px;
+}
+
+.lecture-card--compact .lecture-card__speaker {
+  padding-bottom: 6px;
+}
+
+.lecture-card--compact .lecture-card__speaker img,
+.lecture-card--compact .lecture-card__monogram {
+  width: 44px;
+  height: 44px;
+  flex-basis: 44px;
+}
+
+.lecture-card--compact .lecture-card__speaker strong {
+  font-size: 16px;
+}
+
+.lecture-card--compact .lecture-card__speaker span {
+  font-size: 12px;
+}
+
+.lecture-card__excerpt {
+  color: var(--ink-muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.lecture-card__pill {
+  display: inline-flex;
+  margin-top: auto;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--campaign-soft);
+  color: var(--campaign-accent-dark);
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .lecture-card,
@@ -1186,6 +1280,89 @@
   border-radius: 8px;
   background: var(--paper);
   color: var(--ink);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.case-study__related {
+  margin-top: 22px;
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid var(--hairline);
+  background: var(--paper);
+}
+
+.case-study__related ul {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.case-study__related li a {
+  color: var(--campaign-accent-dark);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.case-study__related li a:hover {
+  text-decoration: underline;
+}
+
+/* ─── Milestone timeline ─────────────────────────────────────── */
+.milestone-timeline {
+  position: relative;
+  display: grid;
+  gap: 18px;
+  margin: 0;
+  padding: 0 0 0 18px;
+  list-style: none;
+  border-left: 2px solid var(--campaign-label);
+}
+
+.milestone-timeline li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+  padding: 14px 16px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--paper);
+}
+
+.milestone-timeline li::before {
+  position: absolute;
+  top: 24px;
+  left: -27px;
+  width: 14px;
+  height: 14px;
+  border: 3px solid var(--campaign-accent-dark);
+  border-radius: 999px;
+  background: var(--paper);
+  content: "";
+}
+
+.milestone-timeline__date {
+  color: var(--campaign-accent-dark);
+  font-family: var(--font-reading);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.milestone-timeline h3 {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.milestone-timeline p {
+  margin: 8px 0 10px;
+  color: var(--ink-muted);
   font-size: 14px;
   line-height: 1.7;
 }
@@ -1474,10 +1651,16 @@
 
 .archive-card__caption {
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 18px 20px;
+}
+
+.archive-card__caption-top {
+  display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  justify-content: space-between;
   gap: 10px;
-  padding: 14px 18px 18px;
 }
 
 .archive-card__month {
@@ -1488,12 +1671,18 @@
 }
 
 .archive-card h2 {
-  flex: 1;
   margin: 0;
   font-family: var(--font-reading);
   font-size: 19px;
   font-weight: 600;
   line-height: 1.32;
+}
+
+.archive-card__meta {
+  margin: 4px 0 0;
+  color: var(--ink-muted);
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 .archive-card__phase {
@@ -1569,6 +1758,10 @@
   .flow-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .lecture-grid--dense {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 760px) {
@@ -1619,6 +1812,14 @@
   .package-grid,
   .flow-grid,
   .theme-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lecture-grid--dense {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .milestone-timeline li {
     grid-template-columns: 1fr;
   }
 

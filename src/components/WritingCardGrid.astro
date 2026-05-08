@@ -1,9 +1,9 @@
 ---
 // 「他們正在寫這些」可拖移卡片堆 — port 自 blog-pro/src/components/islands/HomeApp.tsx
-// 規則：
-//   - 桌面：絕對定位，每張卡帶輕微旋轉，可滑鼠拖移
+//   - 桌面：絕對定位、帶輕微旋轉、可拖移、卡片可翻面
 //   - 第一次 click → 翻面顯示摘句；第二次 click 摘句面 → 進入文章
 //   - 手機：改為單欄垂直 list，無拖移、直接連結
+//   - 文章若有 cover，刷淡放在卡片背景；avatar 圓形顯示在前面
 import { withBase } from "../utils/paths";
 
 interface WritingArticle {
@@ -20,6 +20,10 @@ interface Props {
 }
 
 const { articles } = Astro.props;
+const assetSrc = (src?: string) => {
+  if (!src) return "";
+  return src.startsWith("http") ? src : withBase(src);
+};
 
 // 七日書 freewrite palette tints — 卡片 4 種色塊輪替
 const tints = [
@@ -38,9 +42,10 @@ const tints = [
     {
       articles.map((article, i) => {
         const tint = tints[i % tints.length];
+        const hasCover = !!article.cover;
         return (
           <article
-            class="writing-card"
+            class={`writing-card ${hasCover ? "writing-card--has-cover" : ""}`}
             data-writing-card
             data-index={i}
             data-href={article.href}
@@ -51,11 +56,28 @@ const tints = [
           >
             <div class="writing-card__inner">
               <div class="writing-card__face writing-card__face--front">
-                <span class="writing-card__eyebrow">七日書 · 我的職場人格</span>
-                <h3>{article.title}</h3>
-                <p class="writing-card__summary">{article.summary}</p>
-                <div class="writing-card__foot">
-                  <span class="writing-card__byline">{article.author}</span>
+                {hasCover && (
+                  <div
+                    class="writing-card__bg"
+                    aria-hidden="true"
+                    style={`background-image: url("${assetSrc(article.cover)}");`}
+                  />
+                )}
+                <div class="writing-card__content">
+                  {article.avatar && (
+                    <div class="writing-card__author">
+                      <img
+                        class="writing-card__avatar"
+                        src={assetSrc(article.avatar)}
+                        alt=""
+                        loading="lazy"
+                        draggable="false"
+                      />
+                      <span>{article.author}</span>
+                    </div>
+                  )}
+                  <h3>{article.title}</h3>
+                  <p class="writing-card__summary">{article.summary}</p>
                   <span class="writing-card__cta">翻開摘句 →</span>
                 </div>
               </div>
@@ -79,7 +101,6 @@ const tints = [
     const cards = Array.from(stage.querySelectorAll("[data-writing-card]"));
     if (!cards.length) return;
 
-    // ── 簡易 seeded random，確保 SSR/CSR 與 reload 排版一致 ─────────────
     const hashSeed = (s) => {
       let h = 1779033703 ^ s.length;
       for (let i = 0; i < s.length; i++) {
@@ -98,7 +119,6 @@ const tints = [
     const layout = () => {
       const isMobile = window.matchMedia("(max-width: 760px)").matches;
       if (isMobile) {
-        // 行動版：清掉絕對定位，依 grid flow 排
         cards.forEach((card) => {
           card.style.position = "static";
           card.style.transform = "";
@@ -109,13 +129,11 @@ const tints = [
         stage.style.height = "auto";
         return;
       }
-
       const stageRect = stage.getBoundingClientRect();
       const stageWidth = Math.max(stageRect.width, 720);
       const r = hashSeed("seven-day-pile-" + stageWidth);
       const margin = 32;
       const usable = stageWidth - margin * 2 - CARD_W;
-
       const total = cards.length;
       const rowSize = total <= 4 ? total : Math.ceil(total / 2);
       const rows = Math.ceil(total / rowSize);
@@ -135,7 +153,6 @@ const tints = [
         const finalX = Math.max(margin, Math.min(baseX + offsetX, stageWidth - CARD_W - margin));
         const rowTop = row * (rowHeight + rowGap);
         const finalY = rowTop + (rowHeight - CARD_H) / 2 + offsetY;
-
         card.style.position = "absolute";
         card.style.left = finalX + "px";
         card.style.top = finalY + "px";
@@ -143,7 +160,6 @@ const tints = [
         card.dataset.baseRotation = rotation.toFixed(2);
         card.style.zIndex = String(100 + idx * 3 + (isEven ? 0 : 1));
       });
-
       stage.style.height = rows * rowHeight + (rows - 1) * rowGap + 40 + "px";
     };
 
@@ -154,8 +170,6 @@ const tints = [
       resizeTimer = setTimeout(layout, 120);
     });
 
-    // ── 滑入頁面時：依滾動位置給每張卡片微微的位移＋旋轉抖動 ──
-    // 不影響拖移狀態：dragging / 已被使用者拖過的卡片不再隨機偏移
     if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       const isMobile = () => window.matchMedia("(max-width: 760px)").matches;
       const onScroll = () => {
@@ -181,10 +195,7 @@ const tints = [
         "scroll",
         () => {
           if (!ticking) {
-            requestAnimationFrame(() => {
-              onScroll();
-              ticking = false;
-            });
+            requestAnimationFrame(() => { onScroll(); ticking = false; });
             ticking = true;
           }
         },
@@ -193,7 +204,6 @@ const tints = [
       onScroll();
     }
 
-    // ── Drag + flip + navigate ─────────────────────────────────────────
     const navigate = (card) => {
       const href = card.getAttribute("data-href");
       if (!href) return;
@@ -208,12 +218,11 @@ const tints = [
         const isMobile = window.matchMedia("(max-width: 760px)").matches;
         if (isMobile) return;
         if (e.button !== 0) return;
-        if (card.hasAttribute("data-flipped")) return; // flipped 時不可拖
+        if (card.hasAttribute("data-flipped")) return;
         const rect = card.getBoundingClientRect();
         const stageRect = stage.getBoundingClientRect();
         dragging = {
-          startX: e.clientX,
-          startY: e.clientY,
+          startX: e.clientX, startY: e.clientY,
           baseLeft: rect.left - stageRect.left,
           baseTop: rect.top - stageRect.top,
           moved: false,
@@ -243,27 +252,14 @@ const tints = [
       };
 
       const handleClick = (e) => {
-        if (suppressClick) {
-          suppressClick = false;
-          return;
-        }
+        if (suppressClick) { suppressClick = false; return; }
         const isMobile = window.matchMedia("(max-width: 760px)").matches;
-        if (isMobile) {
-          navigate(card);
-          return;
-        }
+        if (isMobile) { navigate(card); return; }
         const flipped = card.hasAttribute("data-flipped");
         if (!flipped) {
-          // 先把其他卡片翻回正面，避免畫面上同時兩張背面
-          cards.forEach((c) => {
-            if (c !== card) c.removeAttribute("data-flipped");
-          });
+          cards.forEach((c) => { if (c !== card) c.removeAttribute("data-flipped"); });
           card.setAttribute("data-flipped", "");
         } else {
-          if (e.metaKey || e.ctrlKey) {
-            navigate(card);
-            return;
-          }
           navigate(card);
         }
       };

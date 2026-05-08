@@ -1,0 +1,255 @@
+---
+// 「他們正在寫這些」可拖移卡片堆 — port 自 blog-pro/src/components/islands/HomeApp.tsx
+// 規則：
+//   - 桌面：絕對定位，每張卡帶輕微旋轉，可滑鼠拖移
+//   - 第一次 click → 翻面顯示摘句；第二次 click 摘句面 → 進入文章
+//   - 手機：改為單欄垂直 list，無拖移、直接連結
+import { withBase } from "../utils/paths";
+
+interface WritingArticle {
+  title: string;
+  author: string;
+  summary: string;
+  href: string;
+  cover?: string;
+  avatar: string;
+}
+
+interface Props {
+  articles: WritingArticle[];
+}
+
+const { articles } = Astro.props;
+const assetSrc = (src?: string) => {
+  if (!src) return "";
+  return src.startsWith("http") ? src : withBase(src);
+};
+
+// 七日書 freewrite palette tints — 卡片 4 種色塊輪替
+const tints = [
+  { bg: "#F0F9FE", line: "rgba(131,186,209,0.55)" },
+  { bg: "#FFF3DF", line: "rgba(255,198,136,0.6)" },
+  { bg: "#F2FAF7", line: "rgba(112,179,136,0.45)" },
+  { bg: "#FFFCE1", line: "rgba(224,180,2,0.35)" },
+];
+---
+
+<section class="writing-stage" aria-label="本期文友作品">
+  <div class="writing-stage__hint" aria-hidden="true">
+    <span>可拖移、可翻面</span>
+  </div>
+  <div class="writing-stage__inner" data-writing-stage>
+    {
+      articles.map((article, i) => {
+        const tint = tints[i % tints.length];
+        return (
+          <article
+            class="writing-card"
+            data-writing-card
+            data-index={i}
+            data-href={article.href}
+            tabindex="0"
+            role="button"
+            aria-label={`翻看 ${article.title}`}
+            style={`--card-bg: ${tint.bg}; --card-line: ${tint.line};`}
+          >
+            <div class="writing-card__inner">
+              <div class="writing-card__face writing-card__face--front">
+                <div class="writing-card__author">
+                  <img
+                    class="writing-card__avatar"
+                    src={assetSrc(article.avatar)}
+                    alt=""
+                    loading="lazy"
+                    draggable="false"
+                  />
+                  <span>{article.author}</span>
+                </div>
+                <h3>{article.title}</h3>
+                <p class="writing-card__summary">{article.summary}</p>
+                <span class="writing-card__cta">翻開摘句 →</span>
+              </div>
+              <div class="writing-card__face writing-card__face--back">
+                <span class="writing-card__back-meta">— {article.author}</span>
+                <p class="writing-card__quote">「{article.summary}」</p>
+                <span class="writing-card__cta writing-card__cta--read">閱讀全文 →</span>
+              </div>
+            </div>
+          </article>
+        );
+      })
+    }
+  </div>
+</section>
+
+<script is:inline>
+  (() => {
+    const stage = document.querySelector("[data-writing-stage]");
+    if (!stage) return;
+    const cards = Array.from(stage.querySelectorAll("[data-writing-card]"));
+    if (!cards.length) return;
+
+    // ── 簡易 seeded random，確保 SSR/CSR 與 reload 排版一致 ─────────────
+    const hashSeed = (s) => {
+      let h = 1779033703 ^ s.length;
+      for (let i = 0; i < s.length; i++) {
+        h = Math.imul(h ^ s.charCodeAt(i), 3432918353);
+        h = (h << 13) | (h >>> 19);
+      }
+      return () => {
+        h = Math.imul(h ^ (h >>> 16), 2246822507);
+        h = Math.imul(h ^ (h >>> 13), 3266489909);
+        return ((h ^= h >>> 16) >>> 0) / 4294967296;
+      };
+    };
+
+    const CARD_W = 264;
+    const CARD_H = 320;
+    const layout = () => {
+      const isMobile = window.matchMedia("(max-width: 760px)").matches;
+      if (isMobile) {
+        // 行動版：清掉絕對定位，依 grid flow 排
+        cards.forEach((card) => {
+          card.style.position = "static";
+          card.style.transform = "";
+          card.style.left = "";
+          card.style.top = "";
+          card.style.zIndex = "";
+        });
+        stage.style.height = "auto";
+        return;
+      }
+
+      const stageRect = stage.getBoundingClientRect();
+      const stageWidth = Math.max(stageRect.width, 720);
+      const r = hashSeed("seven-day-pile-" + stageWidth);
+      const margin = 32;
+      const usable = stageWidth - margin * 2 - CARD_W;
+
+      const total = cards.length;
+      const rowSize = total <= 4 ? total : Math.ceil(total / 2);
+      const rows = Math.ceil(total / rowSize);
+      const rowHeight = 360;
+      const rowGap = 28;
+
+      cards.forEach((card, idx) => {
+        const row = Math.floor(idx / rowSize);
+        const col = idx % rowSize;
+        const rowCount = Math.min(rowSize, total - row * rowSize);
+        const progress = rowCount > 1 ? col / (rowCount - 1) : 0.5;
+        const baseX = margin + progress * usable;
+        const offsetX = (r() - 0.5) * 60;
+        const isEven = idx % 2 === 0;
+        const offsetY = (isEven ? -34 : 34) + (r() - 0.5) * 28;
+        const rotation = (r() - 0.5) * 6;
+        const finalX = Math.max(margin, Math.min(baseX + offsetX, stageWidth - CARD_W - margin));
+        const rowTop = row * (rowHeight + rowGap);
+        const finalY = rowTop + (rowHeight - CARD_H) / 2 + offsetY;
+
+        card.style.position = "absolute";
+        card.style.left = finalX + "px";
+        card.style.top = finalY + "px";
+        card.style.transform = `rotate(${rotation.toFixed(2)}deg)`;
+        card.dataset.baseRotation = rotation.toFixed(2);
+        card.style.zIndex = String(100 + idx * 3 + (isEven ? 0 : 1));
+      });
+
+      stage.style.height = rows * rowHeight + (rows - 1) * rowGap + 40 + "px";
+    };
+
+    layout();
+    let resizeTimer;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(layout, 120);
+    });
+
+    // ── Drag + flip + navigate ─────────────────────────────────────────
+    const navigate = (card) => {
+      const href = card.getAttribute("data-href");
+      if (!href) return;
+      window.open(href, "_blank", "noopener");
+    };
+
+    cards.forEach((card) => {
+      let dragging = null;
+      let suppressClick = false;
+
+      const onMouseDown = (e) => {
+        const isMobile = window.matchMedia("(max-width: 760px)").matches;
+        if (isMobile) return;
+        if (e.button !== 0) return;
+        if (card.hasAttribute("data-flipped")) return; // flipped 時不可拖
+        const rect = card.getBoundingClientRect();
+        const stageRect = stage.getBoundingClientRect();
+        dragging = {
+          startX: e.clientX,
+          startY: e.clientY,
+          baseLeft: rect.left - stageRect.left,
+          baseTop: rect.top - stageRect.top,
+          moved: false,
+        };
+        const onMove = (ev) => {
+          const dx = ev.clientX - dragging.startX;
+          const dy = ev.clientY - dragging.startY;
+          if (!dragging.moved && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+            dragging.moved = true;
+            card.setAttribute("data-state", "dragging");
+            card.style.zIndex = "9999";
+          }
+          if (dragging.moved) {
+            card.style.left = dragging.baseLeft + dx + "px";
+            card.style.top = dragging.baseTop + dy + "px";
+          }
+        };
+        const onUp = () => {
+          document.removeEventListener("mousemove", onMove);
+          document.removeEventListener("mouseup", onUp);
+          if (dragging?.moved) suppressClick = true;
+          card.removeAttribute("data-state");
+          dragging = null;
+        };
+        document.addEventListener("mousemove", onMove);
+        document.addEventListener("mouseup", onUp);
+      };
+
+      const handleClick = (e) => {
+        if (suppressClick) {
+          suppressClick = false;
+          return;
+        }
+        const isMobile = window.matchMedia("(max-width: 760px)").matches;
+        if (isMobile) {
+          navigate(card);
+          return;
+        }
+        const flipped = card.hasAttribute("data-flipped");
+        if (!flipped) {
+          // 先把其他卡片翻回正面，避免畫面上同時兩張背面
+          cards.forEach((c) => {
+            if (c !== card) c.removeAttribute("data-flipped");
+          });
+          card.setAttribute("data-flipped", "");
+        } else {
+          if (e.metaKey || e.ctrlKey) {
+            navigate(card);
+            return;
+          }
+          navigate(card);
+        }
+      };
+
+      const onKey = (e) => {
+        if (e.key !== "Enter" && e.key !== " ") return;
+        e.preventDefault();
+        const flipped = card.hasAttribute("data-flipped");
+        if (!flipped) card.setAttribute("data-flipped", "");
+        else navigate(card);
+      };
+
+      card.addEventListener("mousedown", onMouseDown);
+      card.addEventListener("click", handleClick);
+      card.addEventListener("keydown", onKey);
+    });
+  })();
+</script>

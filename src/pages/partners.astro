@@ -1,0 +1,399 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import GrandBadge from "../components/GrandBadge.astro";
+import LectureIcon from "../components/LectureIcon.astro";
+import MattersWordmark from "../components/MattersWordmark.astro";
+import ThemeIcon from "../components/ThemeIcon.astro";
+import WritingCardGrid from "../components/WritingCardGrid.astro";
+import {
+  contactEmail,
+  historicalThemes,
+  latestArticles,
+  lectures,
+  partnerFaq,
+  partnerPage,
+  shared,
+} from "../data/seven-day-campaign";
+import "../styles/seven-day-campaign.css";
+import { withBase } from "../utils/paths";
+
+const homeHref = withBase("");
+const assetSrc = (src?: string) => {
+  if (!src) return "";
+  return src.startsWith("http") ? src : withBase(src);
+};
+const nav = [
+  { href: "#themes", label: "歷次主題" },
+  { href: "#impact", label: "參與數據" },
+  { href: "#lectures", label: "名家講座" },
+  { href: "#case", label: "合作案例" },
+  { href: "#packages", label: "合作內容" },
+  { href: "#faq", label: "FAQ" },
+];
+const marqueeAvatars = [
+  ...shared.avatarWall.slice(0, 24),
+  ...shared.avatarWall.slice(0, 24),
+];
+---
+
+<BaseLayout title="七日書機構合作" description={partnerPage.description}>
+  <div class="campaign-page" data-page="partners">
+    <header class="sitebar">
+      <a
+        class="sitebar__brand"
+        href="https://matters.town"
+        target="_blank"
+        rel="noopener"
+      >
+        <MattersWordmark size={18} />
+        <span class="sitebar__dot">·</span>
+        <span>七日書合作</span>
+      </a>
+
+      <nav class="sitebar__nav" aria-label="頁面導覽">
+        {nav.map((item) => <a href={item.href}>{item.label}</a>)}
+      </nav>
+
+      <div class="sitebar__actions">
+        <a class="sitebar__link" href={homeHref}>參與寫作</a>
+        <a class="button button--primary" href={shared.contactHref}
+          >{partnerPage.hero.primaryLabel}</a
+        >
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="partner-hero-title">
+        <div class="hero__copy">
+          <p class="eyebrow">{partnerPage.hero.eyebrow}</p>
+          <h1 id="partner-hero-title">{partnerPage.hero.headline}</h1>
+          <p class="hero__lead">{partnerPage.hero.lead}</p>
+          <div class="hero__meta" aria-label="合作重點">
+            <span class="pill">主題共創</span>
+            <span class="pill">名家講座</span>
+            <span class="pill">書寫憑證</span>
+          </div>
+          <div class="hero__actions">
+            <a class="button button--primary" href={shared.contactHref}
+              >洽談合作</a
+            >
+            <a class="button button--quiet" href={homeHref}>加入寫作</a>
+          </div>
+        </div>
+        <div class="hero__visual" aria-hidden="true">
+          <img
+            src={assetSrc(partnerPage.caseStudy.image)}
+            alt=""
+            loading="eager"
+          />
+        </div>
+      </section>
+
+      <section
+        id="themes"
+        class="section section--paper"
+        aria-labelledby="themes-title"
+      >
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">七日書歷次主題</p>
+            <h2 id="themes-title">每期都是一個可以被社群長時間回應的命題。</h2>
+            <p>
+              從生活、感官、身份到公共議題，七日書把抽象命題轉成能讓人回到自身經驗的七天提問。
+            </p>
+          </header>
+
+          <div class="theme-list">
+            {
+              historicalThemes.map((theme) => (
+                <a
+                  class="theme-row"
+                  href={theme.href}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <div class="theme-row__media">
+                    <img
+                      src={assetSrc(theme.visual ?? theme.cover)}
+                      alt=""
+                      loading="lazy"
+                    />
+                  </div>
+                  <div>
+                    <h3>{theme.name}</h3>
+                    <p>{theme.description}</p>
+                  </div>
+                  <div class="theme-row__date">
+                    <span>{theme.season}</span>
+                    <br />
+                    <span>{theme.writingWindow}</span>
+                  </div>
+                </a>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="execution"
+        class="section section--soft"
+        aria-labelledby="execution-title"
+      >
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">七日書執行內容</p>
+            <h2 id="execution-title">
+              從題目設計，到七天書寫，再到可保存的成果。
+            </h2>
+            <p>
+              它不只是一次徵文，而是一套有節奏、有陪伴感，也能沉澱內容資產的書寫機制。
+            </p>
+          </header>
+
+          <div class="flow-grid">
+            {
+              partnerPage.executionIntro.map((item) => (
+                <article class="flow-card">
+                  <span class="flow-card__step">{item.step}</span>
+                  <h3>{item.title}</h3>
+                  <p>{item.body}</p>
+                </article>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="impact"
+        class="section section--paper"
+        aria-labelledby="impact-title"
+      >
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">累積參與</p>
+            <h2 id="impact-title">七日書已經累積出一個可合作的書寫社群。</h2>
+            <p>
+              對合作方來說，重要的不只是流量，而是同一題目下持續出現的真實回應。
+            </p>
+          </header>
+
+          <div class="metrics-grid">
+            {
+              partnerPage.impact.map((item) => (
+                <article
+                  class={`metric-card ${item.emphasis ? "metric-card--emphasis" : ""}`}
+                >
+                  <strong>{item.value}</strong>
+                  <span>{item.label}</span>
+                </article>
+              ))
+            }
+          </div>
+
+          <div class="avatar-marquee" aria-label="七日書創作者頭像">
+            <div class="avatar-marquee__track">
+              {
+                marqueeAvatars.map((avatar) => (
+                  <a
+                    href={`https://matters.town/@${avatar.handle}`}
+                    target="_blank"
+                    rel="noopener"
+                    title={avatar.name}
+                  >
+                    <img
+                      src={assetSrc(avatar.src)}
+                      alt={avatar.name}
+                      loading="lazy"
+                    />
+                  </a>
+                ))
+              }
+            </div>
+          </div>
+
+          <div class="signal-grid signal-grid--spaced">
+            {
+              partnerPage.businessSignals.map((item) => (
+                <article class="signal-card">
+                  <h3>{item.title}</h3>
+                  <p>{item.body}</p>
+                </article>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="lectures"
+        class="section section--soft"
+        aria-labelledby="lectures-title"
+      >
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">名家講座</p>
+            <h2 id="lectures-title">講座讓題目從活動週延伸成內容資產。</h2>
+            <p>
+              當講座被整理成文字，它就能繼續被搜尋、引用、轉寄，也能成為下一波討論的起點。
+            </p>
+          </header>
+
+          <div class="lecture-grid">
+            {
+              lectures.map((lecture) => (
+                <article class="lecture-card">
+                  <div class="lecture-card__speaker">
+                    <img
+                      src={assetSrc(lecture.image)}
+                      alt={lecture.speaker}
+                      loading="lazy"
+                    />
+                    <div>
+                      <strong>{lecture.speaker}</strong>
+                      <span>
+                        {lecture.role} · {lecture.theme}
+                      </span>
+                    </div>
+                  </div>
+                  <h3>{lecture.title}</h3>
+                  <p>{lecture.summary}</p>
+                  <a
+                    class="lecture-card__link"
+                    href={lecture.href}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    {lecture.hasTranscript ? "閱讀講座文字稿" : "查看講座資訊"} →
+                  </a>
+                </article>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="articles"
+        class="section section--paper"
+        aria-labelledby="articles-title"
+      >
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">精選文章</p>
+            <h2 id="articles-title">
+              最近一期作品，可以直接看到社群如何回應題目。
+            </h2>
+            <p>文章不是活動的附屬成果，而是合作題目真正被生活回答的地方。</p>
+          </header>
+
+          <WritingCardGrid articles={latestArticles.slice(0, 6)} />
+        </div>
+      </section>
+
+      <section
+        id="case"
+        class="section section--soft"
+        aria-labelledby="case-title"
+      >
+        <div class="section__inner case-study">
+          <div class="case-study__image">
+            <img
+              src={assetSrc(partnerPage.caseStudy.image)}
+              alt={partnerPage.caseStudy.title}
+              loading="lazy"
+            />
+          </div>
+          <div class="case-study__copy">
+            <p class="eyebrow">合作案例</p>
+            <h2 id="case-title">{partnerPage.caseStudy.headline}</h2>
+            <p><strong>{partnerPage.caseStudy.title}</strong></p>
+            <p>{partnerPage.caseStudy.summary}</p>
+            <ul class="fact-list">
+              {partnerPage.caseStudy.facts.map((fact) => <li>{fact}</li>)}
+              <li>{partnerPage.caseStudy.extension}</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="packages"
+        class="section section--paper"
+        aria-labelledby="packages-title"
+      >
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">合作內容</p>
+            <h2 id="packages-title">把合作拆成可選、可組合的三個模組。</h2>
+          </header>
+
+          <div class="package-grid">
+            {
+              partnerPage.packages.map((item) => (
+                <article class="package-card">
+                  <span class="package-card__icon" aria-hidden="true">
+                    {item.iconKind === "theme" && <ThemeIcon size={56} />}
+                    {item.iconKind === "lecture" && <LectureIcon size={56} />}
+                    {item.iconKind === "badge" && <GrandBadge size={48} />}
+                  </span>
+                  <h3>{item.title}</h3>
+                  <p>{item.body}</p>
+                </article>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="faq"
+        class="section section--soft"
+        aria-labelledby="faq-title"
+      >
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">FAQ</p>
+            <h2 id="faq-title">{partnerPage.faqHeading}</h2>
+          </header>
+
+          <div class="faq-list">
+            {
+              partnerFaq.map((item) => (
+                <details>
+                  <summary>{item.q}</summary>
+                  <p>{item.a}</p>
+                </details>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="partner-cta-title">
+        <div class="section__inner">
+          <div class="cta-band">
+            <h2 id="partner-cta-title">{partnerPage.cta.headline}</h2>
+            <p>{partnerPage.cta.body}</p>
+            <div class="cta-band__actions">
+              <a class="button button--primary" href={shared.contactHref}
+                >{partnerPage.cta.primaryLabel}</a
+              >
+              <a class="button button--quiet" href={homeHref}
+                >{partnerPage.cta.secondaryLabel}</a
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="page-footer">
+      <span
+        >合作洽談：<a href={`mailto:${contactEmail}`}>{contactEmail}</a></span
+      >
+      <span><a href={homeHref}>回到寫作者入口 →</a></span>
+    </footer>
+  </div>
+</BaseLayout>

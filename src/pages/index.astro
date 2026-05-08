@@ -1,1732 +1,458 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import MattersWordmark from "../components/MattersWordmark.astro";
 import GrandBadge from "../components/GrandBadge.astro";
-import { sevenDayBookLanding as page } from "../data/seven-day-book";
+import MattersWordmark from "../components/MattersWordmark.astro";
+import WritingCardGrid from "../components/WritingCardGrid.astro";
+import {
+  audienceFaq,
+  audiencePage,
+  contactEmail,
+  latestArticles,
+  lectures,
+  pastThemes,
+  shared,
+} from "../data/seven-day-campaign";
+import "../styles/seven-day-campaign.css";
+import { withBase } from "../utils/paths";
 
+const partnersHref = withBase(shared.partnersHref);
+const assetSrc = (src?: string) => {
+  if (!src) return "";
+  return src.startsWith("http") ? src : withBase(src);
+};
+const promptStateLabel: Record<string, string> = {
+  past: "已開放",
+  today: "今日題目",
+  locked: "即將開放",
+};
 const nav = [
-  { href: "#pulse", label: "此刻在寫" },
-  { href: "#events", label: "歷屆題目" },
-  { href: "#voices", label: "作品節錄" },
-  { href: "#passport", label: "大滿貫" },
-  { href: "#partners", label: "合作" },
+  { href: "#current", label: "本月主題" },
+  { href: "#articles", label: "本期精選" },
+  { href: "#badge", label: "大滿貫" },
+  { href: "#themes", label: "過去主題" },
+  { href: "#lectures", label: "名家講座" },
+  { href: "#faq", label: "FAQ" },
 ];
-
-// avatars 分三排做散佈，利用 nth-child 錯位
-const avatars = page.avatarWall;
+const marqueeAvatars = [
+  ...shared.avatarWall.slice(0, 22),
+  ...shared.avatarWall.slice(0, 22),
+];
+const visibleThemes = pastThemes.slice(0, 8);
 ---
 
-<BaseLayout title="七日書" description={page.description}>
-  <!-- ============================================================= -->
-  <!-- Top bar — Matters wordmark + nav                              -->
-  <!-- ============================================================= -->
-  <div class="topbar">
-    <a class="topbar__brand" href="https://matters.town" target="_blank" rel="noopener">
-      <MattersWordmark size={18} />
-      <span class="topbar__dot" aria-hidden="true">·</span>
-      <span class="topbar__product">七日書</span>
-    </a>
-    <nav class="topbar__nav" aria-label="頁面導覽">
-      {nav.map((item) => <a href={item.href}>{item.label}</a>)}
-    </nav>
-    <div class="topbar__cta">
-      <a href={page.hero.primaryCta.href} class="chip">看作品</a>
-      <a href="#contact" class="chip chip--filled">洽談合作</a>
-    </div>
+<BaseLayout title="七日書" description={audiencePage.description}>
+  <div class="campaign-page" data-page="audience">
+    <header class="sitebar">
+      <a
+        class="sitebar__brand"
+        href="https://matters.town"
+        target="_blank"
+        rel="noopener"
+      >
+        <MattersWordmark size={18} />
+        <span class="sitebar__dot">·</span>
+        <span>七日書</span>
+      </a>
+
+      <nav class="sitebar__nav" aria-label="頁面導覽">
+        {nav.map((item) => <a href={item.href}>{item.label}</a>)}
+      </nav>
+
+      <div class="sitebar__actions">
+        <a class="button button--quiet" href={partnersHref}
+          >{audiencePage.hero.secondaryLabel}</a
+        >
+        <a
+          class="button button--primary"
+          href={shared.joinHref}
+          target="_blank"
+          rel="noopener"
+        >
+          {audiencePage.hero.primaryLabel}
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero__copy">
+          <p class="eyebrow">{audiencePage.hero.eyebrow}</p>
+          <h1 id="hero-title">{audiencePage.hero.headline}</h1>
+          <p class="hero__lead">{audiencePage.hero.lead}</p>
+          <div class="hero__meta" aria-label="本期狀態">
+            <span class="pill">{audiencePage.currentIssue.title}</span>
+            <span class="pill">{audiencePage.currentIssue.period}</span>
+            <span class="pill">{audiencePage.currentIssue.status}</span>
+          </div>
+          <div class="hero__actions">
+            <a
+              class="button button--primary"
+              href={shared.joinHref}
+              target="_blank"
+              rel="noopener">加入寫作</a
+            >
+            <a class="button button--quiet" href={partnersHref}>洽談合作</a>
+          </div>
+        </div>
+        <div class="hero__visual" aria-hidden="true">
+          <img
+            src={assetSrc(audiencePage.currentIssue.cover)}
+            alt=""
+            loading="eager"
+          />
+        </div>
+      </section>
+
+      <section
+        id="stats"
+        class="section section--paper"
+        aria-labelledby="stats-title"
+      >
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">此刻在寫</p>
+            <h2 id="stats-title">有人和你在同一週，把生活寫下來。</h2>
+            <p>先看見同行的人，題目才不會像一張孤單的待辦清單。</p>
+          </header>
+
+          <div class="metrics-grid">
+            {
+              audiencePage.stats.map((item) => (
+                <article class="metric-card">
+                  <strong>{item.value}</strong>
+                  <span>{item.label}</span>
+                  <small>{item.note}</small>
+                </article>
+              ))
+            }
+          </div>
+
+          <div class="avatar-marquee" aria-label="近期參與作者頭像">
+            <div class="avatar-marquee__track">
+              {
+                marqueeAvatars.map((avatar) => (
+                  <a
+                    href={`https://matters.town/@${avatar.handle}`}
+                    target="_blank"
+                    rel="noopener"
+                    title={avatar.name}
+                  >
+                    <img
+                      src={assetSrc(avatar.src)}
+                      alt={avatar.name}
+                      loading="lazy"
+                    />
+                  </a>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="current"
+        class="section section--soft"
+        aria-labelledby="current-title"
+      >
+        <div class="section__inner current-layout">
+          <aside class="issue-cover" aria-label="本月主題封面">
+            <img
+              src={assetSrc(audiencePage.currentIssue.cover)}
+              alt={`七日書本月主題：${audiencePage.currentIssue.title}`}
+              loading="lazy"
+            />
+            <div class="issue-cover__caption">
+              <strong>{audiencePage.currentIssue.title}</strong>
+              <span>{audiencePage.currentIssue.summary}</span>
+            </div>
+          </aside>
+
+          <div>
+            <header class="section__header">
+              <p class="eyebrow">本月主題</p>
+              <h2 id="current-title">七道題目，一天打開一扇門。</h2>
+              <p>
+                {
+                  audiencePage.currentIssue.period
+                }。從職場標籤、身心痕跡與人設出發，慢慢寫回自己的樣子。
+              </p>
+            </header>
+
+            <ol class="day-unlock-strip" aria-label="本期七道題目">
+              {
+                audiencePage.currentIssue.prompts.map((prompt) => (
+                  <li
+                    class={`day-unlock-card day-unlock-card--${prompt.state}`}
+                  >
+                    <div class="day-unlock-card__top">
+                      <span>{prompt.date}</span>
+                      <span>{promptStateLabel[prompt.state] ?? "題目"}</span>
+                    </div>
+                    <span class="day-unlock-card__day">{prompt.day}</span>
+                    <h3>{prompt.title}</h3>
+                    <p>{prompt.prompt}</p>
+                  </li>
+                ))
+              }
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="articles"
+        class="section section--paper"
+        aria-labelledby="articles-title"
+      >
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">本期精選</p>
+            <h2 id="articles-title">{audiencePage.articlesHeading}</h2>
+            <p>{audiencePage.articlesNote}</p>
+          </header>
+
+          <WritingCardGrid articles={latestArticles} />
+        </div>
+      </section>
+
+      <section
+        id="badge"
+        class="section section--soft"
+        aria-labelledby="badge-title"
+      >
+        <div class="section__inner">
+          <div class="badge-panel">
+            <div class="badge-panel__visual" aria-hidden="true">
+              <GrandBadge size={108} />
+            </div>
+            <div>
+              <p class="eyebrow">{audiencePage.grandBadgeCopy.kicker}</p>
+              <h2 id="badge-title">{audiencePage.grandBadgeCopy.title}</h2>
+              <p>{audiencePage.grandBadgeCopy.body}</p>
+              <p class="note-line">
+                <a
+                  href={shared.grandBadge.link.href}
+                  target="_blank"
+                  rel="noopener">{shared.grandBadge.link.label} →</a
+                >
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="themes"
+        class="section section--paper"
+        aria-labelledby="themes-title"
+      >
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">過去主題</p>
+            <h2 id="themes-title">{audiencePage.pastThemesHeading}</h2>
+            <p>
+              每一期都像一本已經完成的小書。你可以從任何一個題目回去，找到下一次想寫的入口。
+            </p>
+          </header>
+
+          <div class="theme-grid">
+            {
+              visibleThemes.map((theme) => (
+                <a
+                  class="theme-card"
+                  href={theme.href}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <div class="theme-card__media">
+                    <img
+                      src={assetSrc(theme.visual ?? theme.cover)}
+                      alt=""
+                      loading="lazy"
+                    />
+                  </div>
+                  <div class="theme-card__body">
+                    <span class="theme-card__meta">
+                      {theme.season} · {theme.writingWindow}
+                    </span>
+                    <h3>{theme.name}</h3>
+                    <p>{theme.description}</p>
+                  </div>
+                </a>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="lectures"
+        class="section section--soft"
+        aria-labelledby="lectures-title"
+      >
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">名家講座</p>
+            <h2 id="lectures-title">{audiencePage.lecturesHeading}</h2>
+            <p>
+              有逐字稿的講座，留下來就不只是一次活動，而是一篇可以反覆回看的寫作課。
+            </p>
+          </header>
+
+          <div class="lecture-grid">
+            {
+              lectures.map((lecture) => (
+                <article class="lecture-card">
+                  <div class="lecture-card__speaker">
+                    <img
+                      src={assetSrc(lecture.image)}
+                      alt={lecture.speaker}
+                      loading="lazy"
+                    />
+                    <div>
+                      <strong>{lecture.speaker}</strong>
+                      <span>
+                        {lecture.role} · {lecture.theme}
+                      </span>
+                    </div>
+                  </div>
+                  <h3>{lecture.title}</h3>
+                  <p>{lecture.summary}</p>
+                  <a
+                    class="lecture-card__link"
+                    href={lecture.href}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    {lecture.hasTranscript ? "閱讀講座文字稿" : "查看講座資訊"} →
+                  </a>
+                </article>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="faq"
+        class="section section--paper"
+        aria-labelledby="faq-title"
+      >
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">FAQ</p>
+            <h2 id="faq-title">{audiencePage.faqHeading}</h2>
+          </header>
+
+          <div class="faq-list">
+            {
+              audienceFaq.map((item) => (
+                <details>
+                  <summary>{item.q}</summary>
+                  <p>{item.a}</p>
+                </details>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="cta-title">
+        <div class="section__inner">
+          <div class="cta-band">
+            <h2 id="cta-title">{audiencePage.cta.headline}</h2>
+            <p>{audiencePage.cta.body}</p>
+            <div class="cta-band__actions">
+              <button
+                class="button button--primary"
+                type="button"
+                data-open-reminder
+              >
+                {audiencePage.cta.button}
+              </button>
+              <a
+                class="button button--quiet"
+                href={shared.joinHref}
+                target="_blank"
+                rel="noopener">直接加入本期</a
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="page-footer">
+      <span>Matters 七日書 · 自由寫</span>
+      <a href={partnersHref}>機構合作入口 →</a>
+    </footer>
+
+    <dialog
+      class="reminder-dialog"
+      id="reminder-dialog"
+      aria-labelledby="reminder-title"
+      data-contact-email={contactEmail}
+    >
+      <div class="reminder-dialog__inner">
+        <h2 id="reminder-title">獲得活動提醒郵件</h2>
+        <p>留下 email，我們會在下一期七日書開放時通知你。</p>
+        <form class="reminder-form" id="reminder-form">
+          <label>
+            Email
+            <input
+              name="email"
+              type="email"
+              autocomplete="email"
+              required
+              placeholder="you@example.com"
+            />
+          </label>
+          <div class="reminder-form__actions">
+            <button
+              class="button button--quiet"
+              type="button"
+              data-close-reminder>取消</button
+            >
+            <button class="button button--primary" type="submit"
+              >送出提醒需求</button
+            >
+          </div>
+        </form>
+      </div>
+    </dialog>
   </div>
 
-  <main class="sdb">
-    <!-- ========================================================= -->
-    <!-- HERO — full-bleed backdrop collage + emotional headline   -->
-    <!-- ========================================================= -->
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="hero__backdrop" aria-hidden="true">
-        <img class="hero__cover hero__cover--main" src={page.hero.heroCover} alt="" loading="eager" />
-        <div class="hero__vignette"></div>
-        <div class="hero__noise"></div>
-      </div>
+  <script is:inline>
+    const dialog = document.getElementById("reminder-dialog");
+    const form = document.getElementById("reminder-form");
+    const contactEmail =
+      dialog?.getAttribute("data-contact-email") || "freewrite@matters.town";
+    const openButtons = document.querySelectorAll("[data-open-reminder]");
+    const closeButtons = document.querySelectorAll("[data-close-reminder]");
 
-      <div class="hero__inner">
-        <p class="hero__eyebrow">
-          <span class="pulse-dot" aria-hidden="true"></span>
-          {page.hero.eyebrow}
-        </p>
-        <h1 class="hero__title" id="hero-title">
-          <span class="hero__title-top">{page.hero.headlineTop}</span>
-          <span class="hero__title-main">{page.hero.headline}</span>
-        </h1>
-        <p class="hero__lead">{page.hero.subheadline}</p>
-        <div class="hero__cta">
-          <a class="btn btn--primary" href={page.hero.primaryCta.href} target="_blank" rel="noopener">
-            {page.hero.primaryCta.label}
-            <span class="btn__arrow" aria-hidden="true">→</span>
-          </a>
-          <a class="btn btn--ghost" href={page.hero.secondaryCta.href} target="_blank" rel="noopener">
-            {page.hero.secondaryCta.label}
-          </a>
-        </div>
-
-        <!-- floating avatar strip at hero bottom -->
-        <div class="hero__avatars" aria-label="部分參與者頭像">
-          {avatars.slice(0, 12).map((a, i) => (
-            <a
-              class={`hero__av hero__av--${i}`}
-              href={`https://matters.town/@${a.handle}`}
-              target="_blank"
-              rel="noopener"
-              title={a.name}
-              style={`--delay: ${i * 120}ms`}
-            >
-              <img src={a.src} alt={a.name} loading="lazy" />
-            </a>
-          ))}
-          <a class="hero__av hero__av--more" href="#pulse" aria-label="看更多參與者">
-            <span>+280</span>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- PULSE — now writing, stats + 30 avatars                   -->
-    <!-- ========================================================= -->
-    <section id="pulse" class="section pulse" aria-labelledby="pulse-title" data-reveal>
-      <header class="section__head">
-        <p class="kicker">{page.pulse.kicker}</p>
-        <h2 id="pulse-title">{page.pulse.headline}</h2>
-        <p class="section__body">{page.pulse.body}</p>
-      </header>
-
-      <div class="stat-row">
-        {page.pulse.stats.map((s) => (
-          <div class="stat">
-            <strong>{s.value}</strong>
-            <span>{s.label}</span>
-          </div>
-        ))}
-      </div>
-
-      <ul class="avatar-wall" aria-label="近期參與文友頭像">
-        {avatars.map((a, i) => (
-          <li style={`--i: ${i}`}>
-            <a href={`https://matters.town/@${a.handle}`} target="_blank" rel="noopener" title={a.name}>
-              <img src={a.src} alt={a.name} loading="lazy" />
-            </a>
-          </li>
-        ))}
-      </ul>
-
-      <p class="source-line">
-        <a href={page.pulse.source.href} target="_blank" rel="noopener">{page.pulse.source.label} →</a>
-      </p>
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- CADENCE — seven-day shape as day chips                    -->
-    <!-- ========================================================= -->
-    <section class="section cadence" aria-labelledby="cadence-title" data-reveal>
-      <header class="section__head">
-        <p class="kicker">{page.cadence.kicker}</p>
-        <h2 id="cadence-title">{page.cadence.headline}</h2>
-        <p class="section__body">{page.cadence.body}</p>
-      </header>
-      <ol class="days">
-        {page.cadence.days.map((d) => {
-          const state = d.n < 4 ? "open" : d.n < 6 ? "dim" : "locked";
-          return (
-            <li class={`day day--${state}`} style={`--i: ${d.n}`}>
-              <span class="day__seal" aria-hidden="true">
-                {state === "locked" ? (
-                  <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor" aria-hidden="true">
-                    <path d="M10 2a4 4 0 00-4 4v2H5a1 1 0 00-1 1v8a1 1 0 001 1h10a1 1 0 001-1V9a1 1 0 00-1-1h-1V6a4 4 0 00-4-4zm-2 6V6a2 2 0 114 0v2H8z"/>
-                  </svg>
-                ) : (
-                  <span class="day__n">{d.n}</span>
-                )}
-              </span>
-              <span class="day__kw">{state === "locked" ? "？？？" : d.kw}</span>
-              <span class="day__prompt">
-                {state === "locked" ? "第七天才揭曉的題目。" : d.prompt}
-              </span>
-              <span class="day__ribbon" aria-hidden="true">DAY {String(d.n).padStart(2, "0")}</span>
-            </li>
-          );
-        })}
-      </ol>
-      <p class="days__note">
-        第 4–5 天題目會在每期第 3 天上午解鎖；第 6–7 天則會在前一天上午送到信箱——讓期待感與書寫同步。
-      </p>
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- EVENTS — 8 期 marquee timeline                            -->
-    <!-- ========================================================= -->
-    <section id="events" class="section events" aria-labelledby="events-title" data-reveal>
-      <header class="section__head">
-        <p class="kicker">Seasons · 時間軸</p>
-        <h2 id="events-title">每一期，都是一座書寫小鎮。</h2>
-        <p class="section__body">
-          從 2025 春到 2026 夏——近十二期的時間線。每一條街道都還開著，點進去能讀到那一季文友留下的文字。
-        </p>
-      </header>
-
-      <ol class="timeline" aria-label="近八期七日書時間軸">
-        {page.events.map((e, i) => {
-          const phaseKey = e.phase === "進行中" ? "live" : e.phase === "即將開始" ? "soon" : "done";
-          return (
-            <li class={`tl-node tl-node--${phaseKey} tl-node--${i % 2 === 0 ? "left" : "right"}`} style={`--i: ${i}`}>
-              <div class="tl-axis" aria-hidden="true">
-                <span class="tl-dot"></span>
-                <span class="tl-season">{e.season}</span>
-              </div>
-              <a class="tl-card" href={e.href} target="_blank" rel="noopener">
-                <div class="tl-card__media">
-                  <img src={`${e.cover}${e.cover.includes("?") ? "&" : ""}`} alt={`${e.name} 主視覺`} loading="lazy" />
-                  <span class={`tl-phase tl-phase--${phaseKey}`}>{e.phase}</span>
-                </div>
-                <div class="tl-card__body">
-                  <h3>七日書｜{e.name}</h3>
-                  <p>{e.description}</p>
-                  <div class="tl-card__meta">
-                    <span class="tl-card__window">{e.writingWindow}</span>
-                    {e.participants && (
-                      <span class="tl-card__chip">
-                        <strong>{e.participants}</strong> 位完成 · {e.newcomers} 位新作者
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </a>
-            </li>
-          );
-        })}
-      </ol>
-
-      <p class="timeline__foot">
-        七日書每月一期，常態節奏可追溯到 2024 春。完整歷年可見
-        <a href="https://matters.town/events?type=ended" target="_blank" rel="noopener">Matters events 列表 →</a>
-      </p>
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- VOICES — 6 real essay excerpts                            -->
-    <!-- ========================================================= -->
-    <section id="voices" class="section voices" aria-labelledby="voices-title" data-reveal>
-      <header class="section__head">
-        <p class="kicker">Voices</p>
-        <h2 id="voices-title">他們在七天裡寫了這些。</h2>
-        <p class="section__body">
-          隨機六段近三期的文字。點進去讀完整篇——每段背後都是一位具體的人、一段具體的週三下午。
-        </p>
-      </header>
-      <div class="voice-grid">
-        {page.voices.map((v, i) => (
-          <a class="voice" href={v.href} target="_blank" rel="noopener" style={`--i: ${i}`}>
-            <div class="voice__top">
-              <img class="voice__avatar" src={v.avatar} alt={v.author} loading="lazy" />
-              <div class="voice__meta">
-                <span class="voice__author">{v.author}</span>
-                <span class="voice__season">{v.season}</span>
-              </div>
-              <span class="voice__day">{v.dayLabel}</span>
-            </div>
-            <h3 class="voice__title">{v.title}</h3>
-            <p class="voice__excerpt">「{v.excerpt}」</p>
-            <span class="voice__more">讀完整篇 →</span>
-          </a>
-        ))}
-      </div>
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- GALLERY — 視覺記憶                                          -->
-    <!-- ========================================================= -->
-    <section class="section gallery" aria-labelledby="gallery-title" data-reveal>
-      <header class="section__head">
-        <p class="kicker">{page.gallery.kicker}</p>
-        <h2 id="gallery-title">{page.gallery.headline}</h2>
-        <p class="section__body">{page.gallery.body}</p>
-      </header>
-      <div class="gal-grid">
-        {page.gallery.images.map((img, i) => (
-          <figure class="gal-cell" style={`--i: ${i}`}>
-            <img src={img.src} alt={img.alt} loading="lazy" />
-          </figure>
-        ))}
-      </div>
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- PASSPORT — 大滿貫憑證                                      -->
-    <!-- ========================================================= -->
-    <section id="passport" class="section passport" aria-labelledby="passport-title" data-reveal>
-      <div class="passport__copy">
-        <p class="kicker">{page.passport.kicker}</p>
-        <h2 id="passport-title">{page.passport.headline}</h2>
-        <p class="section__body">{page.passport.body}</p>
-        <a class="btn btn--ghost" href={page.passport.link.href} target="_blank" rel="noopener">
-          {page.passport.link.label} →
-        </a>
-      </div>
-      <div class="passport__art passport__art--svg">
-        <div class="passport__badge-wrap">
-          <GrandBadge size={220} />
-          <div class="passport__rays" aria-hidden="true"></div>
-        </div>
-        <p class="passport__caption">
-          <strong>Grand Slam · 大滿貫</strong><br />
-          完成 7/7，鑄造屬於你的 Writing Passport。
-        </p>
-      </div>
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- PARTNERS — B2B 次層                                        -->
-    <!-- ========================================================= -->
-    <section id="partners" class="section partners" aria-labelledby="partners-title" data-reveal>
-      <header class="section__head">
-        <p class="kicker">{page.partners.kicker}</p>
-        <h2 id="partners-title">{page.partners.headline}</h2>
-        <p class="section__body">{page.partners.body}</p>
-      </header>
-
-      <div class="case">
-        <div class="case__media">
-          <img src={page.partners.caseStudy.image} alt={page.partners.caseStudy.title} loading="lazy" />
-        </div>
-        <div class="case__copy">
-          <span class="kicker">Partner case</span>
-          <h3>{page.partners.caseStudy.title}</h3>
-          <p>{page.partners.caseStudy.summary}</p>
-          <ul>
-            {page.partners.caseStudy.facts.map((f) => <li>{f}</li>)}
-          </ul>
-        </div>
-      </div>
-
-      <div class="packages">
-        {page.partners.packages.map((p) => (
-          <article class="pkg">
-            <h3>{p.title}</h3>
-            <p>{p.body}</p>
-          </article>
-        ))}
-      </div>
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- FAQ                                                        -->
-    <!-- ========================================================= -->
-    <section class="section faq" aria-labelledby="faq-title" data-reveal>
-      <header class="section__head">
-        <p class="kicker">FAQ</p>
-        <h2 id="faq-title">關於七日書</h2>
-      </header>
-      <div class="faq__list">
-        {page.faq.map((f, i) => (
-          <details class="faq__item" open={i === 0}>
-            <summary>{f.q}</summary>
-            <p>{f.a}</p>
-          </details>
-        ))}
-      </div>
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- CLOSING + CONTACT                                          -->
-    <!-- ========================================================= -->
-    <section id="contact" class="section closing" aria-labelledby="closing-title" data-reveal>
-      <h2 id="closing-title">{page.closing.headline}</h2>
-      <p class="closing__body">{page.closing.body}</p>
-      <div class="hero__cta closing__cta">
-        <a class="btn btn--primary" href={page.closing.primaryCta.href} target="_blank" rel="noopener">
-          {page.closing.primaryCta.label}
-        </a>
-        <a class="btn btn--ghost" href={page.contactHref}>
-          {page.closing.secondaryCta.label}
-        </a>
-      </div>
-    </section>
-
-    <footer class="footer">
-      <div class="footer__brand">
-        <MattersWordmark size={14} />
-        <span>· 七日書</span>
-      </div>
-      <div class="footer__links">
-        <a href="https://matters.town/@freewrite" target="_blank" rel="noopener">@freewrite</a>
-        <a href="https://matters.town/tags/167821-%E4%B8%83%E6%97%A5%E6%9B%B8" target="_blank" rel="noopener">#七日書</a>
-        <a href="https://matters.town" target="_blank" rel="noopener">matters.town</a>
-      </div>
-      <span class="footer__c">© {new Date().getFullYear()} Matters Lab</span>
-    </footer>
-  </main>
-</BaseLayout>
-
-<script>
-  // Scroll reveal — add .is-visible when section enters viewport
-  const io = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) {
-          e.target.classList.add("is-visible");
-          io.unobserve(e.target);
-        }
+    openButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        if (dialog && typeof dialog.showModal === "function")
+          dialog.showModal();
       });
-    },
-    { threshold: 0.1, rootMargin: "0px 0px -80px 0px" },
-  );
-  document.querySelectorAll("[data-reveal]").forEach((el) => io.observe(el));
+    });
 
-  // Pause marquee on hover
-  document.querySelectorAll("[data-marquee]").forEach((m) => {
-    m.addEventListener("mouseenter", () => m.classList.add("is-paused"));
-    m.addEventListener("mouseleave", () => m.classList.remove("is-paused"));
-  });
-</script>
+    closeButtons.forEach((button) => {
+      button.addEventListener("click", () => dialog?.close());
+    });
 
-<style>
-  :global(html) {
-    scroll-padding-top: 72px;
-  }
-  :global(body) {
-    background: var(--page-bg);
-    background-image:
-      radial-gradient(at 20% 0%, rgba(25, 153, 208, 0.05) 0, transparent 55%),
-      radial-gradient(at 90% 80%, rgba(4, 88, 152, 0.04) 0, transparent 60%);
-  }
-
-  /* ─── Top bar ─────────────────────────────────────────────── */
-  .topbar {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 24px;
-    padding: 14px clamp(20px, 4vw, 40px);
-    background: rgba(247, 247, 247, 0.85);
-    backdrop-filter: saturate(140%) blur(10px);
-    -webkit-backdrop-filter: saturate(140%) blur(10px);
-    border-bottom: 1px solid var(--line);
-  }
-  .topbar__brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--ink);
-    text-decoration: none;
-    font-family: var(--font-reading);
-    font-weight: 600;
-    transition: color 200ms;
-  }
-  .topbar__brand:hover {
-    color: var(--freewrite-text-dark);
-  }
-  .topbar__dot {
-    color: var(--freewrite-label);
-  }
-  .topbar__product {
-    font-size: 15px;
-    letter-spacing: 0.04em;
-  }
-  .topbar__nav {
-    display: flex;
-    justify-content: center;
-    gap: 22px;
-    font-size: 14px;
-  }
-  .topbar__nav a {
-    color: var(--ink-muted);
-    text-decoration: none;
-    transition: color 180ms;
-  }
-  .topbar__nav a:hover {
-    color: var(--freewrite-text-dark);
-  }
-  .topbar__cta {
-    display: flex;
-    gap: 8px;
-  }
-  .chip {
-    display: inline-flex;
-    align-items: center;
-    height: 34px;
-    padding: 0 14px;
-    border-radius: 999px;
-    border: 1px solid var(--freewrite-label);
-    background: transparent;
-    color: var(--freewrite-text-dark);
-    font-size: 13px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background 180ms, transform 180ms;
-  }
-  .chip:hover {
-    background: var(--warm);
-    transform: translateY(-1px);
-  }
-  .chip--filled {
-    background: var(--freewrite-text-dark);
-    border-color: var(--freewrite-text-dark);
-    color: #fff;
-  }
-  .chip--filled:hover {
-    background: var(--freewrite-text);
-    border-color: var(--freewrite-text);
-  }
-  @media (max-width: 820px) {
-    .topbar {
-      grid-template-columns: auto auto;
-      gap: 12px;
-    }
-    .topbar__nav {
-      display: none;
-    }
-  }
-
-  /* ─── Main container ──────────────────────────────────────── */
-  .sdb {
-    font-family: var(--font-ui);
-    color: var(--ink);
-  }
-
-  /* ─── HERO ────────────────────────────────────────────────── */
-  .hero {
-    position: relative;
-    overflow: hidden;
-    min-height: min(880px, 100vh);
-    padding: clamp(80px, 12vw, 140px) clamp(20px, 4vw, 48px) 64px;
-    color: #fff;
-  }
-  .hero__backdrop {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-  }
-  .hero__cover--main {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center 30%;
-    transform: scale(1.04);
-    animation: slow-drift 28s ease-in-out infinite alternate;
-  }
-  @keyframes slow-drift {
-    from { transform: scale(1.04) translate(0, 0); }
-    to { transform: scale(1.08) translate(-1.5%, -1%); }
-  }
-  .hero__vignette {
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(180deg, rgba(4, 88, 152, 0.28) 0%, rgba(2, 30, 55, 0.62) 55%, rgba(2, 30, 55, 0.92) 100%),
-      radial-gradient(ellipse at 30% 40%, transparent 0%, rgba(2, 30, 55, 0.25) 70%);
-  }
-  .hero__noise {
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
-    background-size: 3px 3px;
-    mix-blend-mode: overlay;
-    opacity: 0.5;
-    pointer-events: none;
-  }
-  .hero__inner {
-    position: relative;
-    z-index: 1;
-    max-width: 1120px;
-    margin: 0 auto;
-  }
-  .hero__eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 0 20px;
-    padding: 6px 14px;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 999px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 0.05em;
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(6px);
-  }
-  .pulse-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    /* Matters new-palette lime — sole brand-identity tint per spec */
-    background: var(--color-brand-new-green);
-    box-shadow: 0 0 0 0 rgba(195, 244, 50, 0.7);
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(195, 244, 50, 0.7); }
-    70% { box-shadow: 0 0 0 12px rgba(195, 244, 50, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(195, 244, 50, 0); }
-  }
-  .hero__title {
-    margin: 0;
-    font-family: var(--font-reading);
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    text-wrap: balance;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .hero__title-top {
-    display: inline-block;
-    font-size: clamp(1.2rem, 2.2vw, 1.8rem);
-    font-weight: 600;
-    letter-spacing: 0.4em;
-    padding-left: 0.4em;
-    color: rgba(255, 255, 255, 0.85);
-    padding-bottom: 8px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
-    max-width: fit-content;
-  }
-  .hero__title-main {
-    display: block;
-    font-size: clamp(2.4rem, 6vw, 5rem);
-    line-height: 1.18;
-    white-space: pre-line;
-    max-width: 14ch;
-  }
-  .hero__lead {
-    max-width: 640px;
-    margin: 28px 0 0;
-    font-size: clamp(1.05rem, 1.5vw, 1.35rem);
-    line-height: 1.8;
-    color: rgba(255, 255, 255, 0.92);
-    text-wrap: pretty;
-  }
-  .hero__cta {
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-    margin-top: 36px;
-  }
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 50px;
-    padding: 0 26px;
-    border-radius: 999px;
-    font-weight: 700;
-    font-size: 15px;
-    text-decoration: none;
-    transition: transform 180ms, background 200ms, color 200ms, border-color 200ms;
-    border: 1px solid transparent;
-  }
-  .btn:hover {
-    transform: translateY(-2px);
-  }
-  .btn__arrow {
-    transition: transform 200ms;
-  }
-  .btn:hover .btn__arrow {
-    transform: translateX(4px);
-  }
-  .btn--primary {
-    background: #fff;
-    color: var(--freewrite-text-dark);
-    border-color: #fff;
-  }
-  .btn--primary:hover {
-    background: var(--freewrite-text-dark);
-    color: #fff;
-    border-color: var(--freewrite-text-dark);
-  }
-  .btn--ghost {
-    background: transparent;
-    color: currentColor;
-    border-color: rgba(255, 255, 255, 0.6);
-  }
-  .btn--ghost:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: #fff;
-  }
-  /* In light sections, btn--ghost takes ink theme */
-  .section .btn--primary {
-    background: var(--freewrite-text-dark);
-    color: #fff;
-    border-color: var(--freewrite-text-dark);
-  }
-  .section .btn--primary:hover {
-    background: var(--freewrite-text);
-    border-color: var(--freewrite-text);
-  }
-  .section .btn--ghost {
-    color: var(--freewrite-text-dark);
-    border-color: var(--freewrite-label);
-  }
-  .section .btn--ghost:hover {
-    background: var(--warm);
-    border-color: var(--freewrite-text-dark);
-  }
-
-  .hero__avatars {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    align-items: center;
-    margin-top: 48px;
-    max-width: 620px;
-  }
-  .hero__av {
-    display: block;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid rgba(255, 255, 255, 0.92);
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(2, 30, 55, 0.3);
-    transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
-    animation: av-fade-in 600ms ease-out both;
-    animation-delay: var(--delay, 0ms);
-  }
-  .hero__av:hover {
-    transform: translateY(-6px) scale(1.2);
-    z-index: 3;
-  }
-  .hero__av img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .hero__av--more {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.15);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    text-decoration: none;
-    backdrop-filter: blur(6px);
-  }
-  @keyframes av-fade-in {
-    from { opacity: 0; transform: translateY(8px) scale(0.85); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
-  /* ─── Section base — Matters DS Board pattern ─────────────── */
-  /* spec: white card + shadow1 + radius 16 + padding 40/48 on greyLighter page bg.
-     Each Board is centred at max 1080 with a viewport gutter so the shadow
-     reads on mobile too. Hero remains full-bleed and sits above the first board. */
-  .section {
-    position: relative;
-    max-width: var(--board-max);
-    width: calc(100% - clamp(32px, 6vw, 64px));
-    margin: 0 auto var(--board-gap);
-    padding: var(--board-pad-y) var(--board-pad-x);
-    background: var(--board-bg);
-    border-radius: var(--board-radius);
-    box-shadow: var(--board-shadow);
-    opacity: 0;
-    transform: translateY(24px);
-    transition: opacity 700ms ease-out, transform 700ms ease-out;
-  }
-  /* gap between hero (full-bleed) and first board */
-  .hero + .section {
-    margin-top: var(--board-gap);
-  }
-  .section.is-visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .section {
-      opacity: 1;
-      transform: none;
-      transition: none;
-    }
-    .hero__cover--main,
-    .hero__av,
-    .pulse-dot {
-      animation: none !important;
-    }
-  }
-  .section__head {
-    max-width: 720px;
-    margin: 0 auto var(--space-sp32);
-    text-align: center;
-  }
-  /* eyebrow ≈ ds typography.system.small.regular (PingFang 12/18) */
-  .kicker {
-    display: inline-block;
-    margin: 0 0 12px;
-    padding: 4px 12px;
-    border: 1px solid var(--freewrite-label);
-    border-radius: 999px;
-    font-family: var(--font-ui);
-    font-size: 12px;
-    line-height: 18px;
-    letter-spacing: 0.06em;
-    color: var(--freewrite-text-dark);
-    background: var(--freewrite-bg);
-  }
-  /* H2 ≈ ds typography.article.title (Noto Serif 24→32 / 600 / ls 1.2) */
-  .section h2 {
-    margin: 0 0 16px;
-    font-family: var(--font-reading);
-    font-weight: 600;
-    font-size: clamp(1.5rem, 3vw, 2rem);
-    line-height: 1.4;
-    letter-spacing: 1.2px;
-    color: var(--ink);
-    text-wrap: balance;
-  }
-  /* body ≈ ds typography.system.body1.regular (PingFang 16/24) +
-     looser line-height for landing-page rhythm */
-  .section__body {
-    margin: 0;
-    font-family: var(--font-ui);
-    font-size: 16px;
-    line-height: 1.7;
-    color: var(--ink-muted);
-    text-wrap: pretty;
-  }
-
-  /* ─── Pulse / stats + avatar wall ─────────────────────────── */
-  .stat-row {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 16px;
-    margin: 0 0 40px;
-  }
-  .stat {
-    padding: 24px 18px;
-    text-align: center;
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(4px);
-    transition: transform 220ms, box-shadow 220ms, border-color 220ms;
-  }
-  .stat:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(4, 88, 152, 0.08);
-    border-color: var(--freewrite-text-dark);
-  }
-  .stat strong {
-    display: block;
-    font-family: var(--font-reading);
-    font-size: clamp(2rem, 3.5vw, 2.75rem);
-    font-weight: 700;
-    color: var(--freewrite-text-dark);
-    line-height: 1;
-  }
-  .stat span {
-    display: block;
-    margin-top: 10px;
-    font-size: 13px;
-    color: var(--ink-muted);
-  }
-  .avatar-wall {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    padding: 0;
-    margin: 0 0 24px;
-    list-style: none;
-  }
-  .avatar-wall li {
-    animation: av-fade-in 600ms ease-out both;
-    animation-delay: calc(var(--i) * 40ms);
-  }
-  .avatar-wall a {
-    display: block;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid #fff;
-    box-shadow: 0 2px 6px rgba(4, 88, 152, 0.1);
-    transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 220ms;
-  }
-  .avatar-wall a:hover {
-    transform: translateY(-6px) scale(1.25);
-    z-index: 2;
-    box-shadow: 0 12px 24px rgba(4, 88, 152, 0.2);
-  }
-  .avatar-wall img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .source-line {
-    text-align: center;
-    margin: 16px 0 0;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--ink-muted);
-  }
-  .source-line a {
-    color: var(--ink-muted);
-    text-decoration: none;
-  }
-  .source-line a:hover {
-    color: var(--freewrite-text-dark);
-  }
-
-  /* ─── Cadence / 7 days ────────────────────────────────────── */
-  /* Spec docs/handoff-specs/seven-day-book-landing.md → DayPromptRow:
-     7 equal cells, gap sp10, each cell radius 10, padding 14/10. */
-  .days {
-    display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: var(--space-sp10);
-    padding: 0;
-    margin: 0;
-    list-style: none;
-    position: relative;
-  }
-  .days::before {
-    content: "";
-    position: absolute;
-    top: 36px;
-    left: 32px;
-    right: 32px;
-    height: 2px;
-    background: repeating-linear-gradient(90deg, var(--freewrite-label) 0 6px, transparent 6px 12px);
-    z-index: 0;
-    pointer-events: none;
-  }
-  .day {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    padding: 14px 10px 16px;
-    border: 1px solid var(--freewrite-label);
-    border-radius: 10px;
-    background: #fff;
-    text-align: center;
-    z-index: 1;
-    transition: transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1), border-color 220ms, background 300ms, box-shadow 260ms;
-    animation: day-rise 600ms ease-out both;
-    animation-delay: calc(var(--i) * 90ms);
-    overflow: hidden;
-  }
-  .day:hover {
-    transform: translateY(-6px);
-    border-color: var(--freewrite-text-dark);
-    box-shadow: 0 14px 30px rgba(4, 88, 152, 0.14);
-  }
-  .day__seal {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: var(--freewrite-bg);
-    border: 2px solid var(--freewrite-label);
-    color: var(--freewrite-text-dark);
-    font-family: var(--font-reading);
-    font-weight: 700;
-    font-size: 1.35rem;
-    line-height: 1;
-  }
-  .day__n { display: inline-block; }
-  .day__kw {
-    font-family: var(--font-reading);
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--ink);
-    letter-spacing: 0.02em;
-  }
-  .day__prompt {
-    font-size: 12px;
-    line-height: 1.6;
-    color: var(--ink-muted);
-    text-wrap: pretty;
-    max-width: 14ch;
-  }
-  .day__ribbon {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 2px 8px;
-    background: var(--warm);
-    color: var(--freewrite-text-dark);
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    border-bottom-left-radius: 10px;
-    opacity: 0.85;
-  }
-
-  /* Day states: open > dim > locked */
-  .day--open {
-    background: linear-gradient(180deg, #fff 0%, var(--freewrite-bg) 100%);
-  }
-  .day--open .day__seal {
-    background: var(--freewrite-text-dark);
-    color: #fff;
-    border-color: var(--freewrite-text-dark);
-    box-shadow: 0 4px 10px rgba(4, 88, 152, 0.24);
-  }
-  .day--dim {
-    opacity: 0.82;
-  }
-  .day--dim .day__seal {
-    background: #fff;
-    color: var(--freewrite-text);
-    border-color: var(--freewrite-label);
-    border-style: dashed;
-  }
-  .day--dim .day__kw,
-  .day--dim .day__prompt {
-    filter: blur(0.3px);
-  }
-  .day--dim:hover {
-    opacity: 1;
-  }
-  .day--dim:hover .day__kw,
-  .day--dim:hover .day__prompt {
-    filter: none;
-  }
-  .day--locked {
-    background: repeating-linear-gradient(
-      135deg,
-      var(--color-info-0) 0 6px,
-      var(--color-info-100) 6px 12px
-    );
-  }
-  .day--locked .day__seal {
-    background: #fff;
-    color: var(--ink-muted);
-    border: 2px dashed var(--line-strong);
-  }
-  .day--locked .day__kw {
-    color: var(--ink-muted);
-    letter-spacing: 0.1em;
-  }
-  .day--locked .day__prompt {
-    color: var(--ink-muted);
-    font-style: italic;
-    opacity: 0.7;
-  }
-  .day--locked::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, transparent 60%, rgba(131, 186, 209, 0.08) 100%);
-    pointer-events: none;
-  }
-  .day--locked:hover .day__seal {
-    border-style: solid;
-    border-color: var(--freewrite-text-dark);
-    color: var(--freewrite-text-dark);
-  }
-
-  .days__note {
-    margin: 24px auto 0;
-    text-align: center;
-    max-width: 560px;
-    font-size: 13px;
-    line-height: 1.8;
-    color: var(--ink-muted);
-  }
-
-  @keyframes day-rise {
-    from { opacity: 0; transform: translateY(18px) rotate(-1deg); }
-    to { opacity: 1; transform: translateY(0) rotate(0); }
-  }
-
-  /* ─── Events timeline (zigzag, tight) ─────────────────────── */
-  .timeline {
-    position: relative;
-    list-style: none;
-    margin: 0;
-    padding: 8px 0;
-  }
-  .timeline::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    width: 2px;
-    background: repeating-linear-gradient(180deg, var(--freewrite-label) 0 6px, transparent 6px 14px);
-    transform: translateX(-50%);
-  }
-  .tl-node {
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 120px minmax(0, 1fr);
-    align-items: center;
-    gap: 0;
-    padding: 10px 0;
-  }
-  .tl-axis {
-    grid-column: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    position: relative;
-    z-index: 2;
-    /* axis content sits at vertical middle of the card row — align-items:center
-       on .tl-node already centers it; guard with min-height if card is tall */
-  }
-  .tl-dot {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: #fff;
-    border: 3px solid var(--freewrite-text-dark);
-    box-shadow: 0 0 0 4px var(--freewrite-bg);
-  }
-  .tl-node--live .tl-dot {
-    background: var(--color-brand-new-green);
-    border-color: var(--freewrite-text-dark);
-    animation: tl-pulse 2s ease-in-out infinite;
-  }
-  .tl-node--soon .tl-dot {
-    background: var(--freewrite-text-dark);
-    border-color: var(--freewrite-text-dark);
-  }
-  .tl-node--done .tl-dot {
-    background: var(--freewrite-label);
-    border-color: var(--freewrite-label);
-  }
-  @keyframes tl-pulse {
-    0%, 100% { box-shadow: 0 0 0 4px var(--freewrite-bg), 0 0 0 8px rgba(195,244,50,0.5); }
-    50% { box-shadow: 0 0 0 4px var(--freewrite-bg), 0 0 0 16px rgba(195,244,50,0); }
-  }
-  .tl-season {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    color: var(--ink-muted);
-    padding: 3px 10px;
-    border-radius: 999px;
-    background: #fff;
-    border: 1px solid var(--line);
-  }
-  .tl-card {
-    display: grid;
-    grid-template-columns: 112px minmax(0, 1fr);
-    gap: 14px;
-    padding: 14px;
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    background: #fff;
-    text-decoration: none;
-    color: inherit;
-    transition: transform 240ms, box-shadow 240ms, border-color 240ms;
-    min-height: 132px;
-  }
-  .tl-card:hover {
-    transform: translateY(-3px);
-    border-color: var(--freewrite-text-dark);
-    box-shadow: 0 14px 28px rgba(4, 88, 152, 0.14);
-  }
-  .tl-node--left .tl-card {
-    grid-column: 1;
-    grid-template-columns: minmax(0, 1fr) 112px;
-  }
-  .tl-node--left .tl-card__media {
-    order: 2;
-  }
-  .tl-node--left .tl-card__body {
-    text-align: right;
-  }
-  .tl-node--left .tl-card__meta {
-    justify-content: flex-end;
-  }
-  .tl-node--right .tl-card {
-    grid-column: 3;
-  }
-  .tl-card__media {
-    position: relative;
-    aspect-ratio: 1 / 1;
-    border-radius: 10px;
-    overflow: hidden;
-    background: var(--warm);
-  }
-  .tl-card__media img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 500ms ease;
-  }
-  .tl-card:hover .tl-card__media img {
-    transform: scale(1.07);
-  }
-  .tl-phase {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    padding: 3px 8px;
-    border-radius: 999px;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.05em;
-    background: rgba(255,255,255,0.92);
-    color: var(--ink);
-    backdrop-filter: blur(4px);
-  }
-  .tl-phase--live {
-    background: var(--color-brand-new-green);
-    color: var(--color-grey-black);
-    font-weight: 700;
-  }
-  .tl-phase--soon {
-    background: var(--freewrite-text-dark);
-    color: #fff;
-    font-weight: 700;
-  }
-  .tl-card__body {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    justify-content: center;
-  }
-  .tl-card__body h3 {
-    margin: 0;
-    font-family: var(--font-reading);
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.35;
-    color: var(--ink);
-  }
-  .tl-card__body p {
-    margin: 2px 0 8px;
-    font-size: 12.5px;
-    line-height: 1.55;
-    color: var(--ink-muted);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .tl-card__meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px;
-    margin-top: auto;
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    color: var(--ink-muted);
-  }
-  .tl-card__window::before {
-    content: "🗓  ";
-    margin-right: 2px;
-  }
-  .tl-card__chip {
-    padding: 3px 10px;
-    border-radius: 999px;
-    background: var(--warm);
-    color: var(--freewrite-text-dark);
-  }
-  .tl-card__chip strong {
-    font-weight: 700;
-  }
-  .timeline__foot {
-    margin: 32px auto 0;
-    text-align: center;
-    font-size: 13px;
-    color: var(--ink-muted);
-    font-family: var(--font-mono);
-  }
-  .timeline__foot a {
-    color: var(--freewrite-text-dark);
-    text-decoration: none;
-    font-weight: 700;
-  }
-  .timeline__foot a:hover {
-    text-decoration: underline;
-  }
-
-  /* ─── Voices grid ─────────────────────────────────────────── */
-  .voice-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 18px;
-  }
-  /* Spec → EntryCard: radius 12, transparent border defaulting to
-     freewrite-label on hover for tactile feedback. */
-  .voice {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    padding: 24px;
-    border: 1px solid transparent;
-    border-radius: 12px;
-    background: #fff;
-    text-decoration: none;
-    color: inherit;
-    transition: transform 220ms, border-color 220ms, box-shadow 220ms;
-    position: relative;
-  }
-  .voice::before {
-    content: "“";
-    position: absolute;
-    top: 6px;
-    right: 18px;
-    font-family: var(--font-reading);
-    font-size: 4rem;
-    line-height: 1;
-    color: var(--freewrite-label);
-    opacity: 0.45;
-  }
-  .voice:hover {
-    transform: translateY(-4px);
-    border-color: var(--freewrite-label);
-    box-shadow: 0 16px 32px rgba(4, 88, 152, 0.12);
-  }
-  .voice__top {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .voice__avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex: 0 0 40px;
-  }
-  .voice__meta {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-  }
-  .voice__author {
-    font-weight: 700;
-    font-size: 14px;
-  }
-  .voice__season {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--ink-muted);
-  }
-  .voice__day {
-    margin-left: auto;
-    padding: 3px 8px;
-    border-radius: 999px;
-    background: var(--freewrite-bg);
-    border: 1px solid var(--freewrite-label);
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.06em;
-    color: var(--freewrite-text-dark);
-  }
-  .voice__title {
-    margin: 0;
-    font-family: var(--font-reading);
-    font-size: 1.1rem;
-    line-height: 1.45;
-    color: var(--ink);
-  }
-  .voice__excerpt {
-    margin: 0;
-    font-family: var(--font-reading);
-    font-size: 15px;
-    line-height: 1.8;
-    color: var(--ink);
-  }
-  .voice__more {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--freewrite-text-dark);
-    letter-spacing: 0.04em;
-    transition: transform 200ms;
-  }
-  .voice:hover .voice__more {
-    transform: translateX(4px);
-  }
-
-  /* ─── Gallery ─────────────────────────────────────────────── */
-  .gal-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    grid-auto-rows: 110px;
-    gap: 8px;
-  }
-  .gal-cell {
-    margin: 0;
-    overflow: hidden;
-    border-radius: 10px;
-    background: var(--warm);
-    transition: transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 240ms;
-    animation: gal-fade 600ms ease-out both;
-    animation-delay: calc(var(--i) * 60ms);
-  }
-  .gal-cell:hover {
-    transform: scale(1.04);
-    box-shadow: 0 12px 30px rgba(4, 88, 152, 0.18);
-    z-index: 2;
-  }
-  /* irregular mosaic — alternate spans for visual rhythm */
-  .gal-cell:nth-child(1) { grid-column: span 2; grid-row: span 2; }
-  .gal-cell:nth-child(4) { grid-column: span 2; }
-  .gal-cell:nth-child(7) { grid-row: span 2; }
-  .gal-cell:nth-child(10) { grid-column: span 2; grid-row: span 2; }
-  .gal-cell img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 700ms ease;
-  }
-  .gal-cell:hover img {
-    transform: scale(1.1);
-  }
-  @keyframes gal-fade {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* ─── Passport — grand badge SVG ──────────────────────────── */
-  .passport {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
-    gap: clamp(32px, 5vw, 64px);
-    align-items: center;
-  }
-  .passport__copy {
-    text-align: left;
-  }
-  .passport__copy h2 {
-    text-align: left;
-    margin-top: 8px;
-  }
-  .passport__copy .kicker {
-    margin-left: 0;
-  }
-  .passport__copy .section__body {
-    text-align: left;
-  }
-  .passport__copy .btn {
-    margin-top: 20px;
-  }
-  .passport__art--svg {
-    display: grid;
-    place-items: center;
-    gap: 24px;
-    text-align: center;
-  }
-  .passport__badge-wrap {
-    position: relative;
-    display: grid;
-    place-items: center;
-    padding: 40px;
-    border-radius: 50%;
-    background:
-      radial-gradient(circle, rgba(255, 198, 136, 0.25) 0%, transparent 70%),
-      radial-gradient(circle at 30% 30%, rgba(4, 88, 152, 0.08) 0%, transparent 60%);
-    filter: drop-shadow(0 24px 60px rgba(4, 88, 152, 0.18));
-    animation: badge-float 5s ease-in-out infinite;
-  }
-  .passport__rays {
-    position: absolute;
-    inset: -40px;
-    background:
-      conic-gradient(from 0deg,
-        rgba(255, 198, 136, 0.22) 0deg 15deg,
-        transparent 15deg 60deg,
-        rgba(255, 198, 136, 0.14) 60deg 75deg,
-        transparent 75deg 120deg,
-        rgba(255, 198, 136, 0.22) 120deg 135deg,
-        transparent 135deg 180deg,
-        rgba(255, 198, 136, 0.14) 180deg 195deg,
-        transparent 195deg 240deg,
-        rgba(255, 198, 136, 0.22) 240deg 255deg,
-        transparent 255deg 300deg,
-        rgba(255, 198, 136, 0.14) 300deg 315deg,
-        transparent 315deg 360deg);
-    border-radius: 50%;
-    animation: badge-rays 22s linear infinite;
-    z-index: -1;
-    filter: blur(12px);
-  }
-  @keyframes badge-float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-  }
-  @keyframes badge-rays {
-    from { transform: rotate(0); }
-    to { transform: rotate(360deg); }
-  }
-  :global(.grand-badge-svg) {
-    display: block;
-    filter: drop-shadow(0 8px 16px rgba(204, 75, 50, 0.3));
-  }
-  .passport__caption {
-    margin: 0;
-    font-family: var(--font-reading);
-    font-size: 15px;
-    line-height: 1.8;
-    color: var(--ink);
-  }
-  .passport__caption strong {
-    display: inline-block;
-    margin-bottom: 4px;
-    padding: 4px 14px;
-    /* Decorative Grand-Slam gold — sits outside the freewrite palette by
-       design (spec docs/handoff-specs/seven-day-book-landing.md "若後續要做
-       完成徽章再評估引入 color.brand.legacy.gold"). Kept until DS adopts a
-       seven-day-book gold token. */
-    background: linear-gradient(135deg, #FFC688, #E89F4F);
-    color: #33291F;
-    border-radius: 999px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-  }
-
-  /* ─── Partners ────────────────────────────────────────────── */
-  /* .case sits inside the Partners Board — no inner card chrome
-     (avoids card-in-card); horizontal divider gives some structure. */
-  .case {
-    display: grid;
-    grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
-    gap: clamp(28px, 4vw, 56px);
-    align-items: center;
-    padding: 0 0 var(--space-sp32);
-    border-bottom: 1px solid var(--line);
-    margin-bottom: var(--space-sp32);
-  }
-  .case__media {
-    aspect-ratio: 4 / 5;
-    border-radius: 14px;
-    overflow: hidden;
-    background: var(--warm);
-  }
-  .case__media img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .case__copy h3 {
-    margin: 8px 0 12px;
-    font-family: var(--font-reading);
-    font-size: 1.5rem;
-    color: var(--ink);
-  }
-  .case__copy p {
-    margin: 0 0 14px;
-    color: var(--ink-muted);
-    line-height: 1.75;
-  }
-  .case__copy ul {
-    margin: 0;
-    padding-left: 1.2em;
-    color: var(--ink-muted);
-    line-height: 1.8;
-  }
-  .packages {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
-  }
-  /* Cards inside the Partners Board — soft freewrite tint instead of
-     card-in-card chrome. */
-  .pkg {
-    padding: 24px;
-    border: 1px solid transparent;
-    border-radius: 12px;
-    background: var(--freewrite-bg);
-    transition: border-color 220ms, transform 220ms, background 220ms;
-  }
-  .pkg:hover {
-    border-color: var(--freewrite-label);
-    transform: translateY(-3px);
-  }
-  .pkg h3 {
-    margin: 0 0 10px;
-    font-family: var(--font-reading);
-    font-size: 1.15rem;
-    color: var(--freewrite-text-dark);
-  }
-  .pkg p {
-    margin: 0;
-    color: var(--ink-muted);
-    line-height: 1.7;
-  }
-
-  /* ─── FAQ ─────────────────────────────────────────────────── */
-  .faq__list {
-    max-width: 820px;
-    margin: 0 auto;
-  }
-  .faq__item {
-    border-top: 1px solid var(--line);
-    padding: 20px 0;
-  }
-  .faq__item:last-child {
-    border-bottom: 1px solid var(--line);
-  }
-  .faq__item summary {
-    font-family: var(--font-reading);
-    font-weight: 700;
-    font-size: 1.05rem;
-    color: var(--ink);
-    cursor: pointer;
-    list-style: none;
-    display: flex;
-    justify-content: space-between;
-    gap: 18px;
-  }
-  .faq__item summary::-webkit-details-marker {
-    display: none;
-  }
-  .faq__item summary::after {
-    content: "＋";
-    color: var(--freewrite-text-dark);
-    font-weight: 400;
-    transition: transform 200ms;
-  }
-  .faq__item[open] summary::after {
-    content: "−";
-  }
-  .faq__item p {
-    margin: 12px 0 0;
-    color: var(--ink-muted);
-    line-height: 1.8;
-  }
-
-  /* ─── Closing — Board with freewrite tint accent ─────────── */
-  .closing {
-    text-align: center;
-    background:
-      linear-gradient(180deg, var(--freewrite-bg) 0%, var(--color-info-100) 100%),
-      var(--board-bg);
-  }
-  .closing h2 {
-    font-size: clamp(2rem, 4.5vw, 3.5rem);
-  }
-  .closing__body {
-    max-width: 520px;
-    margin: 0 auto 32px;
-    font-family: var(--font-reading);
-    font-size: 1.15rem;
-    color: var(--ink-muted);
-  }
-  .closing__cta {
-    justify-content: center;
-  }
-
-  /* ─── Footer ──────────────────────────────────────────────── */
-  .footer {
-    max-width: 1120px;
-    margin: 0 auto;
-    padding: 40px clamp(20px, 4vw, 48px) 56px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 16px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--ink-muted);
-    border-top: 1px solid var(--line);
-  }
-  .footer__brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--ink);
-  }
-  .footer__links {
-    display: flex;
-    gap: 18px;
-  }
-  .footer__links a {
-    color: var(--ink-muted);
-    text-decoration: none;
-  }
-  .footer__links a:hover {
-    color: var(--freewrite-text-dark);
-  }
-
-  /* ─── Responsive ──────────────────────────────────────────── */
-  @media (max-width: 900px) {
-    .stat-row {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .days {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-    .days::before { display: none; }
-    .passport {
-      grid-template-columns: 1fr;
-    }
-    .case {
-      grid-template-columns: 1fr;
-    }
-    .packages {
-      grid-template-columns: 1fr;
-    }
-    .gal-grid {
-      grid-template-columns: repeat(4, 1fr);
-    }
-    /* Timeline becomes single column on mobile */
-    .timeline::before {
-      left: 20px;
-    }
-    .tl-node {
-      grid-template-columns: 40px 1fr;
-      padding: 20px 0;
-    }
-    .tl-axis {
-      grid-column: 1;
-      flex-direction: column;
-    }
-    .tl-season {
-      writing-mode: horizontal-tb;
-      transform: none;
-      font-size: 10px;
-    }
-    .tl-node--left .tl-card,
-    .tl-node--right .tl-card {
-      grid-column: 2;
-      grid-template-columns: 110px 1fr;
-    }
-    .tl-node--left .tl-card__media {
-      order: 0;
-    }
-  }
-  @media (max-width: 640px) {
-    .days {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .hero {
-      min-height: auto;
-      padding-top: 100px;
-    }
-    .hero__title {
-      max-width: 100%;
-    }
-    .avatar-wall a {
-      width: 40px;
-      height: 40px;
-    }
-    .gal-grid {
-      grid-template-columns: repeat(3, 1fr);
-      grid-auto-rows: 90px;
-    }
-    .tl-card {
-      grid-template-columns: 1fr !important;
-    }
-    .tl-card__media {
-      aspect-ratio: 16 / 10;
-    }
-  }
-</style>
+    form?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const formData = new FormData(form);
+      const email = String(formData.get("email") || "").trim();
+      if (!email) return;
+      const subject = encodeURIComponent("我想收到七日書活動提醒");
+      const body = encodeURIComponent(
+        `請將這個 email 加入七日書活動提醒名單：${email}`,
+      );
+      window.location.href = `mailto:${contactEmail}?subject=${subject}&body=${body}`;
+      dialog?.close();
+    });
+  </script>
+</BaseLayout>

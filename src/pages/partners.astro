@@ -34,6 +34,13 @@ const marqueeAvatars = [
   ...shared.avatarWall.slice(0, 24),
   ...shared.avatarWall.slice(0, 24),
 ];
+
+const lectureTints = [
+  { bg: "#F0F9FE", fg: "#045898" },
+  { bg: "#FFF3DF", fg: "#A0651E" },
+  { bg: "#F2FAF7", fg: "#2D8700" },
+  { bg: "#FFFCE1", fg: "#8A6B2C" },
+];
 ---
 
 <BaseLayout title="七日書機構合作" description={partnerPage.description}>
@@ -63,7 +70,14 @@ const marqueeAvatars = [
     </header>
 
     <main>
-      <section class="hero" aria-labelledby="partner-hero-title">
+      <section class="hero hero--stacked" aria-labelledby="partner-hero-title">
+        <div class="hero__banner" aria-hidden="true">
+          <img
+            src={assetSrc(partnerPage.caseStudy.image)}
+            alt=""
+            loading="eager"
+          />
+        </div>
         <div class="hero__copy">
           <p class="eyebrow">{partnerPage.hero.eyebrow}</p>
           <h1 id="partner-hero-title">{partnerPage.hero.headline}</h1>
@@ -79,13 +93,6 @@ const marqueeAvatars = [
             >
             <a class="button button--quiet" href={homeHref}>加入寫作</a>
           </div>
-        </div>
-        <div class="hero__visual" aria-hidden="true">
-          <img
-            src={assetSrc(partnerPage.caseStudy.image)}
-            alt=""
-            loading="eager"
-          />
         </div>
       </section>
 
@@ -124,9 +131,7 @@ const marqueeAvatars = [
                     <p>{theme.description}</p>
                   </div>
                   <div class="theme-row__date">
-                    <span>{theme.season}</span>
-                    <br />
-                    <span>{theme.writingWindow}</span>
+                    <span>{theme.monthLabel}</span>
                   </div>
                 </a>
               ))
@@ -242,33 +247,39 @@ const marqueeAvatars = [
 
           <div class="lecture-grid">
             {
-              lectures.map((lecture) => (
-                <article class="lecture-card">
-                  <div class="lecture-card__speaker">
-                    <img
-                      src={assetSrc(lecture.image)}
-                      alt={lecture.speaker}
-                      loading="lazy"
-                    />
-                    <div>
-                      <strong>{lecture.speaker}</strong>
-                      <span>
-                        {lecture.role} · {lecture.theme}
+              lectures.map((lecture, idx) => {
+                const tint = lectureTints[idx % lectureTints.length];
+                const monogram = lecture.speaker.slice(0, 1);
+                return (
+                  <article class="lecture-card">
+                    <div class="lecture-card__speaker">
+                      <span
+                        class="lecture-card__monogram"
+                        aria-hidden="true"
+                        style={`background:${tint.bg};color:${tint.fg};`}
+                      >
+                        {monogram}
                       </span>
+                      <div>
+                        <strong>{lecture.speaker}</strong>
+                        <span>
+                          {lecture.role} · {lecture.theme}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <h3>{lecture.title}</h3>
-                  <p>{lecture.summary}</p>
-                  <a
-                    class="lecture-card__link"
-                    href={lecture.href}
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    {lecture.hasTranscript ? "閱讀講座文字稿" : "查看講座資訊"} →
-                  </a>
-                </article>
-              ))
+                    <h3>{lecture.title}</h3>
+                    <p>{lecture.summary}</p>
+                    <a
+                      class="lecture-card__link"
+                      href={lecture.href}
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      {lecture.hasTranscript ? "閱讀講座文字稿" : "查看講座資訊"} →
+                    </a>
+                  </article>
+                );
+              })
             }
           </div>
         </div>
@@ -288,7 +299,7 @@ const marqueeAvatars = [
             <p>文章不是活動的附屬成果，而是合作題目真正被生活回答的地方。</p>
           </header>
 
-          <WritingCardGrid articles={latestArticles.slice(0, 6)} />
+          <WritingCardGrid articles={latestArticles} />
         </div>
       </section>
 
@@ -298,12 +309,26 @@ const marqueeAvatars = [
         aria-labelledby="case-title"
       >
         <div class="section__inner case-study">
-          <div class="case-study__image">
-            <img
-              src={assetSrc(partnerPage.caseStudy.image)}
-              alt={partnerPage.caseStudy.title}
-              loading="lazy"
-            />
+          <div>
+            <div class="case-study__image">
+              <img
+                src={assetSrc(partnerPage.caseStudy.image)}
+                alt={partnerPage.caseStudy.title}
+                loading="lazy"
+              />
+            </div>
+            {
+              partnerPage.caseStudy.gallery &&
+                partnerPage.caseStudy.gallery.length > 1 && (
+                  <div class="case-study__gallery">
+                    {partnerPage.caseStudy.gallery
+                      .slice(1)
+                      .map((src) => (
+                        <img src={assetSrc(src)} alt="" loading="lazy" />
+                      ))}
+                  </div>
+                )
+            }
           </div>
           <div class="case-study__copy">
             <p class="eyebrow">合作案例</p>

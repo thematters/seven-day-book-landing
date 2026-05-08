@@ -37,7 +37,20 @@ const marqueeAvatars = [
   ...shared.avatarWall.slice(0, 22),
   ...shared.avatarWall.slice(0, 22),
 ];
-const visibleThemes = pastThemes.slice(0, 8);
+// 全部過去主題 → 4 張一頁，提供分頁點點切換
+const themesPerPage = 4;
+const themesPages: typeof pastThemes[] = [];
+for (let i = 0; i < pastThemes.length; i += themesPerPage) {
+  themesPages.push(pastThemes.slice(i, i + themesPerPage));
+}
+
+// Lecture 講者頭像簡化：取主名第一字當 monogram；用 freewrite palette 4 色輪替
+const lectureTints = [
+  { bg: "#F0F9FE", fg: "#045898" },
+  { bg: "#FFF3DF", fg: "#A0651E" },
+  { bg: "#F2FAF7", fg: "#2D8700" },
+  { bg: "#FFFCE1", fg: "#8A6B2C" },
+];
 ---
 
 <BaseLayout title="七日書" description={audiencePage.description}>
@@ -74,7 +87,14 @@ const visibleThemes = pastThemes.slice(0, 8);
     </header>
 
     <main>
-      <section class="hero" aria-labelledby="hero-title">
+      <section class="hero hero--stacked" aria-labelledby="hero-title">
+        <div class="hero__banner" aria-hidden="true">
+          <img
+            src={assetSrc(audiencePage.currentIssue.cover)}
+            alt=""
+            loading="eager"
+          />
+        </div>
         <div class="hero__copy">
           <p class="eyebrow">{audiencePage.hero.eyebrow}</p>
           <h1 id="hero-title">{audiencePage.hero.headline}</h1>
@@ -93,13 +113,6 @@ const visibleThemes = pastThemes.slice(0, 8);
             >
             <a class="button button--quiet" href={partnersHref}>洽談合作</a>
           </div>
-        </div>
-        <div class="hero__visual" aria-hidden="true">
-          <img
-            src={assetSrc(audiencePage.currentIssue.cover)}
-            alt=""
-            loading="eager"
-          />
         </div>
       </section>
 
@@ -155,48 +168,36 @@ const visibleThemes = pastThemes.slice(0, 8);
         class="section section--soft"
         aria-labelledby="current-title"
       >
-        <div class="section__inner current-layout">
-          <aside class="issue-cover" aria-label="本月主題封面">
-            <img
-              src={assetSrc(audiencePage.currentIssue.cover)}
-              alt={`七日書本月主題：${audiencePage.currentIssue.title}`}
-              loading="lazy"
-            />
-            <div class="issue-cover__caption">
-              <strong>{audiencePage.currentIssue.title}</strong>
-              <span>{audiencePage.currentIssue.summary}</span>
-            </div>
-          </aside>
-
-          <div>
-            <header class="section__header">
-              <p class="eyebrow">本月主題</p>
-              <h2 id="current-title">七道題目，一天打開一扇門。</h2>
-              <p>
-                {
-                  audiencePage.currentIssue.period
-                }。從職場標籤、身心痕跡與人設出發，慢慢寫回自己的樣子。
-              </p>
-            </header>
-
-            <ol class="day-unlock-strip" aria-label="本期七道題目">
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">本月主題</p>
+            <h2 id="current-title">
+              {audiencePage.currentIssue.title}：七道題目，一天打開一扇門。
+            </h2>
+            <p>
               {
-                audiencePage.currentIssue.prompts.map((prompt) => (
-                  <li
-                    class={`day-unlock-card day-unlock-card--${prompt.state}`}
-                  >
-                    <div class="day-unlock-card__top">
-                      <span>{prompt.date}</span>
-                      <span>{promptStateLabel[prompt.state] ?? "題目"}</span>
-                    </div>
-                    <span class="day-unlock-card__day">{prompt.day}</span>
-                    <h3>{prompt.title}</h3>
-                    <p>{prompt.prompt}</p>
-                  </li>
-                ))
-              }
-            </ol>
-          </div>
+                audiencePage.currentIssue.period
+              } · {audiencePage.currentIssue.summary}
+            </p>
+          </header>
+
+          <ol class="day-unlock-strip day-unlock-strip--full" aria-label="本期七道題目">
+            {
+              audiencePage.currentIssue.prompts.map((prompt) => (
+                <li
+                  class={`day-unlock-card day-unlock-card--${prompt.state}`}
+                >
+                  <div class="day-unlock-card__top">
+                    <span>{prompt.date}</span>
+                    <span>{promptStateLabel[prompt.state] ?? "題目"}</span>
+                  </div>
+                  <span class="day-unlock-card__day">{prompt.day}</span>
+                  <h3>{prompt.title}</h3>
+                  <p>{prompt.prompt}</p>
+                </li>
+              ))
+            }
+          </ol>
         </div>
       </section>
 
@@ -256,32 +257,52 @@ const visibleThemes = pastThemes.slice(0, 8);
             </p>
           </header>
 
-          <div class="theme-grid">
+          <div class="theme-pager" data-theme-pager>
             {
-              visibleThemes.map((theme) => (
-                <a
-                  class="theme-card"
-                  href={theme.href}
-                  target="_blank"
-                  rel="noopener"
+              themesPages.map((page, pageIdx) => (
+                <div
+                  class="theme-grid theme-grid--landscape theme-pager__page"
+                  data-page-index={pageIdx}
+                  hidden={pageIdx !== 0}
                 >
-                  <div class="theme-card__media">
-                    <img
-                      src={assetSrc(theme.visual ?? theme.cover)}
-                      alt=""
-                      loading="lazy"
-                    />
-                  </div>
-                  <div class="theme-card__body">
-                    <span class="theme-card__meta">
-                      {theme.season} · {theme.writingWindow}
-                    </span>
-                    <h3>{theme.name}</h3>
-                    <p>{theme.description}</p>
-                  </div>
-                </a>
+                  {page.map((theme) => (
+                    <a
+                      class="theme-card theme-card--landscape"
+                      href={theme.href}
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      <div class="theme-card__media">
+                        <img
+                          src={assetSrc(theme.visual ?? theme.cover)}
+                          alt=""
+                          loading="lazy"
+                        />
+                      </div>
+                      <div class="theme-card__body">
+                        <span class="theme-card__meta">{theme.monthLabel}</span>
+                        <h3>{theme.name}</h3>
+                        <p>{theme.description}</p>
+                      </div>
+                    </a>
+                  ))}
+                </div>
               ))
             }
+
+            <nav class="theme-pager__dots" aria-label="過去主題分頁切換">
+              {
+                themesPages.map((_, pageIdx) => (
+                  <button
+                    type="button"
+                    class="theme-pager__dot"
+                    data-page-target={pageIdx}
+                    aria-label={`切換到第 ${pageIdx + 1} 頁過去主題`}
+                    aria-current={pageIdx === 0 ? "true" : "false"}
+                  />
+                ))
+              }
+            </nav>
           </div>
         </div>
       </section>
@@ -302,33 +323,39 @@ const visibleThemes = pastThemes.slice(0, 8);
 
           <div class="lecture-grid">
             {
-              lectures.map((lecture) => (
-                <article class="lecture-card">
-                  <div class="lecture-card__speaker">
-                    <img
-                      src={assetSrc(lecture.image)}
-                      alt={lecture.speaker}
-                      loading="lazy"
-                    />
-                    <div>
-                      <strong>{lecture.speaker}</strong>
-                      <span>
-                        {lecture.role} · {lecture.theme}
+              lectures.map((lecture, idx) => {
+                const tint = lectureTints[idx % lectureTints.length];
+                const monogram = lecture.speaker.slice(0, 1);
+                return (
+                  <article class="lecture-card">
+                    <div class="lecture-card__speaker">
+                      <span
+                        class="lecture-card__monogram"
+                        aria-hidden="true"
+                        style={`background:${tint.bg};color:${tint.fg};`}
+                      >
+                        {monogram}
                       </span>
+                      <div>
+                        <strong>{lecture.speaker}</strong>
+                        <span>
+                          {lecture.role} · {lecture.theme}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <h3>{lecture.title}</h3>
-                  <p>{lecture.summary}</p>
-                  <a
-                    class="lecture-card__link"
-                    href={lecture.href}
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    {lecture.hasTranscript ? "閱讀講座文字稿" : "查看講座資訊"} →
-                  </a>
-                </article>
-              ))
+                    <h3>{lecture.title}</h3>
+                    <p>{lecture.summary}</p>
+                    <a
+                      class="lecture-card__link"
+                      href={lecture.href}
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      {lecture.hasTranscript ? "閱讀講座文字稿" : "查看講座資訊"} →
+                    </a>
+                  </article>
+                );
+              })
             }
           </div>
         </div>
@@ -424,6 +451,25 @@ const visibleThemes = pastThemes.slice(0, 8);
   </div>
 
   <script is:inline>
+    // ── 過去主題分頁點點 ───────────────────────────────────────
+    const pager = document.querySelector("[data-theme-pager]");
+    if (pager) {
+      const pages = pager.querySelectorAll(".theme-pager__page");
+      const dots = pager.querySelectorAll("[data-page-target]");
+      dots.forEach((dot) => {
+        dot.addEventListener("click", () => {
+          const target = Number(dot.getAttribute("data-page-target"));
+          pages.forEach((p, i) => {
+            if (i === target) p.removeAttribute("hidden");
+            else p.setAttribute("hidden", "");
+          });
+          dots.forEach((d, i) => {
+            d.setAttribute("aria-current", i === target ? "true" : "false");
+          });
+        });
+      });
+    }
+
     const dialog = document.getElementById("reminder-dialog");
     const form = document.getElementById("reminder-form");
     const contactEmail =

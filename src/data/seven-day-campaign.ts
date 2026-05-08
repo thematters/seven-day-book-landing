@@ -12,7 +12,7 @@ const CURRENT_HERO_COVER = `${CDN}/campaignCover/b0246b96-bb14-4c82-af86-62fffbd
 export const currentIssue = {
   title: "我的職場人格",
   status: "進行中",
-  period: "2026/5/4 - 2026/5/11（UTC+8）",
+  period: "2026/5/4 - 2026/5/11",
   participants: "72",
   eventHref: "https://matters.town/e/wem6xy6u7okv",
   announcementHref: "https://matters.town/a/kp08wnkn1p0o",
@@ -184,8 +184,15 @@ export const partnerPage = {
   caseStudy: {
     ...legacy.caseStudy,
     headline: "一起設計下一個，能被上千人持續書寫的題目。",
+    // 第一張為合作活動主視覺；其餘為近期合作脈絡相關 Matters 自由寫主題封面，
+    // 暫作版面節奏輔助。實際兩廳院展場照片仍待 Matters 營運提供。
+    gallery: [
+      `${CDN}/cover/1060a3d5-cbb9-4140-9b04-a0acb011449a.jpeg/public`,
+      `${CDN}/campaignCover/786b897f-c82d-4d4c-b92b-d20a75fe1218.png/public`,
+      `${CDN}/campaignCover/98d56bea-4411-481f-947b-195438bae79c.png/public`,
+    ],
     extension:
-      "兩廳院合作還可補上實體展覽照片、展場陳列說明與入選文章清單；目前頁面先保留對應的案例位置。",
+      "兩廳院合作之實體展覽照片、展場陳列說明與入選文章清單仍待 Matters 營運側補上。目前先以活動主視覺與相鄰主題封面呈現。",
   },
   packages: [
     {
@@ -216,64 +223,110 @@ export const partnerPage = {
 // 過去主題視覺：直接引用 Matters 官方 campaignCover，避免 AI placeholder 的低完成度
 const studioVisuals: Record<string, string> = {};
 
+// 12 篇取自當期活動頁（matters.town/e/wem6xy6u7okv）SSR/__NEXT_DATA__ 解析；
+// 不放 cover（多數作者未上傳），avatar 直接用真實 Matters CDN。
 export const latestArticles = [
   {
     title: "易未央 AI 世界 × 我的職場人格5",
     author: "因田木",
-    summary: "第五天：職場困難時刻",
+    summary: "第五天：職場困難時刻。",
     href: "https://matters.town/a/3k94y9x4dzaq",
-    cover: `${CDN}/cover/07329068-9adb-4788-be2a-312c395fc181.png/public`,
     avatar: `${CDN}/avatar/36f9d854-6168-46ee-afad-9f3a96f41cd7.jpeg/public`,
+  },
+  {
+    title: "看不見的暴力，和一本沒人要求我寫的書",
+    author: "mythogen.engine",
+    summary: "「不知道有沒有救到」比「沒救到」更難捱──沒有事實，沒有結論，只有一個永遠不會被回答的問題。",
+    href: "https://matters.town/a/iff4jej2f33p",
+    avatar: `${CDN}/avatar/cf0835df-34d7-473e-a9df-a5d9463e26d8.webp/public`,
   },
   {
     title: "不想當間諜的採購經理，不是好藝術家",
     author: "Anne",
     summary: "我那橫跨三界的「專業」人設。",
     href: "https://matters.town/a/dgkyaadpyvql",
-    cover: `${CDN}/embed/1a88a6a6-7cf7-4b5c-872e-d49075b716d9.png/public`,
     avatar: `${CDN}/avatar/233c2fca-f34c-48d6-8cdf-2ccc2579a5d1.jpeg/public`,
   },
   {
-    title: "職場進化論：從大聲到優雅裝軟弱",
+    title: "職場進化論：從大聲通耳屎到優雅裝軟弱",
     author: "Anne",
     summary: "在職場打滾多年，重新理解責任感與清爽的距離。",
     href: "https://matters.town/a/bmffxkppo9r1",
-    cover: `${CDN}/embed/ae9ff14e-7201-4090-9874-28a4a5da2ce2.png/public`,
     avatar: `${CDN}/avatar/233c2fca-f34c-48d6-8cdf-2ccc2579a5d1.jpeg/public`,
   },
   {
-    title: "七日書S21.4-只有一號表情",
+    title: "七日書 S21.4 — 只有一號表情",
     author: "Moonleap",
     summary: "不出錯、不沾鍋、準時下班、不需要說話就不說話。",
     href: "https://matters.town/a/99r3ryzts7c0",
-    cover: "",
     avatar: `${CDN}/avatar/dba0352e-73b1-4254-ba8e-b6b314d9d608.png/public`,
   },
   {
-    title: "七日書：我的職場人格 第五天",
-    author: "Benno",
-    summary: "回到困難時刻，看見原本不知道的自己。",
-    href: "https://matters.town/a/o0acp4tme3tu",
-    cover: "",
-    avatar: `${CDN}/avatar/3e30f88d-4436-4681-ac59-eebbcef3c282.jpeg/public`,
-  },
-  {
-    title: "我的職場人格：傳承",
+    title: "我的職場人格 — 傳承",
     author: "黎明之弧",
     summary: "傳承，是點一盞燈，照亮後來的路。",
     href: "https://matters.town/a/gjgjbgraujnh",
-    cover: `${CDN}/embed/3aa3b177-bc26-4cbe-8a85-6b5cf1b18c2b.png/public`,
     avatar: `${CDN}/avatar/0effabfd-8a41-4a48-bfab-ff6f6386b45a.jpeg/public`,
+  },
+  {
+    title: "第五天｜長期業績都是零",
+    author: "waiwaili",
+    summary: "我真的沒這本事，我認輸了。",
+    href: "https://matters.town/a/vzlybqxf53zy",
+    avatar: `${CDN}/avatar/05cf3c7b-6788-4d34-9d63-4f6f671a9975.jpeg/public`,
+  },
+  {
+    title: "《我職七日書》第五天〈承擔不起的暗潮〉",
+    author: "蘇禕Suy",
+    summary: "我進連鎖文具店前，在藥局工作。沒有醫學背景，卻要面對配藥與過敏注意。",
+    href: "https://matters.town/a/9ei1vs7fypmh",
+    avatar: `${CDN}/avatar/457bc512-a308-4068-bfe9-113d9923dd26.jpeg/public`,
+  },
+  {
+    title: "別人笑我太瘋癲",
+    author: "陳費雪",
+    summary: "我的職場人設就是「瘋子」。",
+    href: "https://matters.town/a/51l83q4vz0fe",
+    avatar: `${CDN}/avatar/55c2bcde-d024-43ca-a991-b879ee3cb830.jpeg/public`,
+  },
+  {
+    title: "來者不拒是心裡的軟弱",
+    author: "宥縈",
+    summary: "為了滿足主管常常忘了自己也有極限，需要停下來休息。",
+    href: "https://matters.town/a/8c2our5yg4on",
+    avatar: `${CDN}/avatar/609d122b-ed12-41ee-b838-b2aa83c6f776.jpeg/public`,
+  },
+  {
+    title: "《職場七日書》第四天 — 在溫和與強硬之間遊走",
+    author: "crossing",
+    summary: "職場如戲，我不停切換不同角色。",
+    href: "https://matters.town/a/cqbipbg9pp1g",
+    avatar: `${CDN}/avatar/4bf028dd-9464-4c2e-ad11-3fe17f67c661.png/public`,
+  },
+  {
+    title: "[七日書] 職場人格 — 做老白男 让别人无路可走！",
+    author: "IceYuzu",
+    summary: "我多年的职场观察告诉我，最后赢的人永远都是老白男。",
+    href: "https://matters.town/a/5bvbawrhwh1a",
+    avatar: `${CDN}/avatar/d78220da-1d68-4f94-bf0c-87e0c6181a4f.jpeg/public`,
   },
 ];
 
+// 將 season "YYYY-MM" 改為「YYYY / M」格式，給過去主題卡片用月份替代詳細日期
+const toMonthLabel = (season: string) => {
+  const [y, m] = season.split("-");
+  return `${y} / ${Number(m)}`;
+};
+
 export const historicalThemes = legacy.events.map((event) => {
+  const monthLabel = toMonthLabel(event.season);
   if (event.name === "我的職場人格") {
     return {
       ...event,
       phase: "進行中",
       participants: 72,
       writingWindow: "2026/5/4 - 5/11",
+      monthLabel,
       description: currentIssue.summary,
       visual: studioVisuals[event.name] ?? event.cover,
     };
@@ -286,12 +339,14 @@ export const historicalThemes = legacy.events.map((event) => {
       participants: 88,
       newcomers: 26,
       writingWindow: "2026/4/6 - 4/13",
+      monthLabel,
       visual: studioVisuals[event.name] ?? event.cover,
     };
   }
 
   return {
     ...event,
+    monthLabel,
     visual: studioVisuals[event.name] ?? event.cover,
   };
 });

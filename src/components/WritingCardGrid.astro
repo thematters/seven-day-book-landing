@@ -164,6 +164,45 @@ const tints = [
       resizeTimer = setTimeout(layout, 120);
     });
 
+    // ── 滑入頁面時：依滾動位置給每張卡片微微的位移＋旋轉抖動 ──
+    // 不影響拖移狀態：dragging / 已被使用者拖過的卡片不再隨機偏移
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const isMobile = () => window.matchMedia("(max-width: 760px)").matches;
+      const onScroll = () => {
+        if (isMobile()) return;
+        const stageRect = stage.getBoundingClientRect();
+        const viewportH = window.innerHeight || 800;
+        const center = stageRect.top + stageRect.height / 2;
+        const distance = (center - viewportH / 2) / viewportH;
+        const wave = Math.sin(distance * Math.PI * 1.6);
+        cards.forEach((card, idx) => {
+          if (card.getAttribute("data-state") === "dragging") return;
+          if (card.hasAttribute("data-flipped")) return;
+          const phase = (idx % 6) / 6;
+          const baseRot = parseFloat(card.dataset.baseRotation || "0");
+          const dx = wave * 6 * Math.cos(phase * Math.PI * 2);
+          const dy = wave * 4 * Math.sin(phase * Math.PI * 2);
+          const rot = baseRot + wave * 1.4 * Math.sin(phase * Math.PI * 2 + 0.4);
+          card.style.transform = `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) rotate(${rot.toFixed(2)}deg)`;
+        });
+      };
+      let ticking = false;
+      window.addEventListener(
+        "scroll",
+        () => {
+          if (!ticking) {
+            requestAnimationFrame(() => {
+              onScroll();
+              ticking = false;
+            });
+            ticking = true;
+          }
+        },
+        { passive: true },
+      );
+      onScroll();
+    }
+
     // ── Drag + flip + navigate ─────────────────────────────────────────
     const navigate = (card) => {
       const href = card.getAttribute("data-href");

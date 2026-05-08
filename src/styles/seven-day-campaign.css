@@ -205,8 +205,43 @@
   padding: clamp(48px, 7vw, 84px) var(--section-pad-x) clamp(40px, 6vw, 72px);
 }
 
+/* 寫作者頁 hero：上下排版（圖在上、文字在下） */
+.hero--stacked {
+  display: block;
+  width: 100%;
+  max-width: none;
+  padding: 0;
+}
+
+.hero__banner {
+  width: min(1280px, calc(100% - 32px));
+  margin: clamp(20px, 3vw, 36px) auto 0;
+  padding: clamp(16px, 2vw, 24px);
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  background: var(--campaign-soft);
+}
+
+.hero__banner img {
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  object-fit: contain;
+  border-radius: 10px;
+  background: var(--paper);
+}
+
+.hero--stacked .hero__copy {
+  width: min(var(--content-max), 100%);
+  margin: clamp(28px, 4vw, 44px) auto 0;
+  padding: 0 var(--section-pad-x) clamp(36px, 5vw, 56px);
+}
+
 .hero__copy {
   max-width: 540px;
+}
+
+.hero--stacked .hero__copy {
+  max-width: 720px;
 }
 
 .hero__lead {
@@ -436,6 +471,20 @@
   scroll-snap-type: x proximity;
 }
 
+/* 桌面：七張卡片左右佔滿等分；窄螢幕回到橫向滑動 */
+.day-unlock-strip--full {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  overflow-x: visible;
+}
+
+@media (max-width: 1040px) {
+  .day-unlock-strip--full {
+    display: flex;
+    overflow-x: auto;
+  }
+}
+
 .day-unlock-strip::-webkit-scrollbar {
   height: 6px;
 }
@@ -456,6 +505,11 @@
   border-radius: 12px;
   background: var(--paper);
   scroll-snap-align: start;
+}
+
+.day-unlock-strip--full .day-unlock-card {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .day-unlock-card--today {
@@ -703,6 +757,12 @@
   gap: 16px;
 }
 
+/* Landscape variant：每行 2 張、文字在右；圖片橫式更舒服 */
+.theme-grid--landscape {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
 .theme-card {
   display: flex;
   flex-direction: column;
@@ -715,15 +775,27 @@
   transition: border-color 160ms ease;
 }
 
+.theme-card--landscape {
+  flex-direction: row;
+  align-items: stretch;
+}
+
 .theme-card:hover {
   border-color: var(--campaign-label);
 }
 
 .theme-card__media {
   width: 100%;
-  aspect-ratio: 4 / 3;
-  padding: 10px;
+  aspect-ratio: 16 / 9;
+  padding: 8px;
   background: var(--campaign-soft);
+}
+
+.theme-card--landscape .theme-card__media {
+  width: 200px;
+  flex: 0 0 200px;
+  aspect-ratio: auto;
+  padding: 8px;
 }
 
 .theme-card__media img {
@@ -739,6 +811,12 @@
   flex-direction: column;
   gap: 6px;
   padding: 14px 16px 18px;
+}
+
+.theme-card--landscape .theme-card__body {
+  flex: 1;
+  padding: 16px 18px;
+  justify-content: center;
 }
 
 .theme-card__meta {
@@ -757,6 +835,50 @@
   color: var(--ink-muted);
   font-size: 14px;
   line-height: 1.7;
+}
+
+/* Pager dots */
+.theme-pager {
+  display: grid;
+  gap: 20px;
+}
+
+.theme-pager__page {
+  display: grid;
+}
+
+.theme-pager__page[hidden] {
+  display: none;
+}
+
+.theme-pager__dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.theme-pager__dot {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: 1px solid var(--campaign-label);
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.theme-pager__dot:hover {
+  background: var(--campaign-soft);
+}
+
+.theme-pager__dot[aria-current="true"] {
+  background: var(--campaign-accent-dark);
+  border-color: var(--campaign-accent-dark);
+  transform: scale(1.15);
 }
 
 /* ─── Theme list (partner page) ──────────────────────────────── */
@@ -854,6 +976,20 @@
   border-radius: 999px;
   object-fit: cover;
   background: var(--campaign-soft);
+}
+
+/* 講者頭像簡化：不用 photo，改用首字 monogram + 暖色背景 */
+.lecture-card__monogram {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+  place-items: center;
+  border-radius: 999px;
+  font-family: var(--font-reading);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 .lecture-card__speaker strong {
@@ -962,6 +1098,21 @@
   border-radius: 8px;
   background: var(--campaign-soft);
   object-fit: contain;
+}
+
+.case-study__gallery {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.case-study__gallery img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 6px;
+  background: var(--campaign-soft);
+  object-fit: cover;
 }
 
 .case-study__copy h2 {

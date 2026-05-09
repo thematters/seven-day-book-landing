@@ -1,1173 +1,1572 @@
 {
-  "campaigns": {
+  "campaignsMeta": {
     "wem6xy6u7okv": {
       "name": "七日書｜我的職場人格",
-      "totalCount": 73
+      "totalArticles": 134,
+      "threshold": 7,
+      "isThreeDay": false
     },
     "aiafcgbu89p2": {
       "name": "七日書｜氣味博物館",
-      "totalCount": 94
+      "totalArticles": 218,
+      "threshold": 7,
+      "isThreeDay": false
     },
     "q48dv6ve4g2m": {
       "name": "七日書｜我的人生帳本",
-      "totalCount": 111
+      "totalArticles": 258,
+      "threshold": 7,
+      "isThreeDay": false
     },
     "4v5mndkbz44v": {
       "name": "七日書｜數位雲端的我",
-      "totalCount": 126
+      "totalArticles": 343,
+      "threshold": 7,
+      "isThreeDay": false
     },
     "nqbeo3cdn585": {
       "name": "七日書｜衣櫥裡的自我",
-      "totalCount": 97
+      "totalArticles": 216,
+      "threshold": 7,
+      "isThreeDay": false
     },
     "ox9fmcz6zxxj": {
       "name": "七日書｜說聲告別，走向新的自己",
-      "totalCount": 153
+      "totalArticles": 366,
+      "threshold": 7,
+      "isThreeDay": false
     },
     "3uskpxsbzmz5": {
       "name": "七日書｜重構生活",
-      "totalCount": 202
+      "totalArticles": 457,
+      "threshold": 7,
+      "isThreeDay": false
     },
     "owt3jxplay6z": {
       "name": "七日書｜曖昧時刻",
-      "totalCount": 114
+      "totalArticles": 293,
+      "threshold": 7,
+      "isThreeDay": false
     },
     "rt04oolqbexh": {
       "name": "兩廳院藝術出走：給自己的情書「三日書」徵文活動（九月：標記回憶的位置與意義｜客座作家：楊翠）",
-      "totalCount": 190
+      "totalArticles": 208,
+      "threshold": 3,
+      "isThreeDay": true
     },
     "5zhf2bpty274": {
       "name": "兩廳院藝術出走：給自己的情書「三日書」徵文活動（八月：關於人生，我想說的是｜客座作家：郭強生）",
-      "totalCount": 322
+      "totalArticles": 267,
+      "threshold": 3,
+      "isThreeDay": true
     },
     "h2ya9xxjubd2": {
       "name": "三日書｜被過度期待的人：燃燒自我的故事",
-      "totalCount": 114
+      "totalArticles": 137,
+      "threshold": 3,
+      "isThreeDay": true
     },
     "efkk0l9hcg96": {
       "name": "七日書｜What If 人生有如果",
-      "totalCount": 180
+      "totalArticles": 450,
+      "threshold": 7,
+      "isThreeDay": false
     },
     "kn7h01eku617": {
       "name": "七日書：生命裡的煩惱二三事",
-      "totalCount": 33
+      "totalArticles": 55,
+      "threshold": 7,
+      "isThreeDay": false
     },
     "26uhbm3uh6rg": {
       "name": "七日書一週年｜寫作，給人生的靈魂提問",
-      "totalCount": 192
+      "totalArticles": 554,
+      "threshold": 7,
+      "isThreeDay": false
     },
     "2hb97w8rdn7k": {
       "name": "七日書：生與死的二重奏",
-      "totalCount": 44
+      "totalArticles": 122,
+      "threshold": 7,
+      "isThreeDay": false
     },
     "4nqnizsygmcn": {
       "name": "七日書：書寫地方",
-      "totalCount": 195
+      "totalArticles": 373,
+      "threshold": 7,
+      "isThreeDay": false
     },
     "f7rpyecg32mg": {
       "name": "七日書：我的家庭故事",
-      "totalCount": 182
+      "totalArticles": 369,
+      "threshold": 7,
+      "isThreeDay": false
     },
     "x4rv6dwgk68o": {
       "name": "七日書：人間鬼故事",
-      "totalCount": 144
+      "totalArticles": 317,
+      "threshold": 7,
+      "isThreeDay": false
     },
     "eqsfuc3qph6u": {
       "name": "七日書：我的（不）完美人生",
-      "totalCount": 285
+      "totalArticles": 544,
+      "threshold": 7,
+      "isThreeDay": false
     },
     "8t5liudbtpup": {
       "name": "七日書：物的體系，我的物件錄",
-      "totalCount": 190
+      "totalArticles": 392,
+      "threshold": 7,
+      "isThreeDay": false
     },
     "scx3f16y37v6": {
       "name": "七日書：島嶼精神，另類人生",
-      "totalCount": 217
+      "totalArticles": 467,
+      "threshold": 7,
+      "isThreeDay": false
     },
     "ybs0lqsrpmhn": {
       "name": "三日書：寫出渴望的理想之地",
-      "totalCount": 80
+      "totalArticles": 107,
+      "threshold": 3,
+      "isThreeDay": true
     },
     "ia800figcq9y": {
       "name": "七日書：寫出成長軌跡",
-      "totalCount": 276
+      "totalArticles": 717,
+      "threshold": 7,
+      "isThreeDay": false
     },
     "5sdzhvyf3imb": {
       "name": "七日書：我的人生飯桌",
-      "totalCount": 299
+      "totalArticles": 733,
+      "threshold": 7,
+      "isThreeDay": false
     }
   },
-  "totalParticipations": 3913,
-  "uniqueUsers": 2011,
+  "totalUsersWithArticles": 821,
+  "totalGrandSlams": 869,
   "marathoners": [
-    {
-      "userName": "jerryku2003",
-      "displayName": "JK_talk",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/25ab67ca-201a-415e-b6b6-9110034f0b64.jpeg/public",
-      "count": 24,
-      "campaigns": [
-        "wem6xy6u7okv",
-        "aiafcgbu89p2",
-        "q48dv6ve4g2m",
-        "4v5mndkbz44v",
-        "nqbeo3cdn585",
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
-        "owt3jxplay6z",
-        "rt04oolqbexh",
-        "5zhf2bpty274",
-        "h2ya9xxjubd2",
-        "efkk0l9hcg96",
-        "kn7h01eku617",
-        "26uhbm3uh6rg",
-        "2hb97w8rdn7k",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ybs0lqsrpmhn",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
     {
       "userName": "jingthereforeim",
       "displayName": "KJOH",
       "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/9131eb1a-ac6a-474d-94bf-3587f2cc36f0.jpeg/public",
-      "count": 24,
-      "campaigns": [
-        "wem6xy6u7okv",
-        "aiafcgbu89p2",
-        "q48dv6ve4g2m",
-        "4v5mndkbz44v",
-        "nqbeo3cdn585",
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
-        "owt3jxplay6z",
-        "rt04oolqbexh",
-        "5zhf2bpty274",
-        "h2ya9xxjubd2",
-        "efkk0l9hcg96",
-        "kn7h01eku617",
+      "totalArticles": 167,
+      "campaignsParticipated": 24,
+      "grandSlams": 23,
+      "grandSlamCampaigns": [
         "26uhbm3uh6rg",
         "2hb97w8rdn7k",
+        "3uskpxsbzmz5",
         "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
+        "4v5mndkbz44v",
+        "5sdzhvyf3imb",
+        "5zhf2bpty274",
         "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ybs0lqsrpmhn",
+        "aiafcgbu89p2",
+        "efkk0l9hcg96",
+        "eqsfuc3qph6u",
+        "f7rpyecg32mg",
+        "h2ya9xxjubd2",
         "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
+        "kn7h01eku617",
+        "nqbeo3cdn585",
+        "owt3jxplay6z",
+        "ox9fmcz6zxxj",
+        "q48dv6ve4g2m",
+        "rt04oolqbexh",
+        "scx3f16y37v6",
+        "x4rv6dwgk68o",
+        "ybs0lqsrpmhn"
+      ],
+      "campaignCounts": {
+        "wem6xy6u7okv": 1,
+        "aiafcgbu89p2": 8,
+        "q48dv6ve4g2m": 8,
+        "4v5mndkbz44v": 8,
+        "nqbeo3cdn585": 8,
+        "ox9fmcz6zxxj": 8,
+        "3uskpxsbzmz5": 8,
+        "owt3jxplay6z": 8,
+        "rt04oolqbexh": 4,
+        "5zhf2bpty274": 4,
+        "h2ya9xxjubd2": 4,
+        "efkk0l9hcg96": 8,
+        "kn7h01eku617": 8,
+        "26uhbm3uh6rg": 8,
+        "2hb97w8rdn7k": 7,
+        "4nqnizsygmcn": 8,
+        "f7rpyecg32mg": 8,
+        "x4rv6dwgk68o": 7,
+        "eqsfuc3qph6u": 8,
+        "8t5liudbtpup": 8,
+        "scx3f16y37v6": 8,
+        "ybs0lqsrpmhn": 4,
+        "ia800figcq9y": 8,
+        "5sdzhvyf3imb": 8
+      }
     },
     {
-      "userName": "yingshinlee",
-      "displayName": "映昕",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/d4912a5e-978f-43fd-aa9c-fc7458b164c6.png/public",
-      "count": 24,
-      "campaigns": [
-        "wem6xy6u7okv",
-        "aiafcgbu89p2",
-        "q48dv6ve4g2m",
-        "4v5mndkbz44v",
-        "nqbeo3cdn585",
-        "ox9fmcz6zxxj",
+      "userName": "jerryku2003",
+      "displayName": "JK_talk",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/25ab67ca-201a-415e-b6b6-9110034f0b64.jpeg/public",
+      "totalArticles": 172,
+      "campaignsParticipated": 24,
+      "grandSlams": 22,
+      "grandSlamCampaigns": [
+        "26uhbm3uh6rg",
         "3uskpxsbzmz5",
-        "owt3jxplay6z",
-        "rt04oolqbexh",
+        "4nqnizsygmcn",
+        "4v5mndkbz44v",
+        "5sdzhvyf3imb",
         "5zhf2bpty274",
-        "h2ya9xxjubd2",
+        "8t5liudbtpup",
+        "aiafcgbu89p2",
         "efkk0l9hcg96",
+        "eqsfuc3qph6u",
+        "f7rpyecg32mg",
+        "h2ya9xxjubd2",
+        "ia800figcq9y",
         "kn7h01eku617",
-        "26uhbm3uh6rg",
-        "2hb97w8rdn7k",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ybs0lqsrpmhn",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "hahahappyqq",
-      "displayName": "Hsuan",
-      "avatar": null,
-      "count": 23,
-      "campaigns": [
-        "wem6xy6u7okv",
-        "aiafcgbu89p2",
-        "q48dv6ve4g2m",
-        "4v5mndkbz44v",
         "nqbeo3cdn585",
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
         "owt3jxplay6z",
+        "ox9fmcz6zxxj",
+        "q48dv6ve4g2m",
         "rt04oolqbexh",
-        "5zhf2bpty274",
-        "h2ya9xxjubd2",
-        "efkk0l9hcg96",
-        "26uhbm3uh6rg",
-        "2hb97w8rdn7k",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
         "scx3f16y37v6",
-        "ybs0lqsrpmhn",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
+        "x4rv6dwgk68o",
+        "ybs0lqsrpmhn"
+      ],
+      "campaignCounts": {
+        "wem6xy6u7okv": 6,
+        "aiafcgbu89p2": 7,
+        "q48dv6ve4g2m": 8,
+        "4v5mndkbz44v": 8,
+        "nqbeo3cdn585": 8,
+        "ox9fmcz6zxxj": 8,
+        "3uskpxsbzmz5": 8,
+        "owt3jxplay6z": 8,
+        "rt04oolqbexh": 4,
+        "5zhf2bpty274": 4,
+        "h2ya9xxjubd2": 4,
+        "efkk0l9hcg96": 8,
+        "kn7h01eku617": 9,
+        "26uhbm3uh6rg": 8,
+        "2hb97w8rdn7k": 6,
+        "4nqnizsygmcn": 8,
+        "f7rpyecg32mg": 8,
+        "x4rv6dwgk68o": 8,
+        "eqsfuc3qph6u": 8,
+        "8t5liudbtpup": 8,
+        "scx3f16y37v6": 8,
+        "ybs0lqsrpmhn": 4,
+        "ia800figcq9y": 8,
+        "5sdzhvyf3imb": 8
+      }
     },
     {
       "userName": "qianfluentleap",
       "displayName": "Moonleap",
       "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/dba0352e-73b1-4254-ba8e-b6b314d9d608.png/public",
-      "count": 22,
-      "campaigns": [
-        "wem6xy6u7okv",
-        "q48dv6ve4g2m",
+      "totalArticles": 141,
+      "campaignsParticipated": 22,
+      "grandSlams": 20,
+      "grandSlamCampaigns": [
+        "26uhbm3uh6rg",
+        "2hb97w8rdn7k",
+        "3uskpxsbzmz5",
         "4v5mndkbz44v",
-        "nqbeo3cdn585",
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
-        "owt3jxplay6z",
-        "rt04oolqbexh",
+        "5sdzhvyf3imb",
         "5zhf2bpty274",
-        "h2ya9xxjubd2",
-        "kn7h01eku617",
-        "26uhbm3uh6rg",
-        "2hb97w8rdn7k",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
         "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ybs0lqsrpmhn",
+        "eqsfuc3qph6u",
+        "f7rpyecg32mg",
+        "h2ya9xxjubd2",
         "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "alyssandtige",
-      "displayName": "Alyssa 亞莉莎",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/5288ffda-8915-4667-94c1-4e53583fb5cb.jpeg/public",
-      "count": 20,
-      "campaigns": [
-        "wem6xy6u7okv",
+        "kn7h01eku617",
         "nqbeo3cdn585",
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
         "owt3jxplay6z",
-        "rt04oolqbexh",
-        "5zhf2bpty274",
-        "h2ya9xxjubd2",
-        "efkk0l9hcg96",
-        "kn7h01eku617",
-        "26uhbm3uh6rg",
-        "2hb97w8rdn7k",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ybs0lqsrpmhn",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "dobby",
-      "displayName": "自由精靈｜多比",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/28e3a21a-e92f-4d5a-ae71-3d438bd2d6d2.jpeg/public",
-      "count": 20,
-      "campaigns": [
-        "wem6xy6u7okv",
-        "aiafcgbu89p2",
+        "ox9fmcz6zxxj",
         "q48dv6ve4g2m",
-        "4v5mndkbz44v",
-        "nqbeo3cdn585",
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
-        "owt3jxplay6z",
         "rt04oolqbexh",
-        "5zhf2bpty274",
-        "h2ya9xxjubd2",
-        "kn7h01eku617",
-        "26uhbm3uh6rg",
-        "2hb97w8rdn7k",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg",
+        "scx3f16y37v6",
         "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
         "ybs0lqsrpmhn"
-      ]
-    },
-    {
-      "userName": "xiaohanliu0105",
-      "displayName": "千翊晨",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/608eebb1-9f70-4e55-83d1-ef1df5686952.jpeg/public",
-      "count": 20,
-      "campaigns": [
-        "aiafcgbu89p2",
-        "q48dv6ve4g2m",
-        "4v5mndkbz44v",
-        "nqbeo3cdn585",
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
-        "owt3jxplay6z",
-        "5zhf2bpty274",
-        "h2ya9xxjubd2",
-        "efkk0l9hcg96",
-        "26uhbm3uh6rg",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ybs0lqsrpmhn",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "gunshock",
-      "displayName": "根叔｜gunshock",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/d44f05ce-b60f-4825-82a7-1b33a981f685.png/public",
-      "count": 19,
-      "campaigns": [
-        "wem6xy6u7okv",
-        "q48dv6ve4g2m",
-        "nqbeo3cdn585",
-        "ox9fmcz6zxxj",
-        "owt3jxplay6z",
-        "rt04oolqbexh",
-        "5zhf2bpty274",
-        "h2ya9xxjubd2",
-        "efkk0l9hcg96",
-        "kn7h01eku617",
-        "26uhbm3uh6rg",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ybs0lqsrpmhn",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "iceyuzu",
-      "displayName": "IceYuzu",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/d78220da-1d68-4f94-bf0c-87e0c6181a4f.jpeg/public",
-      "count": 18,
-      "campaigns": [
-        "wem6xy6u7okv",
-        "aiafcgbu89p2",
-        "q48dv6ve4g2m",
-        "4v5mndkbz44v",
-        "nqbeo3cdn585",
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
-        "rt04oolqbexh",
-        "5zhf2bpty274",
-        "efkk0l9hcg96",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "jrandtime",
-      "displayName": "蘇禕Suy",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/457bc512-a308-4068-bfe9-113d9923dd26.jpeg/public",
-      "count": 18,
-      "campaigns": [
-        "wem6xy6u7okv",
-        "aiafcgbu89p2",
-        "q48dv6ve4g2m",
-        "4v5mndkbz44v",
-        "nqbeo3cdn585",
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
-        "owt3jxplay6z",
-        "rt04oolqbexh",
-        "5zhf2bpty274",
-        "h2ya9xxjubd2",
-        "efkk0l9hcg96",
-        "26uhbm3uh6rg",
-        "2hb97w8rdn7k",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u"
-      ]
-    },
-    {
-      "userName": "klaviercindy",
-      "displayName": "YSC 。角落與世界 。",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/7eebba52-2c0b-40cb-8423-d56184a552f8.jpeg/public",
-      "count": 17,
-      "campaigns": [
-        "q48dv6ve4g2m",
-        "4v5mndkbz44v",
-        "3uskpxsbzmz5",
-        "rt04oolqbexh",
-        "5zhf2bpty274",
-        "efkk0l9hcg96",
-        "kn7h01eku617",
-        "26uhbm3uh6rg",
-        "2hb97w8rdn7k",
-        "4nqnizsygmcn",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ybs0lqsrpmhn",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "leeannetour",
-      "displayName": "Anne",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/233c2fca-f34c-48d6-8cdf-2ccc2579a5d1.jpeg/public",
-      "count": 16,
-      "campaigns": [
-        "wem6xy6u7okv",
-        "aiafcgbu89p2",
-        "q48dv6ve4g2m",
-        "4v5mndkbz44v",
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
-        "rt04oolqbexh",
-        "5zhf2bpty274",
-        "h2ya9xxjubd2",
-        "26uhbm3uh6rg",
-        "2hb97w8rdn7k",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "scx3f16y37v6"
-      ]
-    },
-    {
-      "userName": "histeria",
-      "displayName": "小魔莉",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/2fe83d99-0843-4884-95b4-8917220f3597.jpeg/public",
-      "count": 15,
-      "campaigns": [
-        "wem6xy6u7okv",
-        "aiafcgbu89p2",
-        "4v5mndkbz44v",
-        "nqbeo3cdn585",
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
-        "owt3jxplay6z",
-        "rt04oolqbexh",
-        "5zhf2bpty274",
-        "h2ya9xxjubd2",
-        "efkk0l9hcg96",
-        "kn7h01eku617",
-        "26uhbm3uh6rg",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg"
-      ]
-    },
-    {
-      "userName": "coalpp2020",
-      "displayName": "李炜",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/2a7ed553-f321-4030-bc3d-ca730d6a7839.jpeg/public",
-      "count": 15,
-      "campaigns": [
-        "q48dv6ve4g2m",
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
-        "owt3jxplay6z",
-        "rt04oolqbexh",
-        "h2ya9xxjubd2",
-        "efkk0l9hcg96",
-        "kn7h01eku617",
-        "26uhbm3uh6rg",
-        "2hb97w8rdn7k",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "ybs0lqsrpmhn",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "ceres",
-      "displayName": "Ceres",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/8dc19286-53b9-46e0-b55a-6e015a17bd0b.jpeg/public",
-      "count": 14,
-      "campaigns": [
-        "3uskpxsbzmz5",
-        "owt3jxplay6z",
-        "5zhf2bpty274",
-        "efkk0l9hcg96",
-        "26uhbm3uh6rg",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ybs0lqsrpmhn",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "klg50130",
-      "displayName": "大風",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/17250908-4968-4ba0-b367-1f0a5f680077.jpeg/public",
-      "count": 14,
-      "campaigns": [
-        "rt04oolqbexh",
-        "h2ya9xxjubd2",
-        "efkk0l9hcg96",
-        "kn7h01eku617",
-        "26uhbm3uh6rg",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ybs0lqsrpmhn",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "chen0708",
-      "displayName": "si薰",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/9dbc77e4-b382-4eda-b443-3cf2904c6222.png/public",
-      "count": 13,
-      "campaigns": [
-        "4v5mndkbz44v",
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
-        "rt04oolqbexh",
-        "5zhf2bpty274",
-        "efkk0l9hcg96",
-        "2hb97w8rdn7k",
-        "f7rpyecg32mg",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "wenqian",
-      "displayName": "文倩",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/5b5dd8ba-34bc-4e60-8b4d-739ddf6ca6c1.jpeg/public",
-      "count": 13,
-      "campaigns": [
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
-        "rt04oolqbexh",
-        "efkk0l9hcg96",
-        "26uhbm3uh6rg",
-        "4nqnizsygmcn",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ybs0lqsrpmhn",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "nilongqiuqiu77",
-      "displayName": "隆秀",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/fac815f9-c1cf-4ac9-b7ee-61fac449e30d.jpeg/public",
-      "count": 13,
-      "campaigns": [
-        "3uskpxsbzmz5",
-        "owt3jxplay6z",
-        "5zhf2bpty274",
-        "efkk0l9hcg96",
-        "kn7h01eku617",
-        "26uhbm3uh6rg",
-        "4nqnizsygmcn",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ybs0lqsrpmhn",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "chloe21",
-      "displayName": "西日",
-      "avatar": null,
-      "count": 12,
-      "campaigns": [
-        "aiafcgbu89p2",
-        "nqbeo3cdn585",
-        "3uskpxsbzmz5",
-        "h2ya9xxjubd2",
-        "efkk0l9hcg96",
-        "26uhbm3uh6rg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ybs0lqsrpmhn",
-        "ia800figcq9y"
-      ]
-    },
-    {
-      "userName": "nowevernthen",
-      "displayName": "明天的昨日_",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/5bcf06a8-812c-48b2-a8dc-703d77a47b41.jpeg/public",
-      "count": 12,
-      "campaigns": [
-        "aiafcgbu89p2",
-        "q48dv6ve4g2m",
-        "4v5mndkbz44v",
-        "nqbeo3cdn585",
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
-        "rt04oolqbexh",
-        "5zhf2bpty274",
-        "h2ya9xxjubd2",
-        "efkk0l9hcg96",
-        "26uhbm3uh6rg",
-        "4nqnizsygmcn"
-      ]
-    },
-    {
-      "userName": "bearqq",
-      "displayName": "sandy.yinping",
-      "avatar": null,
-      "count": 12,
-      "campaigns": [
-        "4v5mndkbz44v",
-        "5zhf2bpty274",
-        "h2ya9xxjubd2",
-        "26uhbm3uh6rg",
-        "2hb97w8rdn7k",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ybs0lqsrpmhn",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
+      ],
+      "campaignCounts": {
+        "wem6xy6u7okv": 5,
+        "q48dv6ve4g2m": 8,
+        "4v5mndkbz44v": 8,
+        "nqbeo3cdn585": 8,
+        "ox9fmcz6zxxj": 7,
+        "3uskpxsbzmz5": 7,
+        "owt3jxplay6z": 7,
+        "rt04oolqbexh": 3,
+        "5zhf2bpty274": 3,
+        "h2ya9xxjubd2": 3,
+        "kn7h01eku617": 7,
+        "26uhbm3uh6rg": 7,
+        "2hb97w8rdn7k": 7,
+        "4nqnizsygmcn": 5,
+        "f7rpyecg32mg": 7,
+        "x4rv6dwgk68o": 7,
+        "eqsfuc3qph6u": 7,
+        "8t5liudbtpup": 8,
+        "scx3f16y37v6": 7,
+        "ybs0lqsrpmhn": 4,
+        "ia800figcq9y": 8,
+        "5sdzhvyf3imb": 8
+      }
     },
     {
       "userName": "gaagwai",
       "displayName": "賈瑰",
       "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/2a79bcb4-5dc3-4c1c-9a27-c21e13e28767.jpeg/public",
-      "count": 12,
-      "campaigns": [
-        "ox9fmcz6zxxj",
-        "owt3jxplay6z",
-        "efkk0l9hcg96",
+      "totalArticles": 86,
+      "campaignsParticipated": 12,
+      "grandSlams": 12,
+      "grandSlamCampaigns": [
         "26uhbm3uh6rg",
         "2hb97w8rdn7k",
         "4nqnizsygmcn",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
+        "5sdzhvyf3imb",
         "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "cheukkiucc",
-      "displayName": "絕羽",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/827d6b23-21b7-451c-995a-762ba18e8b99.png/public",
-      "count": 12,
-      "campaigns": [
-        "ox9fmcz6zxxj",
-        "rt04oolqbexh",
-        "5zhf2bpty274",
-        "h2ya9xxjubd2",
         "efkk0l9hcg96",
-        "26uhbm3uh6rg",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "ybs0lqsrpmhn",
-        "ia800figcq9y"
-      ]
-    },
-    {
-      "userName": "wujie",
-      "displayName": "無解",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/bf51be04-253a-4b3e-8fc9-b9ae2fef8026.jpeg/public",
-      "count": 12,
-      "campaigns": [
-        "3uskpxsbzmz5",
-        "rt04oolqbexh",
-        "5zhf2bpty274",
-        "h2ya9xxjubd2",
-        "efkk0l9hcg96",
-        "kn7h01eku617",
-        "26uhbm3uh6rg",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg",
         "eqsfuc3qph6u",
         "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "greymulan",
-      "displayName": "灰木蘭",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/b181f9c0-b967-4721-9742-97f2f7ffccc4.jpeg/public",
-      "count": 11,
-      "campaigns": [
-        "wem6xy6u7okv",
-        "4v5mndkbz44v",
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
         "owt3jxplay6z",
-        "rt04oolqbexh",
-        "h2ya9xxjubd2",
-        "efkk0l9hcg96",
+        "ox9fmcz6zxxj",
+        "scx3f16y37v6",
+        "x4rv6dwgk68o"
+      ],
+      "campaignCounts": {
+        "ox9fmcz6zxxj": 7,
+        "owt3jxplay6z": 7,
+        "efkk0l9hcg96": 7,
+        "26uhbm3uh6rg": 8,
+        "2hb97w8rdn7k": 7,
+        "4nqnizsygmcn": 7,
+        "x4rv6dwgk68o": 7,
+        "eqsfuc3qph6u": 7,
+        "8t5liudbtpup": 7,
+        "scx3f16y37v6": 8,
+        "ia800figcq9y": 7,
+        "5sdzhvyf3imb": 7
+      }
+    },
+    {
+      "userName": "klg50130",
+      "displayName": "大風",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/17250908-4968-4ba0-b367-1f0a5f680077.jpeg/public",
+      "totalArticles": 79,
+      "campaignsParticipated": 14,
+      "grandSlams": 12,
+      "grandSlamCampaigns": [
         "26uhbm3uh6rg",
         "4nqnizsygmcn",
-        "f7rpyecg32mg"
-      ]
+        "5sdzhvyf3imb",
+        "8t5liudbtpup",
+        "efkk0l9hcg96",
+        "eqsfuc3qph6u",
+        "f7rpyecg32mg",
+        "h2ya9xxjubd2",
+        "ia800figcq9y",
+        "scx3f16y37v6",
+        "x4rv6dwgk68o",
+        "ybs0lqsrpmhn"
+      ],
+      "campaignCounts": {
+        "rt04oolqbexh": 2,
+        "h2ya9xxjubd2": 3,
+        "efkk0l9hcg96": 7,
+        "kn7h01eku617": 1,
+        "26uhbm3uh6rg": 7,
+        "4nqnizsygmcn": 7,
+        "f7rpyecg32mg": 7,
+        "x4rv6dwgk68o": 7,
+        "eqsfuc3qph6u": 7,
+        "8t5liudbtpup": 7,
+        "scx3f16y37v6": 7,
+        "ybs0lqsrpmhn": 3,
+        "ia800figcq9y": 7,
+        "5sdzhvyf3imb": 7
+      }
+    },
+    {
+      "userName": "klaviercindy",
+      "displayName": "YSC 。角落與世界 。",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/7eebba52-2c0b-40cb-8423-d56184a552f8.jpeg/public",
+      "totalArticles": 82,
+      "campaignsParticipated": 12,
+      "grandSlams": 11,
+      "grandSlamCampaigns": [
+        "26uhbm3uh6rg",
+        "3uskpxsbzmz5",
+        "4nqnizsygmcn",
+        "5sdzhvyf3imb",
+        "5zhf2bpty274",
+        "8t5liudbtpup",
+        "efkk0l9hcg96",
+        "eqsfuc3qph6u",
+        "ia800figcq9y",
+        "rt04oolqbexh",
+        "scx3f16y37v6"
+      ],
+      "campaignCounts": {
+        "4v5mndkbz44v": 6,
+        "3uskpxsbzmz5": 7,
+        "rt04oolqbexh": 3,
+        "5zhf2bpty274": 3,
+        "efkk0l9hcg96": 8,
+        "26uhbm3uh6rg": 8,
+        "4nqnizsygmcn": 7,
+        "eqsfuc3qph6u": 8,
+        "8t5liudbtpup": 8,
+        "scx3f16y37v6": 8,
+        "ia800figcq9y": 8,
+        "5sdzhvyf3imb": 8
+      }
+    },
+    {
+      "userName": "leeannetour",
+      "displayName": "Anne",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/233c2fca-f34c-48d6-8cdf-2ccc2579a5d1.jpeg/public",
+      "totalArticles": 78,
+      "campaignsParticipated": 13,
+      "grandSlams": 11,
+      "grandSlamCampaigns": [
+        "26uhbm3uh6rg",
+        "3uskpxsbzmz5",
+        "4v5mndkbz44v",
+        "5zhf2bpty274",
+        "aiafcgbu89p2",
+        "eqsfuc3qph6u",
+        "h2ya9xxjubd2",
+        "ox9fmcz6zxxj",
+        "q48dv6ve4g2m",
+        "rt04oolqbexh",
+        "x4rv6dwgk68o"
+      ],
+      "campaignCounts": {
+        "wem6xy6u7okv": 5,
+        "aiafcgbu89p2": 8,
+        "q48dv6ve4g2m": 8,
+        "4v5mndkbz44v": 7,
+        "ox9fmcz6zxxj": 8,
+        "3uskpxsbzmz5": 7,
+        "rt04oolqbexh": 3,
+        "5zhf2bpty274": 3,
+        "h2ya9xxjubd2": 3,
+        "26uhbm3uh6rg": 7,
+        "2hb97w8rdn7k": 5,
+        "x4rv6dwgk68o": 7,
+        "eqsfuc3qph6u": 7
+      }
+    },
+    {
+      "userName": "alyssandtige",
+      "displayName": "Alyssa 亞莉莎",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/5288ffda-8915-4667-94c1-4e53583fb5cb.jpeg/public",
+      "totalArticles": 81,
+      "campaignsParticipated": 16,
+      "grandSlams": 10,
+      "grandSlamCampaigns": [
+        "26uhbm3uh6rg",
+        "4nqnizsygmcn",
+        "8t5liudbtpup",
+        "efkk0l9hcg96",
+        "f7rpyecg32mg",
+        "h2ya9xxjubd2",
+        "ia800figcq9y",
+        "kn7h01eku617",
+        "scx3f16y37v6",
+        "ybs0lqsrpmhn"
+      ],
+      "campaignCounts": {
+        "nqbeo3cdn585": 1,
+        "ox9fmcz6zxxj": 4,
+        "3uskpxsbzmz5": 1,
+        "h2ya9xxjubd2": 3,
+        "efkk0l9hcg96": 7,
+        "kn7h01eku617": 7,
+        "26uhbm3uh6rg": 7,
+        "2hb97w8rdn7k": 1,
+        "4nqnizsygmcn": 7,
+        "f7rpyecg32mg": 7,
+        "eqsfuc3qph6u": 6,
+        "8t5liudbtpup": 7,
+        "scx3f16y37v6": 7,
+        "ybs0lqsrpmhn": 3,
+        "ia800figcq9y": 7,
+        "5sdzhvyf3imb": 6
+      }
     },
     {
       "userName": "Benno",
       "displayName": "Benno",
       "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/3e30f88d-4436-4681-ac59-eebbcef3c282.jpeg/public",
-      "count": 11,
-      "campaigns": [
-        "wem6xy6u7okv",
-        "q48dv6ve4g2m",
-        "4v5mndkbz44v",
-        "nqbeo3cdn585",
-        "efkk0l9hcg96",
+      "totalArticles": 75,
+      "campaignsParticipated": 11,
+      "grandSlams": 10,
+      "grandSlamCampaigns": [
         "26uhbm3uh6rg",
         "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "ybs0lqsrpmhn",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "vantisse",
-      "displayName": "胃食道逆流",
-      "avatar": null,
-      "count": 11,
-      "campaigns": [
-        "q48dv6ve4g2m",
-        "nqbeo3cdn585",
-        "3uskpxsbzmz5",
-        "owt3jxplay6z",
-        "rt04oolqbexh",
-        "5zhf2bpty274",
-        "h2ya9xxjubd2",
-        "efkk0l9hcg96",
-        "26uhbm3uh6rg",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup"
-      ]
-    },
-    {
-      "userName": "rnwang54",
-      "displayName": "枯北",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/0abc943a-e1d3-4489-b50c-9b6adacbe4a3.jpeg/public",
-      "count": 11,
-      "campaigns": [
-        "q48dv6ve4g2m",
-        "3uskpxsbzmz5",
-        "owt3jxplay6z",
-        "efkk0l9hcg96",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ybs0lqsrpmhn",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "viewerwind",
-      "displayName": "泡澡的太陽",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/06a0bdcd-5287-4e24-bdd6-358bae1ab485.png/public",
-      "count": 11,
-      "campaigns": [
-        "q48dv6ve4g2m",
-        "efkk0l9hcg96",
-        "26uhbm3uh6rg",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "willliu",
-      "displayName": "Will Liu",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/48aca8e5-0caf-4dc6-8732-d917ea1fa269/profile.png/public",
-      "count": 10,
-      "campaigns": [
-        "wem6xy6u7okv",
-        "q48dv6ve4g2m",
         "4v5mndkbz44v",
+        "5sdzhvyf3imb",
+        "efkk0l9hcg96",
+        "f7rpyecg32mg",
+        "ia800figcq9y",
         "nqbeo3cdn585",
-        "26uhbm3uh6rg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
+        "q48dv6ve4g2m",
         "ybs0lqsrpmhn"
-      ]
+      ],
+      "campaignCounts": {
+        "wem6xy6u7okv": 6,
+        "q48dv6ve4g2m": 7,
+        "4v5mndkbz44v": 7,
+        "nqbeo3cdn585": 7,
+        "efkk0l9hcg96": 7,
+        "26uhbm3uh6rg": 7,
+        "4nqnizsygmcn": 7,
+        "f7rpyecg32mg": 8,
+        "ybs0lqsrpmhn": 3,
+        "ia800figcq9y": 9,
+        "5sdzhvyf3imb": 7
+      }
     },
     {
-      "userName": "olivia_kaoru",
-      "displayName": "unouno",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/d07b0c91-9d1e-432a-9308-d83f1c0e8427.jpeg/public",
-      "count": 10,
-      "campaigns": [
-        "aiafcgbu89p2",
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
-        "rt04oolqbexh",
-        "26uhbm3uh6rg",
-        "4nqnizsygmcn",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "freetothink_06",
-      "displayName": "Lior",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/09f76545-7dc2-4043-a0e0-eea2c1405d6b.png/public",
-      "count": 10,
-      "campaigns": [
-        "aiafcgbu89p2",
-        "4v5mndkbz44v",
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
-        "rt04oolqbexh",
-        "5zhf2bpty274",
-        "efkk0l9hcg96",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "8t5liudbtpup"
-      ]
-    },
-    {
-      "userName": "winnie0828",
-      "displayName": "一隻會彈琴的貓",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/e05c1ff2-af48-48b8-89ea-62e67a091560.jpeg/public",
-      "count": 10,
-      "campaigns": [
-        "4v5mndkbz44v",
-        "3uskpxsbzmz5",
-        "5zhf2bpty274",
-        "h2ya9xxjubd2",
-        "kn7h01eku617",
-        "26uhbm3uh6rg",
+      "userName": "jrandtime",
+      "displayName": "蘇禕Suy",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/457bc512-a308-4068-bfe9-113d9923dd26.jpeg/public",
+      "totalArticles": 74,
+      "campaignsParticipated": 14,
+      "grandSlams": 10,
+      "grandSlamCampaigns": [
         "2hb97w8rdn7k",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ia800figcq9y"
-      ]
-    },
-    {
-      "userName": "chivchan",
-      "displayName": "虎頭魚",
-      "avatar": null,
-      "count": 10,
-      "campaigns": [
-        "nqbeo3cdn585",
-        "ox9fmcz6zxxj",
+        "3uskpxsbzmz5",
+        "4nqnizsygmcn",
+        "4v5mndkbz44v",
+        "5zhf2bpty274",
         "owt3jxplay6z",
-        "rt04oolqbexh",
-        "5zhf2bpty274",
-        "efkk0l9hcg96",
-        "26uhbm3uh6rg",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "ia800figcq9y"
-      ]
-    },
-    {
-      "userName": "amelia1111",
-      "displayName": "彌雅Amelia",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/34cbb392-ac43-4893-86b0-666602c1b087.jpeg/public",
-      "count": 10,
-      "campaigns": [
         "ox9fmcz6zxxj",
-        "owt3jxplay6z",
         "rt04oolqbexh",
-        "5zhf2bpty274",
-        "h2ya9xxjubd2",
-        "26uhbm3uh6rg",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u"
-      ]
-    },
-    {
-      "userName": "jen1996",
-      "displayName": "Jen",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/a8f22409-3818-448a-9a99-6e50770cbfc3.jpeg/public",
-      "count": 10,
-      "campaigns": [
-        "rt04oolqbexh",
-        "h2ya9xxjubd2",
-        "2hb97w8rdn7k",
-        "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "scx3f16y37v6",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "damonlungs",
-      "displayName": "StarWanderer_DL",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/4ee02789-2bee-483e-a4e5-33fb5bde658c.jpeg/public",
-      "count": 10,
-      "campaigns": [
-        "5zhf2bpty274",
-        "efkk0l9hcg96",
-        "26uhbm3uh6rg",
-        "4nqnizsygmcn",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "scx3f16y37v6",
-        "ybs0lqsrpmhn",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
+        "wem6xy6u7okv",
+        "x4rv6dwgk68o"
+      ],
+      "campaignCounts": {
+        "wem6xy6u7okv": 7,
+        "aiafcgbu89p2": 1,
+        "q48dv6ve4g2m": 1,
+        "4v5mndkbz44v": 8,
+        "nqbeo3cdn585": 1,
+        "ox9fmcz6zxxj": 8,
+        "3uskpxsbzmz5": 8,
+        "owt3jxplay6z": 8,
+        "rt04oolqbexh": 4,
+        "5zhf2bpty274": 4,
+        "2hb97w8rdn7k": 7,
+        "4nqnizsygmcn": 8,
+        "x4rv6dwgk68o": 8,
+        "eqsfuc3qph6u": 1
+      }
     },
     {
       "userName": "tetsugaku",
       "displayName": "亂世裡的說書人",
       "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/cf6ba5ff-7327-4467-ad6d-39e906c4d517.jpeg/public",
-      "count": 10,
-      "campaigns": [
-        "h2ya9xxjubd2",
-        "efkk0l9hcg96",
+      "totalArticles": 62,
+      "campaignsParticipated": 9,
+      "grandSlams": 9,
+      "grandSlamCampaigns": [
         "26uhbm3uh6rg",
         "4nqnizsygmcn",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
         "8t5liudbtpup",
+        "efkk0l9hcg96",
+        "eqsfuc3qph6u",
+        "f7rpyecg32mg",
         "scx3f16y37v6",
+        "x4rv6dwgk68o",
         "ybs0lqsrpmhn"
-      ]
+      ],
+      "campaignCounts": {
+        "efkk0l9hcg96": 7,
+        "26uhbm3uh6rg": 7,
+        "4nqnizsygmcn": 7,
+        "f7rpyecg32mg": 7,
+        "x4rv6dwgk68o": 7,
+        "eqsfuc3qph6u": 7,
+        "8t5liudbtpup": 8,
+        "scx3f16y37v6": 8,
+        "ybs0lqsrpmhn": 4
+      }
     },
     {
-      "userName": "chunhsiangla",
-      "displayName": "蘇格藍貓",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/7668f731-f302-4635-9348-fc6da4c165fb.jpeg/public",
-      "count": 9,
-      "campaigns": [
-        "wem6xy6u7okv",
-        "h2ya9xxjubd2",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "nosetalk",
-      "displayName": "鼻子說",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/1f7809d9-c4b6-40fe-ae83-ac0f059860af.jpeg/public",
-      "count": 9,
-      "campaigns": [
-        "wem6xy6u7okv",
-        "efkk0l9hcg96",
-        "26uhbm3uh6rg",
-        "4nqnizsygmcn",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ybs0lqsrpmhn",
-        "ia800figcq9y"
-      ]
-    },
-    {
-      "userName": "voxmirror",
-      "displayName": "Tony_Chan",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/bdd22741-d5fe-4446-ab44-9b027688f236.png/public",
-      "count": 9,
-      "campaigns": [
-        "wem6xy6u7okv",
-        "aiafcgbu89p2",
-        "q48dv6ve4g2m",
-        "4v5mndkbz44v",
-        "nqbeo3cdn585",
-        "ox9fmcz6zxxj",
+      "userName": "freetothink_06",
+      "displayName": "Lior",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/09f76545-7dc2-4043-a0e0-eea2c1405d6b.png/public",
+      "totalArticles": 57,
+      "campaignsParticipated": 10,
+      "grandSlams": 8,
+      "grandSlamCampaigns": [
         "3uskpxsbzmz5",
-        "owt3jxplay6z",
-        "rt04oolqbexh"
-      ]
+        "4v5mndkbz44v",
+        "5zhf2bpty274",
+        "8t5liudbtpup",
+        "efkk0l9hcg96",
+        "ox9fmcz6zxxj",
+        "rt04oolqbexh",
+        "x4rv6dwgk68o"
+      ],
+      "campaignCounts": {
+        "aiafcgbu89p2": 4,
+        "4v5mndkbz44v": 8,
+        "ox9fmcz6zxxj": 8,
+        "3uskpxsbzmz5": 8,
+        "rt04oolqbexh": 4,
+        "5zhf2bpty274": 3,
+        "efkk0l9hcg96": 7,
+        "f7rpyecg32mg": 1,
+        "x4rv6dwgk68o": 7,
+        "8t5liudbtpup": 7
+      }
+    },
+    {
+      "userName": "boxuan0531",
+      "displayName": "陳伯軒",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/899ef0a6-9110-4c78-aaa9-fe86a0f04b6e.jpeg/public",
+      "totalArticles": 57,
+      "campaignsParticipated": 8,
+      "grandSlams": 8,
+      "grandSlamCampaigns": [
+        "26uhbm3uh6rg",
+        "2hb97w8rdn7k",
+        "5sdzhvyf3imb",
+        "8t5liudbtpup",
+        "eqsfuc3qph6u",
+        "ia800figcq9y",
+        "scx3f16y37v6",
+        "x4rv6dwgk68o"
+      ],
+      "campaignCounts": {
+        "26uhbm3uh6rg": 8,
+        "2hb97w8rdn7k": 7,
+        "x4rv6dwgk68o": 7,
+        "eqsfuc3qph6u": 7,
+        "8t5liudbtpup": 7,
+        "scx3f16y37v6": 7,
+        "ia800figcq9y": 7,
+        "5sdzhvyf3imb": 7
+      }
     },
     {
       "userName": "qish",
       "displayName": "為人而建",
       "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/8cd9c401-d348-4859-9d42-91869e3ce54a.png/public",
-      "count": 9,
-      "campaigns": [
-        "wem6xy6u7okv",
-        "4v5mndkbz44v",
-        "nqbeo3cdn585",
-        "ox9fmcz6zxxj",
+      "totalArticles": 52,
+      "campaignsParticipated": 8,
+      "grandSlams": 8,
+      "grandSlamCampaigns": [
         "3uskpxsbzmz5",
-        "owt3jxplay6z",
-        "rt04oolqbexh",
-        "5zhf2bpty274",
-        "h2ya9xxjubd2"
-      ]
-    },
-    {
-      "userName": "yumimatcha",
-      "displayName": "裕美抹茶",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/d930d2f8-3360-46e0-8e29-e9a1b72314e3.jpeg/public",
-      "count": 9,
-      "campaigns": [
-        "aiafcgbu89p2",
-        "q48dv6ve4g2m",
         "4v5mndkbz44v",
-        "nqbeo3cdn585",
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
-        "owt3jxplay6z",
-        "rt04oolqbexh",
-        "5zhf2bpty274"
-      ]
-    },
-    {
-      "userName": "katodot",
-      "displayName": "‘’ 空瓦",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/f769da76-d0ba-429a-b854-15a459695ff8.jpeg/public",
-      "count": 9,
-      "campaigns": [
-        "aiafcgbu89p2",
-        "q48dv6ve4g2m",
-        "4v5mndkbz44v",
-        "nqbeo3cdn585",
-        "ox9fmcz6zxxj",
-        "3uskpxsbzmz5",
-        "owt3jxplay6z",
-        "rt04oolqbexh",
-        "efkk0l9hcg96"
-      ]
-    },
-    {
-      "userName": "sallysmuseum",
-      "displayName": "Sally博物館",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/76d5df04-5f75-4a38-a5c3-a3ff34cc7bd1.jpeg/public",
-      "count": 9,
-      "campaigns": [
-        "aiafcgbu89p2",
         "5zhf2bpty274",
         "h2ya9xxjubd2",
-        "efkk0l9hcg96",
-        "26uhbm3uh6rg",
-        "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup"
-      ]
-    },
-    {
-      "userName": "fanshawe",
-      "displayName": "fanshawe",
-      "avatar": null,
-      "count": 9,
-      "campaigns": [
-        "aiafcgbu89p2",
-        "4v5mndkbz44v",
-        "26uhbm3uh6rg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
-        "8t5liudbtpup",
-        "scx3f16y37v6",
-        "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
-    },
-    {
-      "userName": "makotomoto",
-      "displayName": "選我正姐｜澈界",
-      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/ce326bd4-2de9-4e0a-a293-6e42e7891245.jpeg/public",
-      "count": 9,
-      "campaigns": [
-        "q48dv6ve4g2m",
-        "4v5mndkbz44v",
         "nqbeo3cdn585",
         "owt3jxplay6z",
-        "efkk0l9hcg96",
+        "ox9fmcz6zxxj",
+        "rt04oolqbexh"
+      ],
+      "campaignCounts": {
+        "4v5mndkbz44v": 8,
+        "nqbeo3cdn585": 8,
+        "ox9fmcz6zxxj": 8,
+        "3uskpxsbzmz5": 8,
+        "owt3jxplay6z": 8,
+        "rt04oolqbexh": 4,
+        "5zhf2bpty274": 4,
+        "h2ya9xxjubd2": 4
+      }
+    },
+    {
+      "userName": "xiaohanliu0105",
+      "displayName": "千翊晨",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/608eebb1-9f70-4e55-83d1-ef1df5686952.jpeg/public",
+      "totalArticles": 95,
+      "campaignsParticipated": 17,
+      "grandSlams": 7,
+      "grandSlamCampaigns": [
         "4nqnizsygmcn",
+        "8t5liudbtpup",
+        "efkk0l9hcg96",
         "f7rpyecg32mg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u"
-      ]
+        "ia800figcq9y",
+        "owt3jxplay6z",
+        "ox9fmcz6zxxj"
+      ],
+      "campaignCounts": {
+        "aiafcgbu89p2": 6,
+        "q48dv6ve4g2m": 2,
+        "4v5mndkbz44v": 6,
+        "ox9fmcz6zxxj": 7,
+        "3uskpxsbzmz5": 4,
+        "owt3jxplay6z": 7,
+        "efkk0l9hcg96": 8,
+        "26uhbm3uh6rg": 3,
+        "4nqnizsygmcn": 7,
+        "f7rpyecg32mg": 7,
+        "x4rv6dwgk68o": 6,
+        "eqsfuc3qph6u": 5,
+        "8t5liudbtpup": 7,
+        "scx3f16y37v6": 6,
+        "ybs0lqsrpmhn": 1,
+        "ia800figcq9y": 7,
+        "5sdzhvyf3imb": 6
+      }
+    },
+    {
+      "userName": "voxmirror",
+      "displayName": "Tony_Chan",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/bdd22741-d5fe-4446-ab44-9b027688f236.png/public",
+      "totalArticles": 57,
+      "campaignsParticipated": 8,
+      "grandSlams": 7,
+      "grandSlamCampaigns": [
+        "3uskpxsbzmz5",
+        "4v5mndkbz44v",
+        "aiafcgbu89p2",
+        "nqbeo3cdn585",
+        "owt3jxplay6z",
+        "ox9fmcz6zxxj",
+        "rt04oolqbexh"
+      ],
+      "campaignCounts": {
+        "wem6xy6u7okv": 6,
+        "aiafcgbu89p2": 8,
+        "4v5mndkbz44v": 8,
+        "nqbeo3cdn585": 8,
+        "ox9fmcz6zxxj": 8,
+        "3uskpxsbzmz5": 8,
+        "owt3jxplay6z": 8,
+        "rt04oolqbexh": 3
+      }
     },
     {
       "userName": "andawnfrost",
       "displayName": "考拉不渴",
       "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/9f48aeef-4011-44b0-bedb-f9158dc589e4.jpeg/public",
-      "count": 9,
-      "campaigns": [
-        "4v5mndkbz44v",
-        "efkk0l9hcg96",
+      "totalArticles": 54,
+      "campaignsParticipated": 8,
+      "grandSlams": 7,
+      "grandSlamCampaigns": [
         "26uhbm3uh6rg",
-        "x4rv6dwgk68o",
-        "eqsfuc3qph6u",
+        "4v5mndkbz44v",
+        "5sdzhvyf3imb",
         "8t5liudbtpup",
-        "ybs0lqsrpmhn",
+        "efkk0l9hcg96",
+        "eqsfuc3qph6u",
+        "ia800figcq9y"
+      ],
+      "campaignCounts": {
+        "4v5mndkbz44v": 7,
+        "efkk0l9hcg96": 8,
+        "26uhbm3uh6rg": 7,
+        "eqsfuc3qph6u": 7,
+        "8t5liudbtpup": 8,
+        "ybs0lqsrpmhn": 2,
+        "ia800figcq9y": 7,
+        "5sdzhvyf3imb": 8
+      }
+    },
+    {
+      "userName": "linnea",
+      "displayName": "Linnea",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/dbbbf9d9-f41f-4c1e-b489-80fe45b5b7ed.png/public",
+      "totalArticles": 53,
+      "campaignsParticipated": 7,
+      "grandSlams": 7,
+      "grandSlamCampaigns": [
+        "26uhbm3uh6rg",
+        "4nqnizsygmcn",
+        "5sdzhvyf3imb",
+        "aiafcgbu89p2",
+        "efkk0l9hcg96",
         "ia800figcq9y",
-        "5sdzhvyf3imb"
-      ]
+        "ox9fmcz6zxxj"
+      ],
+      "campaignCounts": {
+        "aiafcgbu89p2": 8,
+        "ox9fmcz6zxxj": 7,
+        "efkk0l9hcg96": 9,
+        "26uhbm3uh6rg": 7,
+        "4nqnizsygmcn": 7,
+        "ia800figcq9y": 8,
+        "5sdzhvyf3imb": 7
+      }
+    },
+    {
+      "userName": "wordlingpress",
+      "displayName": "阿零",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/e4ecef5a-8f55-4519-9382-754110aa788e.png/public",
+      "totalArticles": 50,
+      "campaignsParticipated": 8,
+      "grandSlams": 7,
+      "grandSlamCampaigns": [
+        "3uskpxsbzmz5",
+        "4v5mndkbz44v",
+        "5zhf2bpty274",
+        "aiafcgbu89p2",
+        "owt3jxplay6z",
+        "ox9fmcz6zxxj",
+        "rt04oolqbexh"
+      ],
+      "campaignCounts": {
+        "aiafcgbu89p2": 8,
+        "4v5mndkbz44v": 8,
+        "ox9fmcz6zxxj": 7,
+        "3uskpxsbzmz5": 8,
+        "owt3jxplay6z": 8,
+        "rt04oolqbexh": 4,
+        "5zhf2bpty274": 4,
+        "4nqnizsygmcn": 3
+      }
+    },
+    {
+      "userName": "hahahappyqq",
+      "displayName": "Hsuan",
+      "avatar": "",
+      "totalArticles": 74,
+      "campaignsParticipated": 19,
+      "grandSlams": 6,
+      "grandSlamCampaigns": [
+        "5sdzhvyf3imb",
+        "f7rpyecg32mg",
+        "h2ya9xxjubd2",
+        "rt04oolqbexh",
+        "scx3f16y37v6",
+        "x4rv6dwgk68o"
+      ],
+      "campaignCounts": {
+        "aiafcgbu89p2": 4,
+        "q48dv6ve4g2m": 2,
+        "4v5mndkbz44v": 2,
+        "nqbeo3cdn585": 6,
+        "ox9fmcz6zxxj": 3,
+        "3uskpxsbzmz5": 1,
+        "owt3jxplay6z": 4,
+        "rt04oolqbexh": 3,
+        "h2ya9xxjubd2": 3,
+        "efkk0l9hcg96": 3,
+        "26uhbm3uh6rg": 3,
+        "4nqnizsygmcn": 1,
+        "f7rpyecg32mg": 7,
+        "x4rv6dwgk68o": 7,
+        "eqsfuc3qph6u": 1,
+        "8t5liudbtpup": 3,
+        "scx3f16y37v6": 7,
+        "ia800figcq9y": 6,
+        "5sdzhvyf3imb": 8
+      }
+    },
+    {
+      "userName": "makotomoto",
+      "displayName": "選我正姐｜澈界",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/ce326bd4-2de9-4e0a-a293-6e42e7891245.jpeg/public",
+      "totalArticles": 48,
+      "campaignsParticipated": 7,
+      "grandSlams": 6,
+      "grandSlamCampaigns": [
+        "4v5mndkbz44v",
+        "eqsfuc3qph6u",
+        "f7rpyecg32mg",
+        "nqbeo3cdn585",
+        "q48dv6ve4g2m",
+        "x4rv6dwgk68o"
+      ],
+      "campaignCounts": {
+        "q48dv6ve4g2m": 8,
+        "4v5mndkbz44v": 8,
+        "nqbeo3cdn585": 8,
+        "4nqnizsygmcn": 1,
+        "f7rpyecg32mg": 8,
+        "x4rv6dwgk68o": 8,
+        "eqsfuc3qph6u": 7
+      }
+    },
+    {
+      "userName": "nosetalk",
+      "displayName": "鼻子說",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/1f7809d9-c4b6-40fe-ae83-ac0f059860af.jpeg/public",
+      "totalArticles": 45,
+      "campaignsParticipated": 8,
+      "grandSlams": 6,
+      "grandSlamCampaigns": [
+        "26uhbm3uh6rg",
+        "4nqnizsygmcn",
+        "efkk0l9hcg96",
+        "ia800figcq9y",
+        "scx3f16y37v6",
+        "ybs0lqsrpmhn"
+      ],
+      "campaignCounts": {
+        "efkk0l9hcg96": 7,
+        "26uhbm3uh6rg": 7,
+        "4nqnizsygmcn": 7,
+        "eqsfuc3qph6u": 3,
+        "8t5liudbtpup": 3,
+        "scx3f16y37v6": 7,
+        "ybs0lqsrpmhn": 3,
+        "ia800figcq9y": 8
+      }
+    },
+    {
+      "userName": "winnie0828",
+      "displayName": "一隻會彈琴的貓",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/e05c1ff2-af48-48b8-89ea-62e67a091560.jpeg/public",
+      "totalArticles": 41,
+      "campaignsParticipated": 8,
+      "grandSlams": 6,
+      "grandSlamCampaigns": [
+        "26uhbm3uh6rg",
+        "4v5mndkbz44v",
+        "5zhf2bpty274",
+        "h2ya9xxjubd2",
+        "ia800figcq9y",
+        "scx3f16y37v6"
+      ],
+      "campaignCounts": {
+        "4v5mndkbz44v": 7,
+        "5zhf2bpty274": 3,
+        "h2ya9xxjubd2": 3,
+        "26uhbm3uh6rg": 7,
+        "2hb97w8rdn7k": 1,
+        "8t5liudbtpup": 6,
+        "scx3f16y37v6": 7,
+        "ia800figcq9y": 7
+      }
+    },
+    {
+      "userName": "katodot",
+      "displayName": "‘’ 空瓦",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/f769da76-d0ba-429a-b854-15a459695ff8.jpeg/public",
+      "totalArticles": 50,
+      "campaignsParticipated": 8,
+      "grandSlams": 5,
+      "grandSlamCampaigns": [
+        "3uskpxsbzmz5",
+        "4v5mndkbz44v",
+        "nqbeo3cdn585",
+        "ox9fmcz6zxxj",
+        "rt04oolqbexh"
+      ],
+      "campaignCounts": {
+        "q48dv6ve4g2m": 3,
+        "4v5mndkbz44v": 7,
+        "nqbeo3cdn585": 8,
+        "ox9fmcz6zxxj": 8,
+        "3uskpxsbzmz5": 8,
+        "owt3jxplay6z": 4,
+        "rt04oolqbexh": 6,
+        "efkk0l9hcg96": 6
+      }
+    },
+    {
+      "userName": "amelia1111",
+      "displayName": "彌雅Amelia",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/34cbb392-ac43-4893-86b0-666602c1b087.jpeg/public",
+      "totalArticles": 50,
+      "campaignsParticipated": 9,
+      "grandSlams": 5,
+      "grandSlamCampaigns": [
+        "5zhf2bpty274",
+        "eqsfuc3qph6u",
+        "f7rpyecg32mg",
+        "owt3jxplay6z",
+        "rt04oolqbexh"
+      ],
+      "campaignCounts": {
+        "ox9fmcz6zxxj": 1,
+        "owt3jxplay6z": 9,
+        "rt04oolqbexh": 8,
+        "5zhf2bpty274": 6,
+        "26uhbm3uh6rg": 5,
+        "4nqnizsygmcn": 1,
+        "f7rpyecg32mg": 9,
+        "x4rv6dwgk68o": 4,
+        "eqsfuc3qph6u": 7
+      }
+    },
+    {
+      "userName": "chen0708",
+      "displayName": "si薰",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/9dbc77e4-b382-4eda-b443-3cf2904c6222.png/public",
+      "totalArticles": 50,
+      "campaignsParticipated": 11,
+      "grandSlams": 5,
+      "grandSlamCampaigns": [
+        "5sdzhvyf3imb",
+        "5zhf2bpty274",
+        "ia800figcq9y",
+        "rt04oolqbexh",
+        "scx3f16y37v6"
+      ],
+      "campaignCounts": {
+        "ox9fmcz6zxxj": 3,
+        "rt04oolqbexh": 4,
+        "5zhf2bpty274": 4,
+        "efkk0l9hcg96": 3,
+        "2hb97w8rdn7k": 1,
+        "f7rpyecg32mg": 1,
+        "eqsfuc3qph6u": 6,
+        "8t5liudbtpup": 4,
+        "scx3f16y37v6": 8,
+        "ia800figcq9y": 8,
+        "5sdzhvyf3imb": 8
+      }
+    },
+    {
+      "userName": "012907_",
+      "displayName": "Sw",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/4c61d0c6-2d1b-4142-8cbb-e36c7a4acad6.jpeg/public",
+      "totalArticles": 46,
+      "campaignsParticipated": 6,
+      "grandSlams": 5,
+      "grandSlamCampaigns": [
+        "4v5mndkbz44v",
+        "aiafcgbu89p2",
+        "nqbeo3cdn585",
+        "ox9fmcz6zxxj",
+        "q48dv6ve4g2m"
+      ],
+      "campaignCounts": {
+        "wem6xy6u7okv": 6,
+        "aiafcgbu89p2": 8,
+        "q48dv6ve4g2m": 8,
+        "4v5mndkbz44v": 8,
+        "nqbeo3cdn585": 8,
+        "ox9fmcz6zxxj": 8
+      }
+    },
+    {
+      "userName": "melodybird",
+      "displayName": "PassoetrY",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/d7a7690c-eb5e-4ea1-9092-d2fe4b26b1b6.jpeg/public",
+      "totalArticles": 39,
+      "campaignsParticipated": 6,
+      "grandSlams": 5,
+      "grandSlamCampaigns": [
+        "4nqnizsygmcn",
+        "8t5liudbtpup",
+        "efkk0l9hcg96",
+        "eqsfuc3qph6u",
+        "x4rv6dwgk68o"
+      ],
+      "campaignCounts": {
+        "rt04oolqbexh": 1,
+        "efkk0l9hcg96": 7,
+        "4nqnizsygmcn": 7,
+        "x4rv6dwgk68o": 8,
+        "eqsfuc3qph6u": 8,
+        "8t5liudbtpup": 8
+      }
+    },
+    {
+      "userName": "hsiang6912n",
+      "displayName": "hsiang6912n",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/4c47f642-a3c1-47cc-8f0f-ab7682344d0c.png/public",
+      "totalArticles": 34,
+      "campaignsParticipated": 5,
+      "grandSlams": 5,
+      "grandSlamCampaigns": [
+        "2hb97w8rdn7k",
+        "3uskpxsbzmz5",
+        "efkk0l9hcg96",
+        "h2ya9xxjubd2",
+        "kn7h01eku617"
+      ],
+      "campaignCounts": {
+        "3uskpxsbzmz5": 7,
+        "h2ya9xxjubd2": 4,
+        "efkk0l9hcg96": 9,
+        "kn7h01eku617": 7,
+        "2hb97w8rdn7k": 7
+      }
+    },
+    {
+      "userName": "ceres",
+      "displayName": "Ceres",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/8dc19286-53b9-46e0-b55a-6e015a17bd0b.jpeg/public",
+      "totalArticles": 34,
+      "campaignsParticipated": 6,
+      "grandSlams": 5,
+      "grandSlamCampaigns": [
+        "5sdzhvyf3imb",
+        "eqsfuc3qph6u",
+        "ia800figcq9y",
+        "scx3f16y37v6",
+        "ybs0lqsrpmhn"
+      ],
+      "campaignCounts": {
+        "5zhf2bpty274": 1,
+        "eqsfuc3qph6u": 7,
+        "scx3f16y37v6": 7,
+        "ybs0lqsrpmhn": 3,
+        "ia800figcq9y": 8,
+        "5sdzhvyf3imb": 8
+      }
+    },
+    {
+      "userName": "xvul3al",
+      "displayName": "xvul3al",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/e0f115f9-91a7-48ee-85ca-121c57d54ac8.png/public",
+      "totalArticles": 33,
+      "campaignsParticipated": 7,
+      "grandSlams": 5,
+      "grandSlamCampaigns": [
+        "3uskpxsbzmz5",
+        "5zhf2bpty274",
+        "h2ya9xxjubd2",
+        "owt3jxplay6z",
+        "rt04oolqbexh"
+      ],
+      "campaignCounts": {
+        "wem6xy6u7okv": 3,
+        "ox9fmcz6zxxj": 3,
+        "3uskpxsbzmz5": 7,
+        "owt3jxplay6z": 8,
+        "rt04oolqbexh": 4,
+        "5zhf2bpty274": 4,
+        "h2ya9xxjubd2": 4
+      }
+    },
+    {
+      "userName": "offtone",
+      "displayName": "Offtone",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/d880b81f-c8f0-4a6b-8192-5315d849ca54.jpeg/public",
+      "totalArticles": 33,
+      "campaignsParticipated": 6,
+      "grandSlams": 5,
+      "grandSlamCampaigns": [
+        "3uskpxsbzmz5",
+        "5zhf2bpty274",
+        "h2ya9xxjubd2",
+        "nqbeo3cdn585",
+        "owt3jxplay6z"
+      ],
+      "campaignCounts": {
+        "wem6xy6u7okv": 1,
+        "nqbeo3cdn585": 8,
+        "3uskpxsbzmz5": 8,
+        "owt3jxplay6z": 8,
+        "5zhf2bpty274": 4,
+        "h2ya9xxjubd2": 4
+      }
+    },
+    {
+      "userName": "jadedchen",
+      "displayName": "jaded.chen",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/89f9a9df-ab1d-4517-a01f-8eb0dbf94997.png/public",
+      "totalArticles": 33,
+      "campaignsParticipated": 6,
+      "grandSlams": 5,
+      "grandSlamCampaigns": [
+        "3uskpxsbzmz5",
+        "5zhf2bpty274",
+        "h2ya9xxjubd2",
+        "owt3jxplay6z",
+        "rt04oolqbexh"
+      ],
+      "campaignCounts": {
+        "nqbeo3cdn585": 4,
+        "3uskpxsbzmz5": 8,
+        "owt3jxplay6z": 8,
+        "rt04oolqbexh": 4,
+        "5zhf2bpty274": 4,
+        "h2ya9xxjubd2": 5
+      }
+    },
+    {
+      "userName": "coalpp2020",
+      "displayName": "李炜",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/2a7ed553-f321-4030-bc3d-ca730d6a7839.jpeg/public",
+      "totalArticles": 61,
+      "campaignsParticipated": 13,
+      "grandSlams": 4,
+      "grandSlamCampaigns": [
+        "26uhbm3uh6rg",
+        "5sdzhvyf3imb",
+        "efkk0l9hcg96",
+        "ybs0lqsrpmhn"
+      ],
+      "campaignCounts": {
+        "ox9fmcz6zxxj": 3,
+        "3uskpxsbzmz5": 2,
+        "owt3jxplay6z": 5,
+        "rt04oolqbexh": 1,
+        "efkk0l9hcg96": 8,
+        "kn7h01eku617": 6,
+        "26uhbm3uh6rg": 7,
+        "2hb97w8rdn7k": 6,
+        "eqsfuc3qph6u": 5,
+        "8t5liudbtpup": 1,
+        "ybs0lqsrpmhn": 3,
+        "ia800figcq9y": 6,
+        "5sdzhvyf3imb": 8
+      }
+    },
+    {
+      "userName": "iceyuzu",
+      "displayName": "IceYuzu",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/d78220da-1d68-4f94-bf0c-87e0c6181a4f.jpeg/public",
+      "totalArticles": 47,
+      "campaignsParticipated": 12,
+      "grandSlams": 4,
+      "grandSlamCampaigns": [
+        "4nqnizsygmcn",
+        "5sdzhvyf3imb",
+        "8t5liudbtpup",
+        "eqsfuc3qph6u"
+      ],
+      "campaignCounts": {
+        "wem6xy6u7okv": 3,
+        "aiafcgbu89p2": 1,
+        "nqbeo3cdn585": 4,
+        "3uskpxsbzmz5": 2,
+        "rt04oolqbexh": 2,
+        "5zhf2bpty274": 1,
+        "4nqnizsygmcn": 7,
+        "f7rpyecg32mg": 4,
+        "eqsfuc3qph6u": 7,
+        "8t5liudbtpup": 7,
+        "scx3f16y37v6": 2,
+        "5sdzhvyf3imb": 7
+      }
+    },
+    {
+      "userName": "roseofchristmas",
+      "displayName": "農天(Sky Welder)",
+      "avatar": "",
+      "totalArticles": 41,
+      "campaignsParticipated": 7,
+      "grandSlams": 4,
+      "grandSlamCampaigns": [
+        "26uhbm3uh6rg",
+        "3uskpxsbzmz5",
+        "4v5mndkbz44v",
+        "nqbeo3cdn585"
+      ],
+      "campaignCounts": {
+        "q48dv6ve4g2m": 4,
+        "4v5mndkbz44v": 7,
+        "nqbeo3cdn585": 8,
+        "ox9fmcz6zxxj": 6,
+        "3uskpxsbzmz5": 7,
+        "26uhbm3uh6rg": 7,
+        "2hb97w8rdn7k": 2
+      }
+    },
+    {
+      "userName": "wenqian",
+      "displayName": "文倩",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/5b5dd8ba-34bc-4e60-8b4d-739ddf6ca6c1.jpeg/public",
+      "totalArticles": 41,
+      "campaignsParticipated": 9,
+      "grandSlams": 4,
+      "grandSlamCampaigns": [
+        "3uskpxsbzmz5",
+        "4nqnizsygmcn",
+        "ia800figcq9y",
+        "ybs0lqsrpmhn"
+      ],
+      "campaignCounts": {
+        "ox9fmcz6zxxj": 3,
+        "3uskpxsbzmz5": 9,
+        "4nqnizsygmcn": 8,
+        "eqsfuc3qph6u": 3,
+        "8t5liudbtpup": 4,
+        "scx3f16y37v6": 1,
+        "ybs0lqsrpmhn": 4,
+        "ia800figcq9y": 8,
+        "5sdzhvyf3imb": 1
+      }
+    },
+    {
+      "userName": "rnwang54",
+      "displayName": "枯北",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/0abc943a-e1d3-4489-b50c-9b6adacbe4a3.jpeg/public",
+      "totalArticles": 39,
+      "campaignsParticipated": 10,
+      "grandSlams": 4,
+      "grandSlamCampaigns": [
+        "3uskpxsbzmz5",
+        "5sdzhvyf3imb",
+        "8t5liudbtpup",
+        "owt3jxplay6z"
+      ],
+      "campaignCounts": {
+        "3uskpxsbzmz5": 7,
+        "owt3jxplay6z": 7,
+        "efkk0l9hcg96": 1,
+        "x4rv6dwgk68o": 2,
+        "eqsfuc3qph6u": 1,
+        "8t5liudbtpup": 7,
+        "scx3f16y37v6": 2,
+        "ybs0lqsrpmhn": 2,
+        "ia800figcq9y": 3,
+        "5sdzhvyf3imb": 7
+      }
+    },
+    {
+      "userName": "chinlunglin0831",
+      "displayName": "黎明之弧",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/0effabfd-8a41-4a48-bfab-ff6f6386b45a.jpeg/public",
+      "totalArticles": 38,
+      "campaignsParticipated": 5,
+      "grandSlams": 4,
+      "grandSlamCampaigns": [
+        "4v5mndkbz44v",
+        "aiafcgbu89p2",
+        "nqbeo3cdn585",
+        "q48dv6ve4g2m"
+      ],
+      "campaignCounts": {
+        "wem6xy6u7okv": 6,
+        "aiafcgbu89p2": 8,
+        "q48dv6ve4g2m": 8,
+        "4v5mndkbz44v": 8,
+        "nqbeo3cdn585": 8
+      }
+    },
+    {
+      "userName": "viewerwind",
+      "displayName": "泡澡的太陽",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/06a0bdcd-5287-4e24-bdd6-358bae1ab485.png/public",
+      "totalArticles": 38,
+      "campaignsParticipated": 6,
+      "grandSlams": 4,
+      "grandSlamCampaigns": [
+        "26uhbm3uh6rg",
+        "8t5liudbtpup",
+        "efkk0l9hcg96",
+        "f7rpyecg32mg"
+      ],
+      "campaignCounts": {
+        "efkk0l9hcg96": 7,
+        "26uhbm3uh6rg": 7,
+        "f7rpyecg32mg": 7,
+        "eqsfuc3qph6u": 4,
+        "8t5liudbtpup": 7,
+        "5sdzhvyf3imb": 6
+      }
+    },
+    {
+      "userName": "onangen",
+      "displayName": "宸小事",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/549c9d1f-cb73-4565-894e-6bf7f09a8f0e.jpeg/public",
+      "totalArticles": 38,
+      "campaignsParticipated": 6,
+      "grandSlams": 4,
+      "grandSlamCampaigns": [
+        "4nqnizsygmcn",
+        "eqsfuc3qph6u",
+        "f7rpyecg32mg",
+        "x4rv6dwgk68o"
+      ],
+      "campaignCounts": {
+        "26uhbm3uh6rg": 4,
+        "4nqnizsygmcn": 7,
+        "f7rpyecg32mg": 7,
+        "x4rv6dwgk68o": 7,
+        "eqsfuc3qph6u": 7,
+        "8t5liudbtpup": 6
+      }
+    },
+    {
+      "userName": "raymondhk2k",
+      "displayName": "tokyoboy",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/334cf10e-ebf5-4a8a-a3c1-fdc43cf8fdc1.jpeg/public",
+      "totalArticles": 37,
+      "campaignsParticipated": 4,
+      "grandSlams": 4,
+      "grandSlamCampaigns": [
+        "3uskpxsbzmz5",
+        "efkk0l9hcg96",
+        "ox9fmcz6zxxj",
+        "rt04oolqbexh"
+      ],
+      "campaignCounts": {
+        "ox9fmcz6zxxj": 13,
+        "3uskpxsbzmz5": 13,
+        "rt04oolqbexh": 4,
+        "efkk0l9hcg96": 7
+      }
+    },
+    {
+      "userName": "skytbl",
+      "displayName": "天藍",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/035c54f4-f0a1-41db-8c87-44077f085134.jpeg/public",
+      "totalArticles": 34,
+      "campaignsParticipated": 5,
+      "grandSlams": 4,
+      "grandSlamCampaigns": [
+        "4v5mndkbz44v",
+        "5sdzhvyf3imb",
+        "ox9fmcz6zxxj",
+        "scx3f16y37v6"
+      ],
+      "campaignCounts": {
+        "wem6xy6u7okv": 6,
+        "4v5mndkbz44v": 7,
+        "ox9fmcz6zxxj": 7,
+        "scx3f16y37v6": 7,
+        "5sdzhvyf3imb": 7
+      }
+    },
+    {
+      "userName": "kanto_wang",
+      "displayName": "関東老王",
+      "avatar": "",
+      "totalArticles": 33,
+      "campaignsParticipated": 5,
+      "grandSlams": 4,
+      "grandSlamCampaigns": [
+        "4nqnizsygmcn",
+        "efkk0l9hcg96",
+        "f7rpyecg32mg",
+        "x4rv6dwgk68o"
+      ],
+      "campaignCounts": {
+        "owt3jxplay6z": 1,
+        "efkk0l9hcg96": 8,
+        "4nqnizsygmcn": 8,
+        "f7rpyecg32mg": 8,
+        "x4rv6dwgk68o": 8
+      }
+    },
+    {
+      "userName": "tainl0810",
+      "displayName": "tainl0810",
+      "avatar": "",
+      "totalArticles": 32,
+      "campaignsParticipated": 5,
+      "grandSlams": 4,
+      "grandSlamCampaigns": [
+        "4v5mndkbz44v",
+        "aiafcgbu89p2",
+        "nqbeo3cdn585",
+        "q48dv6ve4g2m"
+      ],
+      "campaignCounts": {
+        "wem6xy6u7okv": 4,
+        "aiafcgbu89p2": 7,
+        "q48dv6ve4g2m": 7,
+        "4v5mndkbz44v": 7,
+        "nqbeo3cdn585": 7
+      }
+    },
+    {
+      "userName": "Denji_333",
+      "displayName": "飛非",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/5ff0ac6b-fba8-430e-8422-3660358870af.jpeg/public",
+      "totalArticles": 31,
+      "campaignsParticipated": 5,
+      "grandSlams": 4,
+      "grandSlamCampaigns": [
+        "5zhf2bpty274",
+        "aiafcgbu89p2",
+        "efkk0l9hcg96",
+        "q48dv6ve4g2m"
+      ],
+      "campaignCounts": {
+        "wem6xy6u7okv": 6,
+        "aiafcgbu89p2": 7,
+        "q48dv6ve4g2m": 8,
+        "5zhf2bpty274": 3,
+        "efkk0l9hcg96": 7
+      }
+    },
+    {
+      "userName": "wujie",
+      "displayName": "無解",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/bf51be04-253a-4b3e-8fc9-b9ae2fef8026.jpeg/public",
+      "totalArticles": 31,
+      "campaignsParticipated": 6,
+      "grandSlams": 4,
+      "grandSlamCampaigns": [
+        "26uhbm3uh6rg",
+        "5sdzhvyf3imb",
+        "5zhf2bpty274",
+        "kn7h01eku617"
+      ],
+      "campaignCounts": {
+        "5zhf2bpty274": 3,
+        "efkk0l9hcg96": 2,
+        "kn7h01eku617": 7,
+        "26uhbm3uh6rg": 7,
+        "ia800figcq9y": 5,
+        "5sdzhvyf3imb": 7
+      }
+    },
+    {
+      "userName": "cafuna_eva",
+      "displayName": "Cafuna_eva",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/fec7c6f8-c871-4fa3-bb49-8593c13dba19.jpeg/public",
+      "totalArticles": 31,
+      "campaignsParticipated": 4,
+      "grandSlams": 4,
+      "grandSlamCampaigns": [
+        "26uhbm3uh6rg",
+        "2hb97w8rdn7k",
+        "4nqnizsygmcn",
+        "ia800figcq9y"
+      ],
+      "campaignCounts": {
+        "26uhbm3uh6rg": 8,
+        "2hb97w8rdn7k": 8,
+        "4nqnizsygmcn": 8,
+        "ia800figcq9y": 7
+      }
+    },
+    {
+      "userName": "littleoldlady",
+      "displayName": "婆仔的心事",
+      "avatar": "",
+      "totalArticles": 30,
+      "campaignsParticipated": 5,
+      "grandSlams": 4,
+      "grandSlamCampaigns": [
+        "26uhbm3uh6rg",
+        "5zhf2bpty274",
+        "nqbeo3cdn585",
+        "rt04oolqbexh"
+      ],
+      "campaignCounts": {
+        "wem6xy6u7okv": 5,
+        "nqbeo3cdn585": 8,
+        "rt04oolqbexh": 5,
+        "5zhf2bpty274": 4,
+        "26uhbm3uh6rg": 8
+      }
+    },
+    {
+      "userName": "thermometer",
+      "displayName": "Thermometer ",
+      "avatar": "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/7e640fc4-8c2a-4602-9791-cba955c87c37.jpeg/public",
+      "totalArticles": 30,
+      "campaignsParticipated": 5,
+      "grandSlams": 4,
+      "grandSlamCampaigns": [
+        "4v5mndkbz44v",
+        "8t5liudbtpup",
+        "eqsfuc3qph6u",
+        "f7rpyecg32mg"
+      ],
+      "campaignCounts": {
+        "q48dv6ve4g2m": 2,
+        "4v5mndkbz44v": 7,
+        "f7rpyecg32mg": 7,
+        "eqsfuc3qph6u": 7,
+        "8t5liudbtpup": 7
+      }
     }
   ]
 }

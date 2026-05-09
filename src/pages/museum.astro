@@ -9,10 +9,11 @@ import {
 } from "../data/seven-day-campaign";
 import {
   marathoners,
-  totalParticipations,
-  uniqueUsers,
+  totalGrandSlams,
+  totalAuthorsWithArticles,
   eventCount,
 } from "../data/freewrite-marathoners";
+import GrandBadge from "../components/GrandBadge.astro";
 import {
   featuredArticles,
   featuredCampaigns,
@@ -180,22 +181,19 @@ const archiveThemes = [...allThemes].reverse();
         <div class="museum-marathoners__inner">
           <header class="museum-marathoners__head">
             <p class="eyebrow">七日書馬拉松選手</p>
-            <h2 id="marathoners-title">最常出現在這裡的，這 30 位文友。</h2>
+            <h2 id="marathoners-title">用大滿貫徽章與篇數，量出寫作的長距離。</h2>
             <p>
-              {eventCount} 期累計 {totalParticipations.toLocaleString()} 人次、{uniqueUsers.toLocaleString()} 位獨立文友。
-              下面是參與最多期的前 30 位馬拉松選手 — 點頭像可以查看他們的書寫旅程。
-              {marathoners.filter((m) => m.count >= eventCount).length > 0 && (
-                <span class="museum-marathoners__highlight">
-                  {" "}其中 {marathoners.filter((m) => m.count >= eventCount).length} 位 <strong>{eventCount} 期全勤</strong>。
-                </span>
-              )}
+              排序依拿到的<strong>大滿貫徽章數</strong>（七日書 ≥ 7 篇 / 三日書 ≥ 3
+              篇即達成），同分比實際發文數。
+              {eventCount} 期累計 {totalAuthorsWithArticles.toLocaleString()} 位作者實際發文，
+              共獲 {totalGrandSlams.toLocaleString()} 枚大滿貫徽章。
+              點頭像可以看那位文友的書寫旅程。
             </p>
           </header>
 
           <ol class="marathoner-grid">
             {
               marathoners.map((m, idx) => {
-                const fullAttendance = m.count >= eventCount;
                 const rankClass =
                   idx < 3 ? "marathoner-card--gold" : idx < 10 ? "marathoner-card--silver" : "";
                 return (
@@ -209,6 +207,15 @@ const archiveThemes = [...allThemes].reverse();
                       <span class="marathoner-card__rank">
                         {String(idx + 1).padStart(2, "0")}
                       </span>
+                      {m.grandSlams > 0 && (
+                        <span
+                          class="marathoner-card__badge"
+                          title={`拿到 ${m.grandSlams} 次大滿貫徽章`}
+                        >
+                          <GrandBadge size={26} />
+                          <span class="marathoner-card__badge-num">×{m.grandSlams}</span>
+                        </span>
+                      )}
                       {m.avatar ? (
                         <img
                           class="marathoner-card__avatar"
@@ -225,13 +232,11 @@ const archiveThemes = [...allThemes].reverse();
                       <span class="marathoner-card__name">{m.displayName}</span>
                       <span class="marathoner-card__handle">@{m.userName}</span>
                       <span class="marathoner-card__count">
-                        {m.count} <span>期</span>
+                        {m.totalArticles} <span>篇</span>
                       </span>
-                      {fullAttendance && (
-                        <span class="marathoner-card__crown" title={`${eventCount} 期全勤`}>
-                          ✦ 全勤
-                        </span>
-                      )}
+                      <span class="marathoner-card__sub">
+                        {m.campaignsParticipated} 期參與
+                      </span>
                     </button>
                   </li>
                 );
@@ -240,8 +245,9 @@ const archiveThemes = [...allThemes].reverse();
           </ol>
 
           <p class="museum-marathoners__foot">
-            排序依公開的活動報名紀錄（Matters
-            <code>campaign.participants</code> API）。完整 50 名見
+            排序依公開的活動報文紀錄（Matters
+            <code>campaign.articles</code> API），按 author 分組計篇數，再以
+            campaign 名判定七日書 / 三日書門檻。完整 50 名與 per-campaign 篇數見
             <a
               href="https://github.com/thematters/seven-day-book-landing/blob/main/research/freewrite-marathoners.json"
               target="_blank"

@@ -240,13 +240,15 @@ const archiveThemes = [...allThemes].reverse();
       ));
 
     const fetchUserArticles = async (handle) => {
+      // 加 cover + summary + contents.markdown，小書直接取用內文與圖片
       const query = `query($userName: String!) {
         user(input: { userName: $userName }) {
           userName displayName avatar
           articles(input: { first: 100 }) {
             edges {
               node {
-                shortHash slug title createdAt
+                shortHash slug title createdAt cover summary
+                contents { markdown }
                 campaigns { campaign { shortHash name } }
               }
             }
@@ -261,6 +263,23 @@ const archiveThemes = [...allThemes].reverse();
       const json = await res.json();
       if (json.errors) throw new Error(json.errors[0]?.message || "GraphQL error");
       return json.data.user;
+    };
+
+    // 從 markdown 萃出前 N 段純文字（去掉 ![] / [] / # 等 markup）
+    const firstParagraphs = (md, n) => {
+      if (!md) return [];
+      const cleanLine = (s) =>
+        s
+          .replace(/!\[[^\]]*\]\([^)]*\)/g, "") // images
+          .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1") // links → text
+          .replace(/^#+\s*/g, "") // headers
+          .replace(/[*_`]/g, "") // bold/italic/code
+          .trim();
+      return md
+        .split(/\n\s*\n+/)
+        .map((p) => cleanLine(p))
+        .filter((p) => p && p.length > 4)
+        .slice(0, n);
     };
 
     const groupByCampaign = (articles) => {
@@ -375,38 +394,48 @@ const archiveThemes = [...allThemes].reverse();
     };
 
     // ── 小書 builder ──────────────────────────────────────────
+    // 結構：cover → stats → TOC → for each issue: divider + per-article pages → closing
+    // 封面/封底/divider/closing 都用 design-system POAP scribble + 七日書 SVG logo
+    const SDB_LOGO_SRC = "/images/freewrite/seven-day-book-logo.svg";
+    const SCRIBBLE_TR = "/images/freewrite/scribble-tr.svg";
+    const SCRIBBLE_BL = "/images/freewrite/scribble-bl.svg";
+
     const buildBookHtml = (journey) => {
       if (!journey) return "";
       const { user, groups, totalArticles } = journey;
       const today = new Date();
       const dateStr = `${today.getFullYear()} 年 ${today.getMonth() + 1} 月 ${today.getDate()} 日`;
 
-      // Cover page
+      // ── Cover page：七日書 SVG 大尺寸 + 兩個 POAP scribble + freewrite gradient ──
       const cover = `
         <article class="book-page book-page--cover">
-          <div class="book-page__scribble book-page__scribble--top" aria-hidden="true"></div>
+          <img class="book-scribble book-scribble--tr" src="${SCRIBBLE_TR}" alt="" />
+          <img class="book-scribble book-scribble--bl" src="${SCRIBBLE_BL}" alt="" />
           <div class="book-cover-content">
-            <p class="book-cover-eyebrow">Matters 七日書 · 個人足跡</p>
+            <p class="book-cover-eyebrow">Matters · 自由寫</p>
+            <img class="book-cover-logo" src="${SDB_LOGO_SRC}" alt="七日書" />
             <h1 class="book-cover-title">${escapeHtml(user.displayName)}<br/>的小書</h1>
             <p class="book-cover-handle">@${escapeHtml(user.userName)}</p>
-            <p class="book-cover-date">${dateStr} 編製</p>
           </div>
-          <div class="book-page__scribble book-page__scribble--bottom" aria-hidden="true"></div>
+          <p class="book-cover-date">${dateStr} 編製</p>
         </article>`;
 
-      // Stats page
+      // ── Stats page ─────────────────────────────────────────
+      const firstYear = groups.length
+        ? formatMonthLabel(groups[groups.length - 1].articles[0].createdAt).split(' 年')[0]
+        : '—';
       const stats = `
         <article class="book-page book-page--stats">
           <p class="book-stats-eyebrow">這幾年的書寫</p>
           <div class="book-stats-grid">
             <div><strong>${groups.length}</strong><span>期七日書</span></div>
             <div><strong>${totalArticles}</strong><span>篇文章</span></div>
-            <div><strong>${groups[0] ? formatMonthLabel(groups[groups.length - 1].articles[0].createdAt).split(' 年')[0] : '—'}</strong><span>第一次參與</span></div>
+            <div><strong>${firstYear}</strong><span>第一次參與</span></div>
           </div>
           <p class="book-stats-tagline">每一篇都是一個七天裡安靜的下午。</p>
         </article>`;
 
-      // TOC page
+      // ── TOC page ──────────────────────────────────────────
       const tocItems = groups
         .map((g, i) => {
           const earliestArt = [...g.articles].sort((a, b) => +new Date(a.createdAt) - +new Date(b.createdAt))[0];
@@ -420,35 +449,67 @@ const archiveThemes = [...allThemes].reverse();
           <ol class="book-toc-list">${tocItems}</ol>
         </article>`;
 
-      // Issue pages
+      // ── Per-issue: divider page + per-article pages ────────
       const issuePages = groups
         .map((g, i) => {
           const period = formatMonthLabel(g.articles[0].createdAt);
-          const articleList = g.articles
-            .sort((a, b) => +new Date(a.createdAt) - +new Date(b.createdAt))
-            .map((a) => `<li><span class="book-issue-art-title">${escapeHtml(a.title)}</span><span class="book-issue-art-date">${escapeHtml(a.createdAt.slice(5, 10).replace('-', ' / '))}</span></li>`)
-            .join("");
-          return `
-            <article class="book-page book-page--issue">
-              <p class="book-page-eyebrow">${escapeHtml(period)} · 第 ${i + 1} 站</p>
-              <h2 class="book-page-h2">${escapeHtml(g.campaign.name)}</h2>
-              <p class="book-issue-meta">這一期你寫了 ${g.articles.length} 篇</p>
-              <ol class="book-issue-articles">${articleList}</ol>
-              <p class="book-issue-link">
-                完整文章可在 matters.town/@${escapeHtml(user.userName)} 找到
-              </p>
+          const sortedArts = [...g.articles].sort(
+            (a, b) => +new Date(a.createdAt) - +new Date(b.createdAt),
+          );
+
+          // Divider page (一張，主題大字 + 月份)
+          const divider = `
+            <article class="book-page book-page--divider">
+              <img class="book-scribble book-scribble--tr" src="${SCRIBBLE_TR}" alt="" />
+              <div class="book-divider-content">
+                <p class="book-divider-section">第 ${String(i + 1).padStart(2, "0")} 站</p>
+                <p class="book-divider-period">${escapeHtml(period)}</p>
+                <h2 class="book-divider-title">${escapeHtml(g.campaign.name)}</h2>
+                <p class="book-divider-meta">在這期，你寫了 ${sortedArts.length} 篇</p>
+              </div>
+              <img class="book-scribble book-scribble--bl" src="${SCRIBBLE_BL}" alt="" />
             </article>`;
+
+          // Per-article pages (一張一篇 — 含 cover image + 前 4 段內文)
+          const articlePages = sortedArts
+            .map((a) => {
+              const paras = firstParagraphs(a.contents?.markdown, 4);
+              const bodyHtml = paras.length
+                ? paras.map((p) => `<p>${escapeHtml(p)}</p>`).join("")
+                : `<p class="book-article-fallback">${escapeHtml(a.summary || "（這篇沒有摘要）")}</p>`;
+              const dateLine = a.createdAt
+                ? `${a.createdAt.slice(0, 4)} 年 ${Number(a.createdAt.slice(5, 7))} 月 ${Number(a.createdAt.slice(8, 10))} 日`
+                : "";
+              const coverHtml = a.cover
+                ? `<div class="book-article-cover"><img src="${escapeHtml(a.cover)}" alt="" /></div>`
+                : "";
+              return `
+                <article class="book-page book-page--article">
+                  <p class="book-page-eyebrow">${escapeHtml(period)} · ${escapeHtml(g.campaign.name)}</p>
+                  <h2 class="book-article-title">${escapeHtml(a.title)}</h2>
+                  ${coverHtml}
+                  <div class="book-article-body">${bodyHtml}</div>
+                  <p class="book-article-footer">
+                    <span>${escapeHtml(dateLine)}</span>
+                    <span class="book-article-source">matters.town/a/${escapeHtml(a.shortHash)}</span>
+                  </p>
+                </article>`;
+            }).join("");
+
+          return divider + articlePages;
         }).join("");
 
-      // Closing page
+      // ── Closing page：七日書 SVG + scribble + tagline ─────
       const closing = `
         <article class="book-page book-page--closing">
-          <div class="book-page__scribble book-page__scribble--top" aria-hidden="true"></div>
+          <img class="book-scribble book-scribble--tr" src="${SCRIBBLE_TR}" alt="" />
           <div class="book-closing-content">
             <p class="book-closing-quote">「下一個七天，<br/>繼續寫。」</p>
+            <img class="book-closing-logo" src="${SDB_LOGO_SRC}" alt="七日書" />
             <p class="book-closing-meta">每月一期 · freewriting.matters.town</p>
             <p class="book-closing-credit">Matters 自由寫 × 七日書</p>
           </div>
+          <img class="book-scribble book-scribble--bl" src="${SCRIBBLE_BL}" alt="" />
         </article>`;
 
       return cover + stats + toc + issuePages + closing;

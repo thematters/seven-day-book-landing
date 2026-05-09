@@ -24,20 +24,33 @@ if ! command -v pyftsubset >/dev/null 2>&1; then
   exit 1
 fi
 
-# Build corpus from source
+# Build extended corpus: landing src + freewrite 94 articles (lifeboat) + ASCII + CJK punctuation
+LIFEBOAT_POSTS="${LIFEBOAT_POSTS:-$HOME/Documents/AI-Agent/matters-lifeboat/tmp/freewrite-backup/tmp/extracted/posts}"
 python3 <<PY > "$CORPUS"
-import re, glob, os
+import os, glob
 chars = set()
+# 1. landing src
 for f in glob.glob("$REPO_ROOT/src/**/*.astro", recursive=True) + \
          glob.glob("$REPO_ROOT/src/**/*.ts", recursive=True) + \
          glob.glob("$REPO_ROOT/src/**/*.css", recursive=True):
-    with open(f) as fp:
-        for line in fp:
-            for ch in line:
+    for line in open(f):
+        for ch in line:
+            cp = ord(ch)
+            if 0x4E00 <= cp <= 0x9FFF or 0x3000 <= cp <= 0x303F or 0xFF00 <= cp <= 0xFFEF:
+                chars.add(ch)
+# 2. lifeboat freewrite articles (cover usage chars)
+posts = "$LIFEBOAT_POSTS"
+if os.path.isdir(posts):
+    for fn in os.listdir(posts):
+        if fn.endswith('.md'):
+            for ch in open(os.path.join(posts, fn)).read():
                 cp = ord(ch)
                 if 0x4E00 <= cp <= 0x9FFF or 0x3000 <= cp <= 0x303F or 0xFF00 <= cp <= 0xFFEF:
                     chars.add(ch)
+# 3. ASCII + CJK Symbols/Punctuation + Fullwidth
 chars.update(set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!\"#\$%&'()*+,-./:;<=>?@[]^_\`{|}~ "))
+for cp in range(0x3000, 0x3040): chars.add(chr(cp))
+for cp in range(0xFF00, 0xFFF0): chars.add(chr(cp))
 print(''.join(sorted(chars)))
 PY
 

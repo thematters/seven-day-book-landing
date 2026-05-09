@@ -35,6 +35,7 @@ const nav = [
   { href: "#themes", label: "過去主題" },
   { href: "#lectures", label: "名家講座" },
   { href: "#milestones", label: "歷年里程" },
+  { href: "#passport", label: "我的足跡" },
   { href: "#faq", label: "FAQ" },
 ];
 const marqueeAvatars = [
@@ -421,8 +422,55 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
       </section>
 
       <section
-        id="faq"
+        id="passport"
         class="section section--soft"
+        aria-labelledby="passport-title"
+      >
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">個人足跡</p>
+            <h2 id="passport-title">看看你在七日書留下的書寫旅程。</h2>
+            <p>
+              輸入你在 Matters 的帳號（例如 <code>mashbean</code>），看你曾在哪幾期參與、留下了哪些文字。
+              所有資料來自 Matters 公開 API，不保存搜尋紀錄、不需要登入。
+            </p>
+          </header>
+
+          <form class="passport-search" id="passport-search" novalidate>
+            <label class="passport-search__field">
+              <span class="passport-search__prefix" aria-hidden="true">@</span>
+              <input
+                type="text"
+                name="handle"
+                id="passport-handle"
+                placeholder="你的 Matters 帳號"
+                autocomplete="off"
+                spellcheck="false"
+                inputmode="text"
+                required
+              />
+            </label>
+            <button class="button button--primary" type="submit">
+              查找書寫足跡 →
+            </button>
+          </form>
+
+          <div
+            class="passport-result"
+            id="passport-result"
+            role="status"
+            aria-live="polite"
+          >
+            <p class="passport-hint">
+              提示：你的帳號就是 Matters 個人頁網址 <code>matters.town/@___</code> 後面那段。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="faq"
+        class="section section--paper"
         aria-labelledby="faq-title"
       >
         <div class="section__inner">
@@ -558,6 +606,185 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
       );
       window.location.href = `mailto:${contactEmail}?subject=${subject}&body=${body}`;
       dialog?.close();
+    });
+  </script>
+
+  <script is:inline>
+    // ── 我的七日書足跡：用 Matters GraphQL 公開 API 查詢 user.articles，
+    //    篩選有 "七日書" / "三日書" / "自由寫" / "兩廳院" / "情書"
+    //    campaign 的，按 campaign 分組顯示。
+    //    無登入、無紀錄、瀏覽器直連 Matters API。
+    const passportForm = document.getElementById("passport-search");
+    const passportResult = document.getElementById("passport-result");
+    const passportInput = document.getElementById("passport-handle");
+    const MATTERS_GQL = "https://server.matters.town/graphql";
+    const MATTERS_BASE = "https://matters.town";
+    const FREEWRITE_NEEDLE = ["七日書", "三日書", "自由寫", "情書", "兩廳院"];
+
+    const escapeHtml = (s) =>
+      String(s ?? "").replace(/[&<>"']/g, (c) => (
+        { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+      ));
+
+    const fetchUserArticles = async (handle) => {
+      const query = `query($userName: String!) {
+        user(input: { userName: $userName }) {
+          userName displayName avatar
+          articles(input: { first: 100 }) {
+            edges {
+              node {
+                shortHash slug title createdAt
+                campaigns { campaign { shortHash name } }
+              }
+            }
+          }
+        }
+      }`;
+      const res = await fetch(MATTERS_GQL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, variables: { userName: handle } }),
+      });
+      const json = await res.json();
+      if (json.errors) throw new Error(json.errors[0]?.message || "GraphQL error");
+      return json.data.user;
+    };
+
+    const formatMonthLabel = (iso) => {
+      if (!iso) return "";
+      const [y, m] = iso.split("T")[0].split("-");
+      return `${y} / ${Number(m)}`;
+    };
+
+    const renderResult = (user) => {
+      if (!user) {
+        passportResult.innerHTML = `
+          <div class="passport-empty">
+            <h3>找不到這位文友的 Matters 帳號</h3>
+            <p>請確認帳號拼寫是否正確（@ 後面那段，例如 <code>mashbean</code>）。
+            如果是新朋友，<a href="${escapeHtml(window.location.origin + window.location.pathname)}#current">先看看本月七日書題目</a>。</p>
+          </div>`;
+        return;
+      }
+      const articles = (user.articles?.edges || [])
+        .map((e) => e.node)
+        .filter((a) =>
+          (a.campaigns || []).some((c) =>
+            FREEWRITE_NEEDLE.some((n) => (c.campaign?.name || "").includes(n)),
+          ),
+        );
+
+      if (!articles.length) {
+        passportResult.innerHTML = `
+          <div class="passport-empty">
+            <h3>${escapeHtml(user.displayName)} 還沒在七日書留下足跡</h3>
+            <p>查到 <a href="${MATTERS_BASE}/@${escapeHtml(user.userName)}" target="_blank" rel="noopener">@${escapeHtml(user.userName)}</a> 的 Matters 公開頁面，但沒看到七日書相關 campaign 的文章。</p>
+            <p>歡迎現在加入：<a class="button button--primary" href="#current">看本月題目 →</a></p>
+          </div>`;
+        return;
+      }
+
+      // group by campaign shortHash
+      const groups = new Map();
+      articles.forEach((a) => {
+        const c = (a.campaigns || []).find((c) =>
+          FREEWRITE_NEEDLE.some((n) => (c.campaign?.name || "").includes(n)),
+        )?.campaign;
+        if (!c) return;
+        if (!groups.has(c.shortHash))
+          groups.set(c.shortHash, { campaign: c, articles: [] });
+        groups.get(c.shortHash).articles.push(a);
+      });
+
+      // sort groups by latest article createdAt desc
+      const sorted = [...groups.values()].sort((a, b) => {
+        const da = Math.max(...a.articles.map((x) => +new Date(x.createdAt)));
+        const db = Math.max(...b.articles.map((x) => +new Date(x.createdAt)));
+        return db - da;
+      });
+
+      const totalArticles = articles.length;
+      const totalCampaigns = sorted.length;
+      const profileUrl = `${MATTERS_BASE}/@${user.userName}`;
+
+      const groupHtml = sorted
+        .map((g) => {
+          const period = g.articles
+            .map((a) => formatMonthLabel(a.createdAt))
+            .filter(Boolean)[0];
+          const eventUrl = `${MATTERS_BASE}/e/${g.campaign.shortHash}`;
+          const articleList = g.articles
+            .sort((a, b) => +new Date(a.createdAt) - +new Date(b.createdAt))
+            .map(
+              (a) => `
+              <li>
+                <a href="${MATTERS_BASE}/a/${escapeHtml(a.shortHash)}" target="_blank" rel="noopener">
+                  ${escapeHtml(a.title)}
+                </a>
+                <span class="passport-article__date">${escapeHtml(a.createdAt.slice(0, 10))}</span>
+              </li>`,
+            )
+            .join("");
+          return `
+            <article class="passport-group">
+              <header class="passport-group__head">
+                <div>
+                  <p class="passport-group__meta">${escapeHtml(period || "")} · ${g.articles.length} 篇</p>
+                  <h3>${escapeHtml(g.campaign.name)}</h3>
+                </div>
+                <a class="passport-group__link" href="${eventUrl}" target="_blank" rel="noopener">
+                  看活動頁 →
+                </a>
+              </header>
+              <ul class="passport-group__articles">${articleList}</ul>
+            </article>`;
+        })
+        .join("");
+
+      passportResult.innerHTML = `
+        <div class="passport-found">
+          <header class="passport-found__head">
+            ${user.avatar ? `<img class="passport-found__avatar" src="${escapeHtml(user.avatar)}" alt="" />` : ""}
+            <div>
+              <p class="passport-found__name">
+                ${escapeHtml(user.displayName)}
+                <a href="${profileUrl}" target="_blank" rel="noopener">@${escapeHtml(user.userName)} →</a>
+              </p>
+              <p class="passport-found__stats">
+                在 <strong>${totalCampaigns}</strong> 期七日書活動裡，留下 <strong>${totalArticles}</strong> 篇文章
+              </p>
+            </div>
+          </header>
+          <div class="passport-groups">${groupHtml}</div>
+        </div>`;
+    };
+
+    const renderError = (msg) => {
+      passportResult.innerHTML = `
+        <div class="passport-empty">
+          <h3>查詢沒成功</h3>
+          <p>${escapeHtml(msg)}</p>
+        </div>`;
+    };
+
+    const renderLoading = () => {
+      passportResult.innerHTML = `
+        <p class="passport-loading" aria-busy="true">正在向 Matters 詢問你的書寫足跡…</p>`;
+    };
+
+    passportForm?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const raw = (passportInput?.value || "").trim();
+      if (!raw) return;
+      const handle = raw.replace(/^@/, "").replace(/^https?:\/\/[^/]+\/@?/, "");
+      if (!handle) return;
+      renderLoading();
+      try {
+        const user = await fetchUserArticles(handle);
+        renderResult(user);
+      } catch (err) {
+        renderError(err.message || String(err));
+      }
     });
   </script>
 </BaseLayout>

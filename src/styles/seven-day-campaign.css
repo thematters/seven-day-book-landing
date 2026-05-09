@@ -2212,6 +2212,269 @@
   }
 }
 
+/* ─── Passport (我的七日書足跡) ──────────────────────────────── */
+.passport-search {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.passport-search__field {
+  display: flex;
+  align-items: stretch;
+  flex: 1 1 280px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  overflow: hidden;
+  transition: border-color 160ms ease;
+}
+
+.passport-search__field:focus-within {
+  border-color: var(--campaign-accent-dark);
+}
+
+.passport-search__prefix {
+  display: grid;
+  width: 36px;
+  place-items: center;
+  background: var(--campaign-soft);
+  color: var(--campaign-accent-dark);
+  font-weight: 500;
+}
+
+.passport-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: var(--ink);
+  outline: none;
+}
+
+.passport-result {
+  min-height: 60px;
+}
+
+.passport-hint {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.passport-hint code,
+.passport-empty code,
+.section__header code {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--campaign-soft);
+  color: var(--campaign-accent-dark);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+.passport-loading {
+  padding: 18px 0;
+  color: var(--ink-muted);
+}
+
+.passport-empty {
+  padding: 24px;
+  border: 1px dashed var(--hairline);
+  border-radius: 12px;
+  background: var(--paper);
+}
+
+.passport-empty h3 {
+  margin: 0 0 10px;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.passport-empty p {
+  margin: 0 0 8px;
+  color: var(--ink-muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.passport-empty p:last-child {
+  margin: 14px 0 0;
+}
+
+.passport-empty a:not(.button) {
+  color: var(--campaign-accent-dark);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.passport-empty a:not(.button):hover {
+  text-decoration: underline;
+}
+
+.passport-found__head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  background: linear-gradient(150deg, var(--paper), var(--campaign-soft));
+  margin-bottom: 16px;
+}
+
+.passport-found__avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  object-fit: cover;
+  background: var(--campaign-soft);
+}
+
+.passport-found__name {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.passport-found__name a {
+  margin-left: 8px;
+  color: var(--campaign-accent-dark);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.passport-found__name a:hover {
+  text-decoration: underline;
+}
+
+.passport-found__stats {
+  margin: 4px 0 0;
+  color: var(--ink-muted);
+  font-size: 14px;
+}
+
+.passport-found__stats strong {
+  color: var(--campaign-accent-dark);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.passport-groups {
+  display: grid;
+  gap: 12px;
+}
+
+.passport-group {
+  padding: 16px 20px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--paper);
+}
+
+.passport-group__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.passport-group__meta {
+  margin: 0;
+  color: var(--campaign-accent-dark);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.passport-group__head h3 {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.32;
+}
+
+.passport-group__link {
+  color: var(--campaign-accent-dark);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.passport-group__link:hover {
+  text-decoration: underline;
+}
+
+.passport-group__articles {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.passport-group__articles li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.passport-group__articles a {
+  flex: 1;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.passport-group__articles a:hover {
+  color: var(--campaign-accent-dark);
+  text-decoration: underline;
+}
+
+.passport-article__date {
+  flex-shrink: 0;
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+@media (max-width: 760px) {
+  .passport-found__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .passport-group__head {
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
 /* ─── Reduced motion ─────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .avatar-marquee__track {

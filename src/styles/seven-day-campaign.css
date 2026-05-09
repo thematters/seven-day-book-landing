@@ -2491,6 +2491,240 @@
   }
 }
 
+/* ─── Museum: 七日書馬拉松選手 leaderboard（深色底）─────────── */
+.museum-marathoners {
+  padding: clamp(48px, 7vw, 88px) clamp(20px, 5vw, 56px);
+  background:
+    radial-gradient(circle at 86% 14%, rgba(255, 198, 136, 0.14), transparent 38%),
+    radial-gradient(circle at 18% 90%, rgba(105, 205, 240, 0.12), transparent 42%),
+    var(--museum-bg);
+  border-top: 1px solid var(--museum-line);
+}
+
+.museum-marathoners__inner {
+  width: min(var(--content-max), 100%);
+  margin: 0 auto;
+}
+
+.museum-marathoners__head {
+  max-width: 720px;
+  margin-bottom: 36px;
+}
+
+.museum-marathoners__head .eyebrow {
+  color: var(--museum-warm);
+}
+
+.museum-marathoners__head .eyebrow::before {
+  background: var(--museum-warm);
+}
+
+.museum-marathoners__head h2 {
+  margin: 8px 0 0;
+  color: var(--museum-text);
+  font-family: var(--font-reading);
+  font-size: clamp(26px, 3.4vw, 36px);
+  font-weight: 600;
+  line-height: 1.24;
+  letter-spacing: -0.01em;
+}
+
+.museum-marathoners__head p {
+  margin-top: 12px;
+  color: var(--museum-text-muted);
+  font-size: 16px;
+  line-height: 1.78;
+}
+
+.museum-marathoners__head p strong {
+  color: var(--museum-warm);
+  font-weight: 600;
+}
+
+.museum-marathoners__highlight {
+  color: var(--museum-text);
+}
+
+.museum-marathoners__foot {
+  margin: 24px 0 0;
+  color: var(--museum-text-muted);
+  font-size: 13px;
+  line-height: 1.78;
+}
+
+.museum-marathoners__foot a {
+  color: var(--museum-accent-strong);
+  text-decoration: none;
+}
+
+.museum-marathoners__foot a:hover {
+  text-decoration: underline;
+}
+
+.museum-marathoners__foot code {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(105, 205, 240, 0.16);
+  color: var(--museum-accent-strong);
+  font-size: 12px;
+}
+
+.marathoner-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.marathoner-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 18px 12px 16px;
+  border: 1px solid var(--museum-line);
+  border-radius: 14px;
+  background: var(--museum-card-bg);
+  color: var(--museum-text);
+  font: inherit;
+  cursor: pointer;
+  text-align: center;
+  transition:
+    transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 200ms ease;
+}
+
+.marathoner-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--museum-line-strong);
+  background: linear-gradient(170deg, var(--museum-card-bg), rgba(105, 205, 240, 0.06));
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.3);
+}
+
+.marathoner-card:focus-visible {
+  outline: 2px solid var(--museum-accent-strong);
+  outline-offset: 3px;
+}
+
+.marathoner-card__rank {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  color: var(--museum-text-muted);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+}
+
+.marathoner-card__avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 1px solid var(--museum-line);
+  background: var(--museum-bg-soft);
+}
+
+.marathoner-card__avatar--empty {
+  display: grid;
+  place-items: center;
+  color: var(--museum-accent-strong);
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.marathoner-card__name {
+  color: var(--museum-text);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  word-break: keep-all;
+  overflow-wrap: normal;
+  /* 限 1-2 行避免破版 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.marathoner-card__handle {
+  color: var(--museum-text-muted);
+  font-size: 11px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  letter-spacing: 0.02em;
+  /* 過長 handle 截斷 */
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.marathoner-card__count {
+  margin-top: 4px;
+  color: var(--museum-accent-strong);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.marathoner-card__count span {
+  color: var(--museum-text-muted);
+  font-size: 11px;
+  font-weight: 500;
+  margin-left: 2px;
+  letter-spacing: 0.04em;
+}
+
+.marathoner-card__crown {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--museum-warm), #ff9c66);
+  color: #2b1f12;
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* Top 3 / Top 10 微強調 */
+.marathoner-card--gold {
+  border-color: rgba(255, 198, 136, 0.5);
+  background: linear-gradient(170deg, var(--museum-card-bg), rgba(255, 198, 136, 0.06));
+}
+
+.marathoner-card--gold .marathoner-card__count {
+  color: var(--museum-warm);
+}
+
+.marathoner-card--silver .marathoner-card__count {
+  color: var(--museum-accent-strong);
+}
+
+@media (max-width: 1040px) {
+  .marathoner-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .marathoner-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 /* ─── Museum passport (深色底版) ──────────────────────────────── */
 .museum-passport {
   padding: clamp(48px, 7vw, 88px) clamp(20px, 5vw, 56px) clamp(24px, 4vw, 48px);

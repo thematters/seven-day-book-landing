@@ -7,6 +7,12 @@ import {
   contactEmail,
   shared,
 } from "../data/seven-day-campaign";
+import {
+  marathoners,
+  totalParticipations,
+  uniqueUsers,
+  eventCount,
+} from "../data/freewrite-marathoners";
 import "../styles/seven-day-campaign.css";
 import { withBase } from "../utils/paths";
 
@@ -41,6 +47,8 @@ const archiveThemes = [...allThemes].reverse();
       </a>
 
       <nav class="sitebar__nav" aria-label="頁面導覽">
+        <a href="#my-journey">我的書寫旅程</a>
+        <a href="#marathoners">馬拉松選手</a>
         <a href={homeHref}>本期七日書</a>
         <a href={partnersHref}>機構合作</a>
       </nav>
@@ -152,6 +160,84 @@ const archiveThemes = [...allThemes].reverse();
               </a>
             ))
           }
+        </div>
+      </section>
+
+      <section
+        id="marathoners"
+        class="museum-marathoners"
+        aria-labelledby="marathoners-title"
+      >
+        <div class="museum-marathoners__inner">
+          <header class="museum-marathoners__head">
+            <p class="eyebrow">七日書馬拉松選手</p>
+            <h2 id="marathoners-title">最常出現在這裡的，這 30 位文友。</h2>
+            <p>
+              {eventCount} 期累計 {totalParticipations.toLocaleString()} 人次、{uniqueUsers.toLocaleString()} 位獨立文友。
+              下面是參與最多期的前 30 位馬拉松選手 — 點頭像可以查看他們的書寫旅程。
+              {marathoners.filter((m) => m.count >= eventCount).length > 0 && (
+                <span class="museum-marathoners__highlight">
+                  {" "}其中 {marathoners.filter((m) => m.count >= eventCount).length} 位 <strong>{eventCount} 期全勤</strong>。
+                </span>
+              )}
+            </p>
+          </header>
+
+          <ol class="marathoner-grid">
+            {
+              marathoners.map((m, idx) => {
+                const fullAttendance = m.count >= eventCount;
+                const rankClass =
+                  idx < 3 ? "marathoner-card--gold" : idx < 10 ? "marathoner-card--silver" : "";
+                return (
+                  <li>
+                    <button
+                      type="button"
+                      class={`marathoner-card ${rankClass}`}
+                      data-marathoner-handle={m.userName}
+                      aria-label={`查看 ${m.displayName} 的書寫旅程`}
+                    >
+                      <span class="marathoner-card__rank">
+                        {String(idx + 1).padStart(2, "0")}
+                      </span>
+                      {m.avatar ? (
+                        <img
+                          class="marathoner-card__avatar"
+                          src={m.avatar}
+                          alt=""
+                          loading="lazy"
+                          referrerpolicy="no-referrer"
+                        />
+                      ) : (
+                        <span class="marathoner-card__avatar marathoner-card__avatar--empty" aria-hidden="true">
+                          {m.displayName.slice(0, 1)}
+                        </span>
+                      )}
+                      <span class="marathoner-card__name">{m.displayName}</span>
+                      <span class="marathoner-card__handle">@{m.userName}</span>
+                      <span class="marathoner-card__count">
+                        {m.count} <span>期</span>
+                      </span>
+                      {fullAttendance && (
+                        <span class="marathoner-card__crown" title={`${eventCount} 期全勤`}>
+                          ✦ 全勤
+                        </span>
+                      )}
+                    </button>
+                  </li>
+                );
+              })
+            }
+          </ol>
+
+          <p class="museum-marathoners__foot">
+            排序依公開的活動報名紀錄（Matters
+            <code>campaign.participants</code> API）。完整 50 名見
+            <a
+              href="https://github.com/thematters/seven-day-book-landing/blob/main/research/freewrite-marathoners.json"
+              target="_blank"
+              rel="noopener">research/freewrite-marathoners.json</a>。
+          </p>
         </div>
       </section>
 
@@ -563,19 +649,33 @@ const archiveThemes = [...allThemes].reverse();
       passportResult.innerHTML = `<p class="passport-loading" aria-busy="true">正在向 Matters 詢問你的書寫足跡…</p>`;
     };
 
-    passportForm?.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const raw = (passportInput?.value || "").trim();
-      if (!raw) return;
-      const handle = raw.replace(/^@/, "").replace(/^https?:\/\/[^/]+\/@?/, "");
-      if (!handle) return;
+    const runSearch = async (handle) => {
+      const clean = (handle || "").replace(/^@/, "").replace(/^https?:\/\/[^/]+\/@?/, "").trim();
+      if (!clean) return;
+      if (passportInput) passportInput.value = clean;
       renderLoading();
       try {
-        const user = await fetchUserArticles(handle);
+        const user = await fetchUserArticles(clean);
         renderResult(user);
       } catch (err) {
         renderError(err.message || String(err));
       }
+    };
+
+    passportForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      runSearch(passportInput?.value || "");
+    });
+
+    // 點選馬拉松選手 → 滾到 passport + 自動填入帳號 + 觸發查詢
+    document.querySelectorAll("[data-marathoner-handle]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const handle = btn.getAttribute("data-marathoner-handle");
+        if (!handle) return;
+        const sec = document.getElementById("my-journey");
+        sec?.scrollIntoView({ behavior: "smooth", block: "start" });
+        runSearch(handle);
+      });
     });
   </script>
 </BaseLayout>

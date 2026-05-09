@@ -2697,6 +2697,8 @@
   background: linear-gradient(180deg, #f4f6fa 0%, #eaeef5 100%);
   overflow-y: auto;
   max-height: calc(100vh - 130px);
+  /* CSS counter — 中文書頁碼從第 1 頁起算（封面、目錄、章節 divider 也算）*/
+  counter-reset: book-pn;
 }
 
 .book-modal__placeholder {
@@ -2721,7 +2723,8 @@
   width: 148mm;
   min-height: 210mm;
   margin: 0 auto 18px;
-  padding: 18mm 16mm;
+  /* 中文書版心：天頭 18mm / 地腳 22mm（留頁碼位）/ 訂口 + 切口 16mm */
+  padding: 18mm 16mm 22mm;
   background: #fefdf9;
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 4px;
@@ -2731,10 +2734,69 @@
   color: var(--ink);
   page-break-after: always;
   break-after: page;
+  /* 中文混排英數時較自然的字距 */
+  text-spacing: ideograph-alpha ideograph-numeric;
+  counter-increment: book-pn;
 }
 
-.book-page :where(h1, h2, h3, p, span, strong) {
+/* 頁碼：底部置中、灰字、jf-jinxuan */
+.book-page::after {
+  content: counter(book-pn);
+  position: absolute;
+  bottom: 10mm;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 9pt;
+  font-weight: 400;
+  color: var(--ink-muted);
+  letter-spacing: 0.16em;
+}
+
+/* 封面 / 封底 不放頁碼 */
+.book-page--cover::after,
+.book-page--closing::after {
+  content: none;
+}
+
+/* 用 explicit selector（specificity 0,1,1）勝過 .campaign-page--dark p
+ * 的 (0,1,1)，靠 source order：本檔案在 museum dark 規則之後 → 這條贏 */
+.book-page h1,
+.book-page h2,
+.book-page h3,
+.book-page p,
+.book-page span,
+.book-page strong,
+.book-page em,
+.book-page blockquote,
+.book-page li,
+.book-page figcaption {
   color: var(--ink);
+}
+
+/* eyebrow / 元資訊用 accent / muted */
+.book-page .book-page-eyebrow,
+.book-page .book-cover-eyebrow,
+.book-page .book-stats-eyebrow,
+.book-page .book-divider-section,
+.book-page .book-divider-meta,
+.book-page .book-cover-handle,
+.book-page .book-closing-meta,
+.book-page .book-stats-grid strong,
+.book-page .book-toc-no,
+.book-page .book-article-source {
+  color: var(--campaign-accent-dark);
+}
+
+.book-page .book-cover-date,
+.book-page .book-divider-period,
+.book-page .book-stats-grid span,
+.book-page .book-toc-date,
+.book-page .book-closing-credit,
+.book-page .book-article-footer,
+.book-page .book-article-fallback {
+  color: var(--ink-muted);
 }
 
 /* freewrite POAP scribble decoration — 真 SVG (design-system 取得) */
@@ -3161,6 +3223,9 @@
 
 /* ─── Print: 把整頁 hide 掉，只留書頁 ───────────────────────── */
 @media print {
+  /* 預設頁面（仍 A5 portrait，但留 18mm 上 / 16mm 邊 / 12mm 下）
+   * Chrome / Safari 對 @bottom-center 的 named region 支援不一致，
+   * 還是走 .book-page::after 的 CSS counter 為主、@page 計數備援 */
   @page {
     size: A5 portrait;
     margin: 0;

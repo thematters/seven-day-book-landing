@@ -1,7 +1,9 @@
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 
-const site = process.env.SITE_URL ?? "https://thematters.github.io";
+// 正式網址：https://freewriting.matters.town（custom domain，base = /）
+// 仍透過 GH Actions repo vars 覆寫：SITE_URL / BASE_PATH
+const site = process.env.SITE_URL ?? "https://freewriting.matters.town";
 const rawBase = process.env.BASE_PATH ?? "/";
 const base =
   rawBase === "/" ? "/" : `/${rawBase.replace(/^\/+|\/+$/g, "")}`;

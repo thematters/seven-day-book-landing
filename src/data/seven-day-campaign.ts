@@ -361,8 +361,8 @@ export const currentIssue = {
 
 export const shared = {
   joinHref: currentIssue.eventHref,
-  partnersHref: "partners/",
-  archiveHref: "archive/",
+  partnersHref: "partnership/",
+  archiveHref: "museum/",
   contactHref: `mailto:${contactEmail}?subject=${encodeURIComponent("七日書合作洽談")}`,
   avatarWall: legacy.avatarWall,
   grandBadge: legacy.passport,

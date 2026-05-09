@@ -12,20 +12,28 @@
 | 目前（GH Pages） | https://thematters.github.io/seven-day-book-landing/ | live |
 | 目前（GH Pages） | https://thematters.github.io/seven-day-book-landing/partners/ | live |
 | 目前（GH Pages） | https://thematters.github.io/seven-day-book-landing/archive/ | live |
-| **正式網址（待切換）** | **https://freewriting.matters.town** | 規劃中 — 將覆蓋目前 GH Pages 三頁 |
-| **正式網址（待切換）** | **https://freewriting.matters.token/partnership** | 規劃中（注意：是 `partnership` 單數，非 `partners`） |
-| **正式網址（待切換）** | **https://freewriting.matters.token/museum** | 規劃中（從 `archive` 改名 `museum`） |
+| **正式網址** | **https://freewriting.matters.town** | 切換中（覆蓋舊 GH Pages 三頁） |
+| **正式網址** | **https://freewriting.matters.town/partnership** | 切換中（`partnership` 單數，非 `partners`） |
+| **正式網址** | **https://freewriting.matters.town/museum** | 切換中（從 `archive` 改名 `museum`） |
 
-切換正式網址時的 checklist：
+source 已切換完成（commit 進度見 git log）：
 
-1. 在 `astro.config.ts` 設 `site = "https://freewriting.matters.town"`、`base = "/"`（或 GH Actions repo vars `SITE_URL` / `BASE_PATH`）
-2. 為 `/partnership` 與 `/museum` 路徑改名：
-   - `src/pages/partners.astro` → `src/pages/partnership.astro`
-   - `src/pages/archive.astro` → `src/pages/museum.astro`
-   - 更新所有 `withBase("partners/")` / `withBase("archive/")` 引用
-3. 在 GH Pages settings 設 custom domain `freewriting.matters.town`
-4. DNS 設 CNAME `freewriting.matters.town → thematters.github.io`
-5. 等 cert 簽完，啟用 HTTPS
+- ✅ `astro.config.ts` 預設 `site = "https://freewriting.matters.town"`、`base = "/"`
+- ✅ GH Actions repo vars：`SITE_URL=https://freewriting.matters.town`、`BASE_PATH=/`
+- ✅ 新檔名：`src/pages/partnership.astro`（原 partners.astro）、`src/pages/museum.astro`（原 archive.astro）
+- ✅ 舊路徑 `partners.astro` / `archive.astro` 改成 client-side redirect stubs，避免外連 404
+- ✅ 所有 `withBase("partners/")` → `withBase("partnership/")`、`withBase("archive/")` → `withBase("museum/")`
+
+GH Pages custom domain 切換步驟（需 ops 配合）：
+
+1. **釋出舊 domain**：`mashbean/seven-day-book-landing-preview` 目前持有
+   `freewriting.matters.town` CNAME，要先 PUT pages with `cname=""` 釋出
+2. **DNS 設定**（matters.town DNS 提供商；現況指向 mashbean.github.io）：
+   - 改為：`freewriting.matters.town CNAME thematters.github.io.`
+   - 或加 4 個 GH Pages anycast A records：`185.199.108.153` / `109.153` / `110.153` / `111.153`
+3. **Claim 新 owner**：`gh api -X PUT repos/thematters/seven-day-book-landing/pages -f cname=freewriting.matters.town -F https_enforced=true`
+4. **驗證憑證自動簽發**：GH Pages 自動 Let's Encrypt（10-30 分鐘），完成後 https://freewriting.matters.town 可用
+5. （可選）保留 `https://thematters.github.io/seven-day-book-landing/` 作為備援，自動 redirect 到 custom domain
 
 ---
 

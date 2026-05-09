@@ -653,12 +653,12 @@ export const latestArticles = [
     cover: `${CDN}/embed/b2418da7-5830-4f3d-8321-e976b14870af.png/public`,
   },
   {
-    title: "[七日書] 職場人格 — 做老白男 让别人无路可走！",
-    author: "IceYuzu",
-    summary: "我多年的职场观察告诉我，最后赢的人永远都是老白男。",
-    href: "https://matters.town/a/5bvbawrhwh1a",
-    avatar: `${CDN}/avatar/d78220da-1d68-4f94-bf0c-87e0c6181a4f.jpeg/public`,
-    cover: `${CDN}/cover/7fb8c25a-17ef-4aa8-9ff1-0893b8e19979.jpeg/public`,
+    // 取代原 IceYuzu 簡中文章（jf-jinxuan 不支援簡體字、字體 fallback 不協調）
+    title: "第四天｜我曾經經營過的冷靜",
+    author: "Tony_Chan",
+    summary: "在不同的職場位置裡，我最常有意識經營的面向是冷靜。這種冷靜不是天生，也不是沒有情緒；正因為內在反應很快，才更需要學會把第一時間的判斷收住。",
+    href: "https://matters.town/a/iwk97brx7rpp",
+    avatar: `${CDN}/avatar/bdd22741-d5fe-4446-ab44-9b027688f236.png/public`,
   },
 ];
 

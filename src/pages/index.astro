@@ -31,11 +31,11 @@ const promptStateLabel: Record<string, string> = {
 const nav = [
   { href: "#current", label: "本月主題" },
   { href: "#articles", label: "本期精選" },
+  { href: "#passport", label: "我的足跡" },
   { href: "#badge", label: "大滿貫" },
   { href: "#themes", label: "過去主題" },
   { href: "#lectures", label: "名家講座" },
   { href: "#milestones", label: "歷年里程" },
-  { href: "#passport", label: "我的足跡" },
   { href: "#faq", label: "FAQ" },
 ];
 const marqueeAvatars = [
@@ -218,8 +218,55 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
       </section>
 
       <section
-        id="badge"
+        id="passport"
         class="section section--soft"
+        aria-labelledby="passport-title"
+      >
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">個人足跡</p>
+            <h2 id="passport-title">看看你在七日書留下的書寫旅程。</h2>
+            <p>
+              輸入你在 Matters 的帳號（例如 <code>mashbean</code>），看你曾在哪幾期參與、留下了哪些文字。
+              所有資料來自 Matters 公開 API，不保存搜尋紀錄、不需要登入。
+            </p>
+          </header>
+
+          <form class="passport-search" id="passport-search" novalidate>
+            <label class="passport-search__field">
+              <span class="passport-search__prefix" aria-hidden="true">@</span>
+              <input
+                type="text"
+                name="handle"
+                id="passport-handle"
+                placeholder="你的 Matters 帳號"
+                autocomplete="off"
+                spellcheck="false"
+                inputmode="text"
+                required
+              />
+            </label>
+            <button class="button button--primary" type="submit">
+              查找書寫足跡 →
+            </button>
+          </form>
+
+          <div
+            class="passport-result"
+            id="passport-result"
+            role="status"
+            aria-live="polite"
+          >
+            <p class="passport-hint">
+              提示：你的帳號就是 Matters 個人頁網址 <code>matters.town/@___</code> 後面那段。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="badge"
+        class="section section--paper"
         aria-labelledby="badge-title"
       >
         <div class="section__inner">
@@ -245,7 +292,7 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
 
       <section
         id="themes"
-        class="section section--paper"
+        class="section section--soft"
         aria-labelledby="themes-title"
       >
         <div class="section__inner">
@@ -319,7 +366,7 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
 
       <section
         id="lectures"
-        class="section section--soft"
+        class="section section--paper"
         aria-labelledby="lectures-title"
       >
         <div class="section__inner">
@@ -336,11 +383,19 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
             其中 {lectures.filter((l) => l.hasTranscript).length} 場有完整文字精華。
           </p>
 
-          <div class="lecture-grid lecture-grid--dense">
+          <div
+            class="lecture-grid lecture-grid--dense"
+            data-lecture-collapse
+            data-collapsed-count="6"
+          >
             {
-              lectures.map((lecture) => {
+              lectures.map((lecture, idx) => {
                 return (
-                  <article class="lecture-card lecture-card--compact">
+                  <article
+                    class="lecture-card lecture-card--compact"
+                    data-lecture-card-index={idx}
+                    hidden={idx >= 6}
+                  >
                     <div class="lecture-card__speaker lecture-card__speaker--text">
                       <strong>{lecture.speaker}</strong>
                       <span>
@@ -375,12 +430,24 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
               })
             }
           </div>
+          <p class="theme-pager__more">
+            <button
+              class="button button--quiet"
+              type="button"
+              data-lecture-expand
+              aria-expanded="false"
+            >
+              <span data-lecture-expand-label
+                >展開更多 {lectures.length - 6} 位講者 ↓</span
+              >
+            </button>
+          </p>
         </div>
       </section>
 
       <section
         id="milestones"
-        class="section section--paper"
+        class="section section--soft"
         aria-labelledby="milestones-title"
       >
         <div class="section__inner">
@@ -418,53 +485,6 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
               ))
             }
           </ol>
-        </div>
-      </section>
-
-      <section
-        id="passport"
-        class="section section--soft"
-        aria-labelledby="passport-title"
-      >
-        <div class="section__inner">
-          <header class="section__header">
-            <p class="eyebrow">個人足跡</p>
-            <h2 id="passport-title">看看你在七日書留下的書寫旅程。</h2>
-            <p>
-              輸入你在 Matters 的帳號（例如 <code>mashbean</code>），看你曾在哪幾期參與、留下了哪些文字。
-              所有資料來自 Matters 公開 API，不保存搜尋紀錄、不需要登入。
-            </p>
-          </header>
-
-          <form class="passport-search" id="passport-search" novalidate>
-            <label class="passport-search__field">
-              <span class="passport-search__prefix" aria-hidden="true">@</span>
-              <input
-                type="text"
-                name="handle"
-                id="passport-handle"
-                placeholder="你的 Matters 帳號"
-                autocomplete="off"
-                spellcheck="false"
-                inputmode="text"
-                required
-              />
-            </label>
-            <button class="button button--primary" type="submit">
-              查找書寫足跡 →
-            </button>
-          </form>
-
-          <div
-            class="passport-result"
-            id="passport-result"
-            role="status"
-            aria-live="polite"
-          >
-            <p class="passport-hint">
-              提示：你的帳號就是 Matters 個人頁網址 <code>matters.town/@___</code> 後面那段。
-            </p>
-          </div>
         </div>
       </section>
 
@@ -574,6 +594,30 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
             d.setAttribute("aria-current", i === target ? "true" : "false");
           });
         });
+      });
+    }
+
+    // ── 名家講座 展開 / 收起 ─────────────────────────────────
+    const lectureExpand = document.querySelector("[data-lecture-expand]");
+    const lectureGrid = document.querySelector("[data-lecture-collapse]");
+    if (lectureExpand && lectureGrid) {
+      const initialL = Number(lectureGrid.getAttribute("data-collapsed-count") || "6");
+      const lectureCards = lectureGrid.querySelectorAll("[data-lecture-card-index]");
+      const totalL = lectureCards.length;
+      const lecLabelEl = lectureExpand.querySelector("[data-lecture-expand-label]");
+      let lExpanded = false;
+      lectureExpand.addEventListener("click", () => {
+        lExpanded = !lExpanded;
+        lectureCards.forEach((c, i) => {
+          if (lExpanded || i < initialL) c.removeAttribute("hidden");
+          else c.setAttribute("hidden", "");
+        });
+        lectureExpand.setAttribute("aria-expanded", String(lExpanded));
+        if (lecLabelEl) {
+          lecLabelEl.textContent = lExpanded
+            ? "收起，只看前 " + initialL + " 位 ↑"
+            : "展開更多 " + (totalL - initialL) + " 位講者 ↓";
+        }
       });
     }
 

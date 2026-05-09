@@ -1137,7 +1137,7 @@
   justify-content: center;
   align-items: center;
   gap: 12px;
-  margin: 40px 0 0;
+  margin: 56px 0 0;
 }
 
 /* ─── Theme list (partner page) ──────────────────────────────── */
@@ -1244,27 +1244,29 @@
   padding: 18px;
 }
 
-/* 拿掉頭像後：講者名 + 主題改為純文字 stacked，左側淺色細邊條當分隔 */
-.lecture-card__speaker--text {
+/* 拿掉頭像後：講者名 + 主題改為純文字 stacked
+ * 注意：.lecture-card__speaker { display: flex } 在 CSS file 後面定義，
+ * 同 specificity 0,1,0 會贏；用複合 selector 提到 0,2,0 確保 block 直排勝出
+ */
+.lecture-card__speaker.lecture-card__speaker--text {
   display: block;
   padding: 0 0 10px;
   border-bottom: 1px solid var(--hairline);
 }
 
-.lecture-card__speaker--text strong {
+.lecture-card__speaker.lecture-card__speaker--text strong {
   display: block;
   color: var(--ink);
   font-family: var(--font-reading);
   font-size: 18px;
   font-weight: 600;
   line-height: 1.3;
-  /* 短名（吉井忍、馬尼尼為等）不要被 word-wrap 拆開 */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* word-break: keep-all 讓中文不因為窄寬度被任意拆字（吉井忍 不會變吉/井/忍） */
+  word-break: keep-all;
+  overflow-wrap: normal;
 }
 
-.lecture-card__speaker--text span {
+.lecture-card__speaker.lecture-card__speaker--text span {
   display: block;
   margin-top: 4px;
   color: var(--ink-muted);

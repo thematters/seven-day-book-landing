@@ -1967,25 +1967,17 @@
   line-height: 1.85;
 }
 
-/* 博物館入口 banner — 在 hero 與 #my-journey 之間，深底框 + 七日書 logo + scribble */
+/* 博物館入口 banner — cover 圖在最外層 .museum-banner（全寬背景）+ 深色遮罩，
+ * 內框 .museum-banner__inner 是 dark box（border + dark soft bg）放 logo + tagline */
 .museum-banner {
-  padding: clamp(20px, 3vw, 32px) clamp(20px, 5vw, 56px) clamp(40px, 6vw, 72px);
-  background: var(--museum-bg);
-}
-
-.museum-banner__inner {
   position: relative;
-  width: min(1080px, 100%);
-  margin: 0 auto;
-  padding: clamp(48px, 8vw, 88px) clamp(24px, 4vw, 48px);
-  border-radius: 16px;
-  border: 1px solid var(--museum-line-strong);
-  background: var(--museum-bg-soft);
+  padding: clamp(40px, 6vw, 80px) clamp(20px, 5vw, 56px) clamp(60px, 8vw, 100px);
+  background: var(--museum-bg);
   overflow: hidden;
   isolation: isolate;
 }
 
-/* 底圖：figma 既有「氣味博物館」cover (深紫夜景)，覆滿全 banner */
+/* 底圖：figma 既有「氣味博物館」cover (深紫夜景)，鋪在最外層全寬 */
 .museum-banner__bg {
   position: absolute;
   inset: 0;
@@ -1996,7 +1988,7 @@
   filter: saturate(0.9);
 }
 
-/* 遮罩：深色半透明覆蓋讓底圖隱約透出、視覺維持 museum 暗色調性 */
+/* 遮罩：深色半透明覆蓋讓底圖隱約透出 */
 .museum-banner__overlay {
   position: absolute;
   inset: 0;
@@ -2004,7 +1996,20 @@
   background:
     radial-gradient(circle at 18% 22%, rgba(105, 205, 240, 0.16), transparent 55%),
     radial-gradient(circle at 86% 78%, rgba(255, 198, 136, 0.12), transparent 55%),
-    linear-gradient(170deg, rgba(17, 22, 30, 0.86), rgba(17, 22, 30, 0.94) 60%, rgba(31, 37, 48, 0.9));
+    linear-gradient(170deg, rgba(17, 22, 30, 0.78), rgba(17, 22, 30, 0.88) 60%, rgba(31, 37, 48, 0.82));
+}
+
+/* 內框：原本的 dark box（border + soft bg），放 logo + tagline */
+.museum-banner__inner {
+  position: relative;
+  width: min(1080px, 100%);
+  margin: 0 auto;
+  padding: clamp(48px, 8vw, 88px) clamp(24px, 4vw, 48px);
+  border-radius: 16px;
+  border: 1px solid var(--museum-line-strong);
+  background: rgba(20, 24, 32, 0.78);
+  backdrop-filter: blur(2px);
+  overflow: hidden;
 }
 
 .museum-banner__scribble {
@@ -3837,6 +3842,24 @@
     linear-gradient(180deg, #fefdf9 0%, #f0f9fe 100%);
 }
 
+/* freewrite studio 宣傳圖背景：放在 divider 頁底，加 mask 讓題目大字仍清楚 */
+.book-divider-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0.5;
+}
+.book-divider-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    linear-gradient(180deg, rgba(254, 253, 249, 0.78) 0%, rgba(254, 253, 249, 0.62) 50%, rgba(240, 249, 254, 0.86) 100%);
+}
+
 .book-divider-content {
   position: relative;
   z-index: 1;
@@ -4070,8 +4093,12 @@
     margin: 0 !important;
     padding: 0 !important;
     color: #2b2926 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
-  /* 預設藏掉一切，只在 body.book-open 狀態解除 .book-modal 那一支樹 */
+  /* 預設藏掉一切（body 直屬 children），只解 .book-modal 那一支樹。
+   * 注意：JS 在 openBook 時已把 .book-modal hoist 到 body 直屬 child，
+   * 否則 .book-modal 會跟著 .campaign-page 一起被 hide。 */
   body.book-open > *:not(.book-modal) {
     display: none !important;
   }
@@ -4174,4 +4201,221 @@
   .writing-card__inner {
     transition: none !important;
   }
+}
+
+/* ─── 博物館：本月正在發生（深色版本月七題） ───────────────────── */
+.museum-current {
+  padding: clamp(56px, 8vw, 96px) clamp(20px, 5vw, 56px);
+  background:
+    radial-gradient(circle at 84% 12%, rgba(105, 205, 240, 0.10), transparent 40%),
+    var(--museum-bg);
+  border-top: 1px solid var(--museum-line);
+}
+
+.museum-current__inner {
+  width: min(var(--content-max), 100%);
+  margin: 0 auto;
+}
+
+.museum-current__head {
+  max-width: 760px;
+  margin-bottom: 32px;
+}
+
+.museum-current__head .eyebrow {
+  color: var(--museum-accent-strong);
+}
+
+.museum-current__head .eyebrow::before {
+  background: var(--museum-accent-strong);
+}
+
+.museum-current__head h2 {
+  margin: 8px 0 0;
+  color: var(--museum-text);
+  font-family: var(--font-reading);
+  font-size: clamp(26px, 3.4vw, 36px);
+  font-weight: 600;
+  line-height: 1.24;
+}
+
+.museum-current__head p {
+  margin-top: 12px;
+  color: var(--museum-text-muted);
+  font-family: var(--font-display);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.museum-current__cta {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  font-family: var(--font-display);
+  font-size: 14px;
+}
+
+.museum-current__cta a {
+  color: var(--museum-warm);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 198, 136, 0.4);
+  padding-bottom: 2px;
+}
+
+.museum-current__cta a:hover {
+  color: #ffe1bd;
+  border-bottom-color: #ffe1bd;
+}
+
+/* day-unlock-strip 在 dark museum 區塊裡的覆寫 */
+.day-unlock-strip--on-dark .day-unlock-card {
+  background: rgba(36, 42, 52, 0.7);
+  border-color: var(--museum-line);
+  color: var(--museum-text);
+}
+
+.day-unlock-strip--on-dark .day-unlock-card h3 {
+  color: var(--museum-text);
+}
+
+.day-unlock-strip--on-dark .day-unlock-card p {
+  color: var(--museum-text-muted);
+}
+
+.day-unlock-strip--on-dark .day-unlock-card__top span {
+  color: var(--museum-text-muted);
+}
+
+.day-unlock-strip--on-dark .day-unlock-card--today {
+  background: rgba(56, 90, 110, 0.7);
+  border-color: var(--museum-accent);
+}
+
+.day-unlock-strip--on-dark .day-unlock-card--today .day-unlock-card__top span:last-child {
+  color: var(--museum-warm);
+}
+
+.day-unlock-strip--on-dark .day-unlock-card--today h3 {
+  color: var(--museum-warm);
+}
+
+.day-unlock-strip--on-dark .day-unlock-card--locked {
+  opacity: 0.55;
+}
+
+.day-unlock-strip--on-dark .day-unlock-card__day {
+  color: var(--museum-accent);
+}
+
+.day-unlock-strip--on-dark .day-unlock-card--locked .day-unlock-card__day {
+  color: var(--museum-text-muted);
+}
+
+/* ─── 博物館：名家講座（深色） ───────────────────── */
+.museum-lectures {
+  padding: clamp(56px, 8vw, 96px) clamp(20px, 5vw, 56px);
+  background:
+    radial-gradient(circle at 14% 86%, rgba(255, 198, 136, 0.07), transparent 40%),
+    var(--museum-bg);
+  border-top: 1px solid var(--museum-line);
+}
+
+.museum-lectures__inner {
+  width: min(var(--content-max), 100%);
+  margin: 0 auto;
+}
+
+.museum-lectures__head {
+  max-width: 760px;
+  margin-bottom: 32px;
+}
+
+.museum-lectures__head .eyebrow {
+  color: var(--museum-accent-strong);
+}
+
+.museum-lectures__head .eyebrow::before {
+  background: var(--museum-accent-strong);
+}
+
+.museum-lectures__head h2 {
+  margin: 8px 0 0;
+  color: var(--museum-text);
+  font-family: var(--font-reading);
+  font-size: clamp(26px, 3.4vw, 36px);
+  font-weight: 600;
+  line-height: 1.24;
+}
+
+.museum-lectures__head p {
+  margin-top: 12px;
+  color: var(--museum-text-muted);
+  font-family: var(--font-display);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* lecture-card 在 dark museum 裡的覆寫 */
+.lecture-grid--on-dark {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.lecture-card--on-dark {
+  background: rgba(36, 42, 52, 0.7);
+  border: 1px solid var(--museum-line);
+  border-radius: 12px;
+  padding: 18px 20px;
+  color: var(--museum-text);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lecture-card--on-dark .lecture-card__speaker strong {
+  color: var(--museum-text);
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.lecture-card--on-dark .lecture-card__speaker span {
+  display: block;
+  margin-top: 2px;
+  color: var(--museum-text-muted);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.lecture-card--on-dark .lecture-card__excerpt {
+  margin: 0;
+  color: var(--museum-text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.lecture-card--on-dark .lecture-card__link {
+  color: var(--museum-warm);
+  text-decoration: none;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255, 198, 136, 0.4);
+  padding-bottom: 2px;
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+.lecture-card--on-dark .lecture-card__link:hover {
+  color: #ffe1bd;
+}
+
+.lecture-card--on-dark .lecture-card__pill {
+  align-self: flex-start;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--museum-text-muted);
+  border: 1px solid var(--museum-line);
+  border-radius: 999px;
+  padding: 3px 10px;
 }

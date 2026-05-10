@@ -7,7 +7,6 @@ import {
   audienceFaq,
   audiencePage,
   contactEmail,
-  lectures,
   milestones,
   pastThemes,
   shared,
@@ -28,7 +27,6 @@ const nav = [
   { href: archiveHref, label: "博物館" },
   { href: "#badge", label: "大滿貫" },
   { href: "#themes", label: "過去主題" },
-  { href: "#lectures", label: "名家講座" },
   { href: "#milestones", label: "歷年里程" },
   { href: "#faq", label: "FAQ" },
   { href: partnersHref, label: "合作洽談" },
@@ -280,86 +278,8 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
         </div>
       </section>
 
-      <section
-        id="lectures"
-        class="section section--paper"
-        aria-labelledby="lectures-title"
-      >
-        <div class="section__inner">
-          <header class="section__header">
-            <p class="eyebrow">名家講座</p>
-            <h2 id="lectures-title">{audiencePage.lecturesHeading}</h2>
-            <p>
-              有逐字稿的講座，留下來就不只是一次活動，而是一篇可以反覆回看的寫作課。
-            </p>
-          </header>
+      <!-- 名家講座 已搬到 /museum 「歷年精選文章」下方 -->
 
-          <p class="section__sublead">
-            從 2024 年至今已邀請 {lectures.length} 位作家、詩人、研究者陪文友書寫。
-            其中 {lectures.filter((l) => l.hasTranscript).length} 場有完整文字精華。
-          </p>
-
-          <div
-            class="lecture-grid lecture-grid--dense"
-            data-lecture-collapse
-            data-collapsed-count="6"
-          >
-            {
-              lectures.map((lecture, idx) => {
-                return (
-                  <article
-                    class="lecture-card lecture-card--compact"
-                    data-lecture-card-index={idx}
-                    hidden={idx >= 6}
-                  >
-                    <div class="lecture-card__speaker lecture-card__speaker--text">
-                      <strong>{lecture.speaker}</strong>
-                      <span>
-                        {lecture.role} · {lecture.theme}
-                      </span>
-                    </div>
-                    {lecture.hasTranscript ? (
-                      <>
-                        <p class="lecture-card__excerpt">
-                          {lecture.summary &&
-                            (lecture.summary.length > 80
-                              ? lecture.summary.slice(0, 80) + "…"
-                              : lecture.summary)}
-                        </p>
-                        <a
-                          class="lecture-card__link"
-                          href={lecture.href}
-                          target="_blank"
-                          rel="noopener"
-                        >
-                          閱讀文字精華 →
-                        </a>
-                      </>
-                    ) : (
-                      <>
-                        <p class="lecture-card__excerpt">{lecture.note}</p>
-                        <span class="lecture-card__pill">講座記錄整理中</span>
-                      </>
-                    )}
-                  </article>
-                );
-              })
-            }
-          </div>
-          <div class="theme-pager__more">
-            <button
-              class="button button--quiet"
-              type="button"
-              data-lecture-expand
-              aria-expanded="false"
-            >
-              <span data-lecture-expand-label
-                >展開更多 {lectures.length - 6} 位講者 ↓</span
-              >
-            </button>
-          </div>
-        </div>
-      </section>
 
       <section
         id="milestones"
@@ -510,29 +430,7 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
       });
     }
 
-    // ── 名家講座 展開 / 收起 ─────────────────────────────────
-    const lectureExpand = document.querySelector("[data-lecture-expand]");
-    const lectureGrid = document.querySelector("[data-lecture-collapse]");
-    if (lectureExpand && lectureGrid) {
-      const initialL = Number(lectureGrid.getAttribute("data-collapsed-count") || "6");
-      const lectureCards = lectureGrid.querySelectorAll("[data-lecture-card-index]");
-      const totalL = lectureCards.length;
-      const lecLabelEl = lectureExpand.querySelector("[data-lecture-expand-label]");
-      let lExpanded = false;
-      lectureExpand.addEventListener("click", () => {
-        lExpanded = !lExpanded;
-        lectureCards.forEach((c, i) => {
-          if (lExpanded || i < initialL) c.removeAttribute("hidden");
-          else c.setAttribute("hidden", "");
-        });
-        lectureExpand.setAttribute("aria-expanded", String(lExpanded));
-        if (lecLabelEl) {
-          lecLabelEl.textContent = lExpanded
-            ? "收起，只看前 " + initialL + " 位 ↑"
-            : "展開更多 " + (totalL - initialL) + " 位講者 ↓";
-        }
-      });
-    }
+    // 名家講座 展開 / 收起 → 已搬到 /museum
 
     const dialog = document.getElementById("reminder-dialog");
     const form = document.getElementById("reminder-form");

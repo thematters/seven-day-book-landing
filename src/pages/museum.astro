@@ -5,6 +5,8 @@ import SevenDayBookLogo from "../components/SevenDayBookLogo.astro";
 import {
   allThemes,
   contactEmail,
+  currentIssue,
+  lectures,
   shared,
 } from "../data/seven-day-campaign";
 import {
@@ -36,6 +38,14 @@ const assetSrc = (src?: string) => {
 
 // 24 期主題倒序：最新在前
 const archiveThemes = [...allThemes].reverse();
+
+const promptStateLabel: Record<string, string> = {
+  past: "已開放",
+  today: "今日題目",
+  locked: "即將開放",
+};
+// 名家講座預設 show 6 位、按「展開更多」秀全部
+const LECTURES_INITIAL = 6;
 ---
 
 <BaseLayout
@@ -60,7 +70,9 @@ const archiveThemes = [...allThemes].reverse();
       <nav class="sitebar__nav" aria-label="頁面導覽">
         <a href="#marathoners">名人堂</a>
         <a href="#my-journey">我的旅程</a>
+        <a href="#current-issue">本月七題</a>
         <a href="#featured">歷年精選</a>
+        <a href="#lectures">名家講座</a>
         <a href={homeHref}>七日書介紹</a>
         <a href={partnersHref}>合作洽談</a>
       </nav>
@@ -88,15 +100,15 @@ const archiveThemes = [...allThemes].reverse();
         </div>
       </section>
 
-      <!-- 博物館入口 banner：用 figma 既有「氣味博物館」cover (深紫色夜景) 為底圖 + 深色遮罩 -->
+      <!-- 博物館入口 banner：cover 圖鋪在最外層（全寬背景），內框維持 dark box -->
       <section class="museum-banner" aria-hidden="true">
+        <div
+          class="museum-banner__bg"
+          style={`background-image: url('https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/campaignCover/fb1bd2c2-754d-493b-9750-352ef7fe27b7.png/w=1920,h=600,fit=cover');`}
+          aria-hidden="true"
+        ></div>
+        <div class="museum-banner__overlay" aria-hidden="true"></div>
         <div class="museum-banner__inner">
-          <div
-            class="museum-banner__bg"
-            style={`background-image: url('https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/campaignCover/fb1bd2c2-754d-493b-9750-352ef7fe27b7.png/w=1920,h=600,fit=cover');`}
-            aria-hidden="true"
-          ></div>
-          <div class="museum-banner__overlay" aria-hidden="true"></div>
           <img class="museum-banner__scribble museum-banner__scribble--tr" src={withBase("images/freewrite/scribble-tr.svg")} alt="" />
           <div class="museum-banner__content">
             <SevenDayBookLogo size={72} title="七日書" className="seven-day-book-logo--on-dark museum-banner__logo" />
@@ -243,6 +255,48 @@ const archiveThemes = [...allThemes].reverse();
               提示：你的帳號就是 Matters 個人頁網址 <code>matters.town/@___</code> 後面那段。
             </p>
           </div>
+        </div>
+      </section>
+
+      <section
+        id="current-issue"
+        class="museum-current"
+        aria-labelledby="current-issue-title"
+      >
+        <div class="museum-current__inner">
+          <header class="museum-current__head">
+            <p class="eyebrow">本月正在發生</p>
+            <h2 id="current-issue-title">
+              {currentIssue.title}：本月七天，現場直播。
+            </h2>
+            <p>
+              {currentIssue.period} · {currentIssue.summary}
+            </p>
+            <p class="museum-current__cta">
+              <a href={currentIssue.eventHref} target="_blank" rel="noopener"
+                >到 Matters 看活動頁 →</a
+              >
+              <a href={currentIssue.announcementHref} target="_blank" rel="noopener"
+                >讀本期主題公告 →</a
+              >
+            </p>
+          </header>
+
+          <ol class="day-unlock-strip day-unlock-strip--full day-unlock-strip--on-dark" aria-label="本期七道題目">
+            {
+              currentIssue.prompts.map((prompt) => (
+                <li class={`day-unlock-card day-unlock-card--${prompt.state}`}>
+                  <div class="day-unlock-card__top">
+                    <span>{prompt.date}</span>
+                    <span>{promptStateLabel[prompt.state] ?? "題目"}</span>
+                  </div>
+                  <span class="day-unlock-card__day">{prompt.day}</span>
+                  <h3>{prompt.title}</h3>
+                  <p>{prompt.prompt}</p>
+                </li>
+              ))
+            }
+          </ol>
         </div>
       </section>
 
@@ -412,6 +466,83 @@ const archiveThemes = [...allThemes].reverse();
               aria-expanded="false"
             >
               <span data-featured-more-label>展開更多 12 篇 ↓</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="lectures"
+        class="museum-lectures"
+        aria-labelledby="lectures-title"
+      >
+        <div class="museum-lectures__inner">
+          <header class="museum-lectures__head">
+            <p class="eyebrow">名家講座</p>
+            <h2 id="lectures-title">每月一位作家、詩人、研究者，陪文友書寫。</h2>
+            <p>
+              從 2024 年至今已邀請 {lectures.length} 位老師，其中{" "}
+              {lectures.filter((l) => l.hasTranscript).length} 場有完整文字精華，
+              留下來的講座變成可以反覆回看的寫作課。
+            </p>
+          </header>
+
+          <div
+            class="lecture-grid lecture-grid--dense lecture-grid--on-dark"
+            data-lecture-grid
+            data-initial={LECTURES_INITIAL}
+          >
+            {
+              lectures.map((lecture, idx) => (
+                <article
+                  class="lecture-card lecture-card--compact lecture-card--on-dark"
+                  data-lecture-item={idx}
+                  hidden={idx >= LECTURES_INITIAL}
+                >
+                  <div class="lecture-card__speaker lecture-card__speaker--text">
+                    <strong>{lecture.speaker}</strong>
+                    <span>
+                      {lecture.role} · {lecture.theme}
+                    </span>
+                  </div>
+                  {lecture.hasTranscript ? (
+                    <>
+                      <p class="lecture-card__excerpt">
+                        {lecture.summary &&
+                          (lecture.summary.length > 80
+                            ? lecture.summary.slice(0, 80) + "…"
+                            : lecture.summary)}
+                      </p>
+                      <a
+                        class="lecture-card__link"
+                        href={lecture.href}
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        閱讀文字精華 →
+                      </a>
+                    </>
+                  ) : (
+                    <>
+                      <p class="lecture-card__excerpt">{lecture.note}</p>
+                      <span class="lecture-card__pill">講座記錄整理中</span>
+                    </>
+                  )}
+                </article>
+              ))
+            }
+          </div>
+
+          <div class="theme-pager__more">
+            <button
+              class="button button--soft"
+              type="button"
+              data-lecture-expand
+              aria-expanded="false"
+            >
+              <span data-lecture-expand-label
+                >展開更多 {lectures.length - LECTURES_INITIAL} 位講者 ↓</span
+              >
             </button>
           </div>
         </div>
@@ -753,6 +884,14 @@ const archiveThemes = [...allThemes].reverse();
     const SDB_LOGO_SRC = "/images/freewrite/seven-day-book-logo.svg";
     const SCRIBBLE_TR = "/images/freewrite/scribble-tr.svg";
     const SCRIBBLE_BL = "/images/freewrite/scribble-bl.svg";
+    // 七日書宣傳圖（freewrite studio 系列），用在 divider 頁背景與 closing 頁
+    // 1536×1024 攝影風格，按 issue index cycle，避免每張 divider 都長一樣
+    const STUDIO_ART = [
+      "/images/seven-day/optimized/studio-life-ledger.jpg",
+      "/images/seven-day/optimized/studio-closet-self.jpg",
+      "/images/seven-day/optimized/studio-smell-museum.jpg",
+      "/images/seven-day/optimized/studio-workplace-persona.jpg",
+    ];
 
     const buildBookHtml = (journey) => {
       if (!journey) return "";
@@ -815,9 +954,12 @@ const archiveThemes = [...allThemes].reverse();
             (a, b) => +new Date(a.createdAt) - +new Date(b.createdAt),
           );
 
-          // Divider page (一張，主題大字 + 月份)
+          // Divider page (一張，主題大字 + 月份 + freewrite studio 宣傳圖背景)
+          const studioArt = STUDIO_ART[i % STUDIO_ART.length];
           const divider = `
             <article class="book-page book-page--divider">
+              <div class="book-divider-art" style="background-image: url('${studioArt}')" aria-hidden="true"></div>
+              <div class="book-divider-mask" aria-hidden="true"></div>
               <img class="book-scribble book-scribble--tr" src="${SCRIBBLE_TR}" alt="" />
               <div class="book-divider-content">
                 <p class="book-divider-section">第 ${String(i + 1).padStart(2, "0")} 站</p>
@@ -877,9 +1019,14 @@ const archiveThemes = [...allThemes].reverse();
       if (!lastJourney) return;
       bookPagesEl.innerHTML = buildBookHtml(lastJourney);
       if (!bookModal) return;
+      // 關鍵：把 .book-modal hoist 到 body 直屬 child，這樣 print CSS
+      // body.book-open > *:not(.book-modal) { display: none } 才能正確隔離
+      // —— 否則 modal 還在 .campaign-page 裡面，整個 page wrapper 被印爛
+      if (bookModal.parentElement !== document.body) {
+        document.body.appendChild(bookModal);
+      }
       bookModal.removeAttribute("hidden");
       document.body.classList.add("book-open");
-      // 鎖卷軸，讓背景不會跟著滾
       document.body.style.overflow = "hidden";
     };
     const closeBook = () => {
@@ -897,7 +1044,13 @@ const archiveThemes = [...allThemes].reverse();
         closeBook();
       }
     });
-    printBtn?.addEventListener("click", () => window.print());
+    printBtn?.addEventListener("click", () => {
+      // 給瀏覽器兩個 frame settle layout，再叫起列印 dialog；少了這個
+      // 有些 Chromium 版本第一次按列印會空白頁
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => window.print());
+      });
+    });
 
     const renderError = (msg) => {
       passportResult.innerHTML = `
@@ -940,6 +1093,36 @@ const archiveThemes = [...allThemes].reverse();
         runSearch(handle);
       });
     });
+
+    // ── 名家講座：查看更多 / 收合 ─────────────────────────
+    (() => {
+      const grid = document.querySelector("[data-lecture-grid]");
+      const btn = document.querySelector("[data-lecture-expand]");
+      const label = document.querySelector("[data-lecture-expand-label]");
+      if (!grid || !btn || !label) return;
+      const initial = Number(grid.getAttribute("data-initial") || "6");
+      const items = Array.from(grid.querySelectorAll("[data-lecture-item]"));
+      const hiddenCount = items.length - initial;
+      if (hiddenCount <= 0) {
+        btn.setAttribute("hidden", "");
+        return;
+      }
+      label.textContent = `展開更多 ${hiddenCount} 位講者 ↓`;
+      let expanded = false;
+      btn.addEventListener("click", () => {
+        expanded = !expanded;
+        items.forEach((card, idx) => {
+          if (idx < initial) return;
+          if (expanded) card.removeAttribute("hidden");
+          else card.setAttribute("hidden", "");
+        });
+        btn.setAttribute("aria-expanded", expanded ? "true" : "false");
+        label.textContent = expanded ? "收合 ↑" : `展開更多 ${hiddenCount} 位講者 ↓`;
+        if (!expanded) {
+          grid.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    })();
 
     // ── 馬拉松選手：查看更多 / 收合 ─────────────────────────
     (() => {

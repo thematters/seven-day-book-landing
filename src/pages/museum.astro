@@ -1026,9 +1026,16 @@ const LECTURES_INITIAL = 6;
     //   3. paged.js 自帶的列印 @media print 規則處理 .pagedjs_page → 列印頁
     //      的對應，我們不用自己處理，放它去就好。
     const BOOK_PAGED_CSS = `
+/* @page margin: 0 — 讓 paged.js 的 .pagedjs_page 等於整張 A5，列印時
+ * 印表機不會再多加邊界把 paged.js 的 148mm 寬頁切掉右側。
+ * 視覺天頭 / 訂口 / 地腳由 .pagedjs_page_content padding 處理。 */
 @page {
   size: A5 portrait;
-  margin: 18mm 16mm 22mm;
+  margin: 0;
+}
+.pagedjs_page_content {
+  padding: 18mm 16mm 22mm !important;
+  box-sizing: border-box !important;
 }
 /* paged.js v0.4.x 對 @bottom-center counter(page) + 自訂 font 有 "item
  * doesn't belong to list" bug，所以頁碼用 JS post-process 注入到

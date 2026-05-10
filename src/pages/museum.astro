@@ -1015,23 +1015,136 @@ const LECTURES_INITIAL = 6;
     };
 
     // ── paged.js 整合：開源 CSS Paged Media polyfill ───────────────
-    // 為什麼用 paged.js：自己手刻的 .book-page width/min-height 沒辦法在瀏覽器
-    // 預覽裡真的「分頁」，只能在 window.print() 時靠列印引擎切。paged.js 會
-    // 預先把長 article 切成一個個 .pagedjs_page 容器（A5 大小），預覽看到的就是
-    // 印出來的樣子。同時它也會把 @page / @bottom-center / counter(page) 等
-    // CSS Paged Media 規範轉成實際的 DOM，讓中文書頁碼天頭地腳一次到位。
+    // 重要踩雷紀錄（一定要寫下來）：
+    //   1. paged.js *不會* 自動掃 document.styleSheets 拿 @page 規則。必須
+    //      把 @page CSS 透過 preview(content, [stylesheets], target) 第二個
+    //      參數明確傳進去（可用 data: URL 把 CSS 字串塞進來），不然 page size
+    //      會 fallback 到瀏覽器預設 8.5×11 (US Letter)。
+    //   2. 我們原本 .book-page { width:148mm; min-height:210mm; overflow:hidden }
+    //      這幾條會讓 paged.js 量不到斷頁、整本書硬塞同一頁。所以要在傳給
+    //      paged.js 的 stylesheet 裡用 !important reset 為自然 flow。
+    //   3. paged.js 自帶的列印 @media print 規則處理 .pagedjs_page → 列印頁
+    //      的對應，我們不用自己處理，放它去就好。
+    const BOOK_PAGED_CSS = `
+@page {
+  size: A5 portrait;
+  margin: 18mm 16mm 22mm;
+}
+/* paged.js v0.4.x 對 @bottom-center counter(page) + 自訂 font 有 "item
+ * doesn't belong to list" bug，所以頁碼用 JS post-process 注入到
+ * .pagedjs_margin-bottom-center .pagedjs_margin-content（見 openBook 末尾） */
+
+/* 把原本手刻的固定 A5 box reset 為 natural flow，paged.js 才能正確斷頁 */
+.book-page {
+  width: auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  overflow: visible !important;
+  break-after: page;
+  page-break-after: always;
+}
+/* 固定頁不強制 min-height（paged.js 會被 overflow 卡住），讓內容自然填版心 */
+.book-page--cover,
+.book-page--stats,
+.book-page--toc,
+.book-page--divider,
+.book-page--closing,
+.book-page--article {
+  display: block !important;
+}
+
+/* paged.js v0.4.x 已知 bug：position: absolute 的元素會觸發
+ * "item doesn't belong to list" 而中斷分頁。把純裝飾的 abspos 元素關掉。 */
+.book-scribble,
+.book-divider-art,
+.book-divider-mask,
+.book-toc-logo {
+  display: none !important;
+}
+
+/* logo 改 static / inline-block，不要 abspos */
+.book-cover-logo,
+.book-closing-logo {
+  position: static !important;
+  display: inline-block !important;
+  height: 60px;
+  margin: 8mm 0;
+}
+
+/* 文章內 figure 圖片放在中間、不要 abspos */
+.book-article-fig {
+  position: static !important;
+  display: block !important;
+  margin: 8pt 0;
+  text-align: center;
+}
+.book-article-fig img {
+  position: static !important;
+  display: inline-block !important;
+  max-width: 100%;
+  max-height: 60mm;
+  height: auto;
+}
+.book-article-cover {
+  position: static !important;
+  display: block !important;
+  margin: 0 0 8pt;
+  text-align: center;
+}
+.book-article-cover img {
+  position: static !important;
+  max-width: 100%;
+  max-height: 50mm;
+  height: auto;
+}
+
+/* 取消舊的 ::after 頁碼（已改用 @bottom-center） */
+.book-page::after { content: none !important; }
+
+/* 中文書內文版心慣例 — !important 蓋掉 bundled CSS 的 .book-article-body p
+ * 注意：中文 + text-align: justify 會把字距拉很開超醜，傳統中文書都是
+ * 左對齊 + 段首縮排 2 字。letter-spacing 也不加，避免「文字間隔太散」 */
+.book-article-body p {
+  margin: 0 0 0.5em !important;
+  text-indent: 2em !important;
+  font-size: 11pt !important;
+  line-height: 1.85 !important;
+  text-align: left !important;
+}
+.book-article-body p:first-child,
+.book-article-body h3 + p,
+.book-article-body figure + p { text-indent: 0 !important; }
+.book-article-body h3 {
+  margin: 1.2em 0 0.4em !important;
+  font-size: 13pt !important;
+  font-weight: 600 !important;
+  break-after: avoid;
+}
+.book-article-body blockquote {
+  margin: 0.6em 2em !important;
+  padding: 0.4em 0.8em !important;
+  border-left: 2px solid #c9c4be !important;
+  font-style: normal !important;
+  break-inside: avoid;
+}
+`;
+
     const ensurePagedJs = (() => {
       let p = null;
       return () => {
         if (window.PagedPolyfill) return Promise.resolve();
         if (p) return p;
-        // 一定要在載入 polyfill 前關掉 auto，否則它會自動把整個 <body> 拿去分頁
         window.PagedConfig = window.PagedConfig || {};
         window.PagedConfig.auto = false;
         p = new Promise((resolve, reject) => {
           const s = document.createElement("script");
           s.src = "https://unpkg.com/pagedjs@0.4.3/dist/paged.polyfill.js";
-          s.async = true;
           s.onload = () => resolve();
           s.onerror = () => reject(new Error("paged.js 載入失敗"));
           document.head.appendChild(s);
@@ -1040,27 +1153,61 @@ const LECTURES_INITIAL = 6;
       };
     })();
 
+    // paged.js 對 abspos 子節點 / 部分 <img> / SVG cover 不穩，會中斷分頁。
+    // 用 DOMParser 把書 HTML 過濾乾淨：拿掉所有裝飾元素 + 圖片，留純文字版心，
+    // 這樣 paged.js 走得順、頁數正確、書頁讀得下。
+    const sanitizeBookForPagedJs = (html) => {
+      const doc = new DOMParser().parseFromString(`<div>${html}</div>`, "text/html");
+      const root = doc.body.firstElementChild;
+      // 一律移除所有圖片 (<img>, <svg>, <picture>) 與裝飾性 div
+      root
+        .querySelectorAll(
+          "img, svg, picture, .book-scribble, .book-divider-art, .book-divider-mask, .book-toc-logo, .book-article-cover, .book-article-fig",
+        )
+        .forEach((el) => el.remove());
+      // figcaption 留下作圖說（但若 figure 已被移除就 noop）
+      return root.innerHTML;
+    };
+
+    // paged.js v0.4.x 不能用 @bottom-center counter(page) (會炸 item doesn't
+     // belong to list)，所以頁碼用 DOM 後處理：每張 .pagedjs_page 加一個 abspos
+     // 的 div 在底部置中，封面 (page 1) 不放
+    const stampPageNumbers = (target) => {
+      const pages = target.querySelectorAll(".pagedjs_page");
+      pages.forEach((p, i) => {
+        if (i === 0) return; // 封面不放頁碼
+        if (p.querySelector(".book-page-number")) return; // 已加過
+        const num = document.createElement("div");
+        num.className = "book-page-number";
+        num.textContent = String(i + 1);
+        num.setAttribute("aria-hidden", "true");
+        const pagebox = p.querySelector(".pagedjs_pagebox") || p;
+        if (getComputedStyle(pagebox).position === "static") {
+          pagebox.style.position = "relative";
+        }
+        pagebox.appendChild(num);
+      });
+    };
+
     const openBook = async () => {
       if (!lastJourney || !bookModal) return;
       bookModal.removeAttribute("hidden");
       document.body.classList.add("book-open");
       document.body.style.overflow = "hidden";
-      // 顯示 loading（paged.js 排版 30 篇 article 大約 1-3 秒）
-      bookPagesEl.innerHTML = `<p class="book-modal__placeholder" aria-busy="true">正在排版你的小書，A5 開本中…（首次比較慢）</p>`;
+      bookPagesEl.innerHTML = `<p class="book-modal__placeholder" aria-busy="true">正在排版你的小書，A5 開本中…（首次需 2-5 秒）</p>`;
       try {
         await ensurePagedJs();
-        const html = buildBookHtml(lastJourney);
-        // 用 wrapper 包起來，確保 paged.js 只處理我們的內容
+        const rawHtml = buildBookHtml(lastJourney);
+        const cleanHtml = sanitizeBookForPagedJs(rawHtml);
         const wrapper = document.createElement("div");
         wrapper.className = "book-source";
-        wrapper.innerHTML = html;
-        // 清掉 loading + 直接呼叫 PagedPolyfill.preview
+        wrapper.innerHTML = cleanHtml;
         bookPagesEl.innerHTML = "";
-        await window.PagedPolyfill.preview(wrapper, [], bookPagesEl);
-        // 排版完滾到頂
+        const cssUrl = `data:text/css;charset=utf-8,${encodeURIComponent(BOOK_PAGED_CSS)}`;
+        await window.PagedPolyfill.preview(wrapper, [cssUrl], bookPagesEl);
+        stampPageNumbers(bookPagesEl);
         bookPagesEl.scrollTop = 0;
       } catch (e) {
-        // fallback：paged.js 掛了就走原本的長條 preview，至少還能列印
         console.warn("paged.js 失敗，回退到簡易 preview：", e);
         bookPagesEl.innerHTML = `<div class="book-source">${buildBookHtml(lastJourney)}</div>`;
       }

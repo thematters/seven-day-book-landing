@@ -1015,19 +1015,56 @@ const LECTURES_INITIAL = 6;
       return cover + stats + toc + issuePages + closing;
     };
 
-    const openBook = () => {
-      if (!lastJourney) return;
-      bookPagesEl.innerHTML = buildBookHtml(lastJourney);
-      if (!bookModal) return;
-      // 關鍵：把 .book-modal hoist 到 body 直屬 child，這樣 print CSS
-      // body.book-open > *:not(.book-modal) { display: none } 才能正確隔離
-      // —— 否則 modal 還在 .campaign-page 裡面，整個 page wrapper 被印爛
-      if (bookModal.parentElement !== document.body) {
-        document.body.appendChild(bookModal);
-      }
+    // ── paged.js 整合：開源 CSS Paged Media polyfill ───────────────
+    // 為什麼用 paged.js：自己手刻的 .book-page width/min-height 沒辦法在瀏覽器
+    // 預覽裡真的「分頁」，只能在 window.print() 時靠列印引擎切。paged.js 會
+    // 預先把長 article 切成一個個 .pagedjs_page 容器（A5 大小），預覽看到的就是
+    // 印出來的樣子。同時它也會把 @page / @bottom-center / counter(page) 等
+    // CSS Paged Media 規範轉成實際的 DOM，讓中文書頁碼天頭地腳一次到位。
+    const ensurePagedJs = (() => {
+      let p = null;
+      return () => {
+        if (window.PagedPolyfill) return Promise.resolve();
+        if (p) return p;
+        // 一定要在載入 polyfill 前關掉 auto，否則它會自動把整個 <body> 拿去分頁
+        window.PagedConfig = window.PagedConfig || {};
+        window.PagedConfig.auto = false;
+        p = new Promise((resolve, reject) => {
+          const s = document.createElement("script");
+          s.src = "https://unpkg.com/pagedjs@0.4.3/dist/paged.polyfill.js";
+          s.async = true;
+          s.onload = () => resolve();
+          s.onerror = () => reject(new Error("paged.js 載入失敗"));
+          document.head.appendChild(s);
+        });
+        return p;
+      };
+    })();
+
+    const openBook = async () => {
+      if (!lastJourney || !bookModal) return;
       bookModal.removeAttribute("hidden");
       document.body.classList.add("book-open");
       document.body.style.overflow = "hidden";
+      // 顯示 loading（paged.js 排版 30 篇 article 大約 1-3 秒）
+      bookPagesEl.innerHTML = `<p class="book-modal__placeholder" aria-busy="true">正在排版你的小書，A5 開本中…（首次比較慢）</p>`;
+      try {
+        await ensurePagedJs();
+        const html = buildBookHtml(lastJourney);
+        // 用 wrapper 包起來，確保 paged.js 只處理我們的內容
+        const wrapper = document.createElement("div");
+        wrapper.className = "book-source";
+        wrapper.innerHTML = html;
+        // 清掉 loading + 直接呼叫 PagedPolyfill.preview
+        bookPagesEl.innerHTML = "";
+        await window.PagedPolyfill.preview(wrapper, [], bookPagesEl);
+        // 排版完滾到頂
+        bookPagesEl.scrollTop = 0;
+      } catch (e) {
+        // fallback：paged.js 掛了就走原本的長條 preview，至少還能列印
+        console.warn("paged.js 失敗，回退到簡易 preview：", e);
+        bookPagesEl.innerHTML = `<div class="book-source">${buildBookHtml(lastJourney)}</div>`;
+      }
     };
     const closeBook = () => {
       if (!bookModal) return;
@@ -1044,12 +1081,10 @@ const LECTURES_INITIAL = 6;
         closeBook();
       }
     });
+    // 列印：直接 sync call window.print()。之前 rAF 包兩層會被 Chromium /
+    // Safari 的 popup blocker 視為「非使用者觸發」而靜默吃掉。
     printBtn?.addEventListener("click", () => {
-      // 給瀏覽器兩個 frame settle layout，再叫起列印 dialog；少了這個
-      // 有些 Chromium 版本第一次按列印會空白頁
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => window.print());
-      });
+      window.print();
     });
 
     const renderError = (msg) => {

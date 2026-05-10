@@ -4076,18 +4076,137 @@
 }
 
 /* ─── Print: 把整頁 hide 掉，只留書頁 ───────────────────────── */
-/* ─── Print 整本小書 ───────────────────────────────────────────────
- * 重點：
- *   1. <dialog> 走 top-layer 會在 Chrome / Safari 印出整片白 → 已改 <div> overlay
- *   2. body.book-open 時把 body 上其他內容 hide，只留 .book-modal__pages 印出
- *   3. .book-page width:148mm + page-break-after:always 即可走 A5 自動分頁
- *   4. 長文章用 overflow:visible + height:auto 走自然 flow，靠瀏覽器斷頁；
- *      用 break-inside:avoid 在 figure / blockquote / h3 區塊保留語意 */
-@media print {
-  @page {
-    size: A5 portrait;
-    margin: 0;
+/* ════════════════════════════════════════════════════════════════
+ * 中文小書排版（paged.js 整合）
+ *
+ * 原理：用 paged.js (https://pagedjs.org) 開源 CSS Paged Media polyfill。
+ * 它讀以下 @page CSS、把 .book-source 內容預先切成 .pagedjs_page (A5 大小)
+ * 容器、頁碼天頭地腳全部依 CSS Paged Media 規範自動產生。
+ *
+ * 中文書版心慣例（出版社常用）：
+ *   - A5 開本 148×210mm
+ *   - 天頭 18mm、地腳 22mm（留頁碼）、訂口 + 切口 16mm
+ *   - 內文 11pt 仿宋 / 楷書，行高 1.85，段首縮排 2 字
+ *   - 章節標題與正文之間保留 1-2 行 baseline grid
+ * ════════════════════════════════════════════════════════════════ */
+
+/* paged.js 讀的 @page CSS（同時也是 @media print 的規範）*/
+@page {
+  size: A5 portrait;
+  margin: 18mm 16mm 22mm;
+
+  @bottom-center {
+    content: counter(page);
+    font-family: var(--font-display);
+    font-size: 9pt;
+    color: #6f6a63;
+    letter-spacing: 0.16em;
+    vertical-align: top;
+    padding-top: 6mm;
   }
+}
+
+/* 封面 (第一頁) 不放頁碼 */
+@page :first {
+  @bottom-center {
+    content: none;
+  }
+}
+
+/* 把 .book-page 內手動寫的 width / min-height / padding 等
+ * 在 paged.js 渲染後（即在 .pagedjs_page_content 內）一律重設，
+ * 因為 paged.js 已經透過 @page 把頁面尺寸與內邊距處理好了 */
+.pagedjs_page_content .book-page {
+  width: auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  overflow: visible !important;
+  page-break-after: always;
+  break-after: page;
+}
+
+/* 封面 / 分隔 / 統計 / 目錄 / 封底 在 paged.js 內想要佔滿整個版心 */
+.pagedjs_page_content .book-page--cover,
+.pagedjs_page_content .book-page--stats,
+.pagedjs_page_content .book-page--toc,
+.pagedjs_page_content .book-page--divider,
+.pagedjs_page_content .book-page--closing {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+/* 文章頁讓內容自然 flow，paged.js 自動斷頁 */
+.pagedjs_page_content .book-page--article {
+  display: block;
+}
+
+/* 自定的 .book-page::after 頁碼在 paged.js 模式下關掉，改用 @bottom-center */
+.pagedjs_page_content .book-page::after {
+  content: none;
+}
+
+/* 中文書內文典型字距：text-indent 段首縮排 2 字、行高 1.85 */
+.pagedjs_page_content .book-article-body p,
+.book-source .book-article-body p {
+  margin: 0 0 0.4em;
+  text-indent: 2em;
+  font-family: var(--font-display);
+  font-size: 11pt;
+  line-height: 1.85;
+  letter-spacing: 0.02em;
+  text-align: justify;
+  text-justify: inter-ideograph;
+  hanging-punctuation: allow-end;
+}
+
+/* 第一段 / 標題後第一段不縮排（中文出版慣例） */
+.pagedjs_page_content .book-article-body > *:first-child + p,
+.pagedjs_page_content .book-article-body p:first-child,
+.pagedjs_page_content .book-article-body h3 + p,
+.pagedjs_page_content .book-article-body figure + p,
+.book-source .book-article-body p:first-child,
+.book-source .book-article-body h3 + p,
+.book-source .book-article-body figure + p {
+  text-indent: 0;
+}
+
+/* 圖片 / 引言區塊不要被斷在頁尾 */
+.pagedjs_page_content .book-article-fig,
+.pagedjs_page_content .book-article-body blockquote,
+.book-source .book-article-fig,
+.book-source .book-article-body blockquote {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.pagedjs_page_content .book-article-body h3,
+.book-source .book-article-body h3 {
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+/* paged.js 的 .pagedjs_pages 容器整理：在 modal 預覽時走灰色版心背景 */
+.book-modal__pages .pagedjs_pages {
+  margin: 0 auto;
+  padding: 24px 0 32px;
+}
+
+.book-modal__pages .pagedjs_page {
+  background: #fefdf9;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  margin: 0 auto 16px;
+}
+
+/* ─── Print：列印時把 modal 以外其他全藏掉，只留小書 ──────────── */
+@media print {
   html, body {
     background: white !important;
     margin: 0 !important;
@@ -4096,11 +4215,19 @@
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  /* 預設藏掉一切（body 直屬 children），只解 .book-modal 那一支樹。
-   * 注意：JS 在 openBook 時已把 .book-modal hoist 到 body 直屬 child，
-   * 否則 .book-modal 會跟著 .campaign-page 一起被 hide。 */
-  body.book-open > *:not(.book-modal) {
+  /* 印的時候藏 .campaign-page 內所有「不是 .book-modal」的 children，
+   * 同時藏 .reminder-dialog 與 body 直屬其他元素 */
+  body.book-open .campaign-page > *:not(.book-modal),
+  body.book-open > *:not(.campaign-page):not(script):not(style) {
     display: none !important;
+  }
+  /* campaign-page 自身的 dark token 為 print 重設為白底 */
+  body.book-open .campaign-page {
+    background: white !important;
+    color: #2b2926 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
   }
   body.book-open .book-modal {
     position: static !important;
@@ -4110,7 +4237,8 @@
     display: block !important;
     z-index: auto !important;
   }
-  body.book-open .book-modal__backdrop {
+  body.book-open .book-modal__backdrop,
+  body.book-open .book-modal__chrome {
     display: none !important;
   }
   body.book-open .book-modal__panel {
@@ -4125,9 +4253,6 @@
     overflow: visible !important;
     display: block !important;
   }
-  body.book-open .book-modal__chrome {
-    display: none !important;
-  }
   body.book-open .book-modal__pages {
     background: white !important;
     padding: 0 !important;
@@ -4136,49 +4261,26 @@
     max-height: none !important;
     height: auto !important;
   }
-  .book-page {
-    width: 148mm !important;
-    margin: 0 !important;
-    border: none !important;
+  /* paged.js 已經把每一頁變成 .pagedjs_page (A5 大小)；列印時讓它們直接走頁
+   * paged.js 內建 print CSS 會把 .pagedjs_page 設成 page-break-after: always */
+  .pagedjs_pages {
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+  }
+  .book-modal__pages .pagedjs_page {
+    background: white !important;
     box-shadow: none !important;
     border-radius: 0 !important;
-    background: white !important;
-    /* 每頁印完換頁 */
+    margin: 0 !important;
+  }
+  /* 沒有 paged.js 時的 fallback：手動讓每個 .book-page 走 A5 自動斷頁 */
+  .book-source .book-page {
+    width: 148mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
     page-break-after: always !important;
     break-after: page !important;
-    page-break-inside: auto;
-    break-inside: auto;
-  }
-  /* 固定頁（封面/統計/目錄/分隔頁/封底）保 A5 高度，內容不要被印機截掉 */
-  .book-page--cover,
-  .book-page--stats,
-  .book-page--toc,
-  .book-page--divider,
-  .book-page--closing {
-    height: 210mm !important;
-    min-height: 210mm !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-  /* 文章頁不限高 — 長文章自然 flow 多頁 PDF */
-  .book-page--article {
-    min-height: 0 !important;
-    height: auto !important;
-    overflow: visible !important;
-  }
-  .book-page:last-child {
-    page-break-after: auto !important;
-    break-after: auto !important;
-  }
-  /* 圖片 / 引言 / 小標 不要剛好斷在頁尾 */
-  .book-article-fig,
-  .book-article-body blockquote {
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-  .book-article-body h3 {
-    page-break-after: avoid !important;
-    break-after: avoid !important;
   }
 }
 

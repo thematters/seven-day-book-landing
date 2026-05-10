@@ -4274,6 +4274,17 @@
 
 /* ─── Print：列印時把 modal 以外其他全藏掉，只留小書 ──────────── */
 @media print {
+  /* 印表機 @page margin 用 0：paged.js 的 .pagedjs_page 已經是完整 A5
+   * (內含 18mm/16mm/22mm 的 .pagedjs_page_content)。如果印表機再加 margin
+   * 會把 paged.js 那 148mm 寬頁擠成 116mm、右側被切。
+   *
+   * 這條故意寫在 bundled CSS (不在 BOOK_PAGED_CSS data: URL) — paged.js
+   * 不掃 document.styleSheets，所以它預覽時讀 BOOK_PAGED_CSS 的 18mm
+   * margin 算內容區，印表機才讀這條 0 margin。 */
+  @page {
+    size: A5 portrait;
+    margin: 0;
+  }
   html, body {
     background: white !important;
     margin: 0 !important;

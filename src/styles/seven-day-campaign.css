@@ -3669,8 +3669,14 @@
   color: var(--ink);
 }
 
-/* eyebrow / 元資訊用 accent / muted */
-.book-page .book-page-eyebrow,
+/* 內文 article eyebrow 改 muted gray + 400 weight (內文標題才當主角) */
+.book-page .book-page-eyebrow {
+  color: var(--ink-muted) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.04em;
+}
+
+/* 其他 eyebrow / 元資訊保留 accent 色 (cover/stats/divider 是 hero 場景) */
 .book-page .book-cover-eyebrow,
 .book-page .book-stats-eyebrow,
 .book-page .book-divider-section,
@@ -3734,45 +3740,77 @@
   position: relative;
   z-index: 1;
   margin: auto 0;
-  text-align: left;
+  text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 10mm;
+  align-items: center;
+  gap: 0;
+}
+
+/* 中文書封面常見 frame：細邊框 + 內部上下橫線 — 給「正式出版品」感 */
+.book-cover-frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6mm;
+  padding: 14mm 12mm;
+  border: 0.5pt solid rgba(43, 41, 38, 0.32);
+  background: rgba(255, 255, 255, 0.4);
 }
 
 .book-cover-eyebrow {
-  margin: 0;
-  color: var(--campaign-accent-dark);
+  margin: 0 0 2mm;
+  color: var(--ink-muted);
   font-family: var(--font-display);
-  font-size: 10pt;
-  font-weight: 500;
-  letter-spacing: 0.08em;
+  font-size: 9.5pt;
+  font-weight: 400;
+  letter-spacing: 0.18em;
 }
 
 .book-cover-logo {
   display: block;
-  width: 70mm;
+  width: 50mm;
   height: auto;
   margin: 0;
-  /* Logo 是 dark fill #333 — 直接用原色，配米白底 */
+  opacity: 0.85;
 }
 
 .book-cover-title {
   margin: 0;
   color: var(--ink);
   font-family: var(--font-display);
-  font-size: 30pt;
+  font-size: 28pt;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.25;
   letter-spacing: -0.01em;
+  text-align: center;
+}
+
+/* 副題 — 中文書「副標題 / xxx 之書」位置 */
+.book-cover-subtitle {
+  margin: 0;
+  color: var(--ink-muted);
+  font-family: var(--font-display);
+  font-size: 11pt;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+}
+
+/* 細線 — 區分標題區與作者署名區 */
+.book-cover-rule {
+  width: 22mm;
+  height: 0;
+  border-top: 0.5pt solid var(--campaign-accent-dark);
+  margin: 4mm 0;
 }
 
 .book-cover-handle {
-  margin: -6mm 0 0;
+  margin: 0;
   color: var(--campaign-accent-dark);
   font-family: var(--font-display);
   font-size: 13pt;
   font-weight: 500;
+  font-style: italic;
 }
 
 .book-cover-date {
@@ -3780,9 +3818,9 @@
   z-index: 1;
   margin: 0;
   color: var(--ink-muted);
-  font-size: 9.5pt;
-  letter-spacing: 0.04em;
-  text-align: right;
+  font-size: 9pt;
+  letter-spacing: 0.08em;
+  text-align: center;
 }
 
 /* Stats page */
@@ -3794,39 +3832,102 @@
 }
 
 .book-stats-eyebrow {
-  margin: 0 0 18mm;
-  color: var(--campaign-accent-dark);
-  font-size: 11pt;
-  font-weight: 500;
-  letter-spacing: 0.08em;
+  margin: 0 0 14mm;
+  color: var(--ink-muted);
+  font-size: 10pt;
+  font-weight: 400;
+  letter-spacing: 0.18em;
 }
 
+/* 敘事化內文：強調的數字用大字 + accent 色 */
+.book-stats-narrative {
+  margin: 0 0 14mm;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 13pt;
+  line-height: 2.1;
+  text-align: center;
+  text-indent: 0 !important;
+  letter-spacing: 0.02em;
+}
+
+.book-stats-narrative strong {
+  display: inline-block;
+  margin: 0 1pt;
+  color: var(--campaign-accent-dark);
+  font-family: var(--font-display);
+  font-size: 16pt;
+  font-weight: 700;
+  letter-spacing: 0;
+  vertical-align: -1pt;
+}
+
+/* Mini timeline SVG container */
+.book-stats-timeline-wrap {
+  margin: 12mm auto 0;
+  width: 100mm;
+}
+
+.book-stats-timeline-label {
+  margin: 0 0 4mm;
+  color: var(--ink-muted);
+  font-size: 9pt;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-indent: 0 !important;
+}
+
+/* HTML 版 timeline — flex bar，月份等距，活躍月份實心藍點 */
+.book-stats-timeline {
+  display: flex;
+  align-items: flex-end;
+  justify-content: stretch;
+  gap: 0;
+  width: 100mm;
+  margin: 0 auto 14mm;
+  padding: 6mm 0 4mm;
+  border-bottom: 0.5pt solid #d8d3cc;
+  position: relative;
+}
+.book-tl-cell {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  min-width: 1.5mm;
+}
+.book-tl-year {
+  position: absolute;
+  bottom: -8mm;
+  font-size: 7pt;
+  color: #6f6a63;
+  letter-spacing: 0;
+}
+.book-tl-dot {
+  display: block;
+  width: 1.6mm;
+  height: 1.6mm;
+  border-radius: 50%;
+  background: #d8d3cc;
+}
+.book-tl-dot--on {
+  width: 2.4mm;
+  height: 2.4mm;
+  background: var(--campaign-accent-dark, #045898);
+}
+
+/* (legacy grid stats — keep for backwards-compat if anyone still uses it) */
 .book-stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10mm;
   margin: 0 0 14mm;
 }
-
-.book-stats-grid div {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4mm;
-}
-
-.book-stats-grid strong {
-  color: var(--campaign-accent-dark);
-  font-family: var(--font-display);
-  font-size: 38pt;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.book-stats-grid span {
-  color: var(--ink-muted);
-  font-size: 10pt;
-}
+.book-stats-grid div { display: flex; flex-direction: column; align-items: center; gap: 4mm; }
+.book-stats-grid strong { color: var(--campaign-accent-dark); font-size: 38pt; font-weight: 700; line-height: 1; }
+.book-stats-grid span { color: var(--ink-muted); font-size: 10pt; }
 
 .book-stats-tagline {
   margin: 14mm 0 0;
@@ -3863,18 +3964,17 @@
   list-style: none;
 }
 
+/* TOC item — flex 排版讓 leader 點點線可以填滿剩餘空間 */
 .book-toc-list li {
-  display: grid;
-  /* minmax(0, 1fr) 讓中文長標題能正常斷字斷行；不然標題欄會被擠到 1 個字寬，
-   * 結果每個字都換一行 */
-  grid-template-columns: 12mm minmax(0, 1fr) auto;
-  gap: 6mm;
+  display: flex;
   align-items: baseline;
+  gap: 4mm;
   padding: 4mm 0;
-  border-bottom: 1px dashed rgba(0, 0, 0, 0.12);
+  /* 拿掉 dashed border，改用 dotted leader 在 title / date 之間 */
 }
 
 .book-toc-no {
+  flex: 0 0 12mm;
   color: var(--campaign-accent-dark);
   font-family: var(--font-display);
   font-weight: 700;
@@ -3882,14 +3982,29 @@
 }
 
 .book-toc-title {
+  flex: 0 1 auto;
   color: var(--ink);
   font-size: 13pt;
   font-weight: 500;
 }
 
+/* dotted leader — 中文書 TOC 經典「. . . . .」線 */
+.book-toc-leader {
+  flex: 1 1 auto;
+  align-self: end;
+  margin: 0 4mm;
+  border-bottom: 1pt dotted rgba(0, 0, 0, 0.4);
+  height: 0;
+  transform: translateY(-3pt);
+  min-width: 6mm;
+}
+
 .book-toc-date {
+  flex: 0 0 auto;
   color: var(--ink-muted);
   font-size: 10pt;
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
 }
 
 /* Issue divider page (大字主題 + 月份 + 第幾站) */
@@ -3934,6 +4049,17 @@
   font-size: 10pt;
   font-weight: 500;
   letter-spacing: 0.16em;
+}
+
+/* 古典書本章節裝飾 ornament — divider / closing 用 */
+.book-ornament {
+  display: block;
+  margin: 4mm 0;
+  color: var(--ink-muted);
+  font-size: 11pt;
+  letter-spacing: 0.4em;
+  text-align: center;
+  opacity: 0.55;
 }
 
 .book-divider-period {
@@ -4004,14 +4130,20 @@
   font-family: var(--font-display);
   font-size: 11pt;
   font-weight: 400;
-  line-height: 1.78;
+  line-height: 1.85;
   /* 不能用 justify：paged.js 對 split 元素會自動加 text-align-last: justify，
    * 中文段落最後一行會被拉到滿行寬，字距變得超寬超醜。改 left 解決。 */
   text-align: left;
+  /* 中文標點避頭尾：line-break: strict 讓 ， 。 ！ ？ 」 等不會在行首 */
+  line-break: strict;
+  word-break: normal;
+  /* 中文 + 西文 / 數字之間的自動空格 (Chrome / Safari) */
+  text-spacing: ideograph-alpha ideograph-numeric;
 }
 
 .book-article-body p {
-  margin: 0 0 3mm;
+  /* 傳統中文書段落間「沒有」空隙，純靠 text-indent 區隔 */
+  margin: 0;
   text-indent: 2em;
   /* 段落不要在中間斷頁；如必要會整段移到下一頁 */
   orphans: 2;
@@ -4062,23 +4194,34 @@
   font-style: italic;
 }
 
+/* Footer 簡化：日期靠左 + matters URL (link) 靠右，無 border，font 小 */
 .book-article-footer {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   gap: 8mm;
-  margin: 8mm 0 0;
-  padding-top: 3mm;
-  border-top: 1px dotted rgba(0, 0, 0, 0.16);
+  margin: 10mm 0 0;
   color: var(--ink-muted);
-  font-size: 8.5pt;
-  letter-spacing: 0.04em;
+  font-size: 8pt;
+  letter-spacing: 0.06em;
 }
 
+.book-article-date {
+  font-family: var(--font-display);
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+
+/* matters URL 變成可點 hyperlink (PDF 印出來保留 link) */
 .book-article-source {
   color: var(--campaign-accent-dark);
   font-family: var(--font-display);
   font-size: 8pt;
+  text-decoration: none;
+  border-bottom: 0.4pt dotted currentColor;
+}
+.book-article-source:hover {
+  color: var(--campaign-accent);
 }
 
 /* Closing page (back cover) */
@@ -4222,15 +4365,24 @@
 }
 
 /* 中文書內文典型字距：text-indent 段首縮排 2 字、行高 1.85
- * 注意：text-align 用 left（中文 + justify 會把字距拉得很開超醜，傳統中文書都左對齊） */
+ * 注意：
+ *   - text-align 用 left（中文 + justify 會把字距拉得很開超醜）
+ *   - 段落間距 margin: 0（傳統中文書段落間沒有空隙、純靠 indent 區隔）
+ *   - line-break: strict 中文標點不會出現在行首 */
 .pagedjs_page_content .book-article-body p,
 .book-source .book-article-body p {
-  margin: 0 0 0.5em;
+  margin: 0;
   text-indent: 2em;
   font-family: var(--font-display);
   font-size: 11pt;
   line-height: 1.85;
   text-align: left;
+  line-break: strict;
+  word-break: normal;
+}
+.pagedjs_page_content .book-article-body,
+.book-source .book-article-body {
+  text-spacing: ideograph-alpha ideograph-numeric;
 }
 
 /* 第一段 / 標題後第一段不縮排（中文出版慣例） */
@@ -4385,6 +4537,31 @@
   color: #6f6a63;
   letter-spacing: 0.16em;
   pointer-events: none;
+}
+
+/* Running header — 中文書頁眉慣例：奇頁右上「章節名」、偶頁左上「書名」 */
+.book-running-header {
+  position: absolute;
+  top: 8mm;
+  font-family: var(--font-display, "Noto Serif TC", serif);
+  font-size: 8.5pt;
+  font-weight: 400;
+  color: #8a857d;
+  letter-spacing: 0.12em;
+  pointer-events: none;
+  /* 不要超出版心，最大寬度 */
+  max-width: 70mm;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.book-running-header--odd {
+  right: 16mm;
+  text-align: right;
+}
+.book-running-header--even {
+  left: 16mm;
+  text-align: left;
 }
 
 /* ─── Reduced motion ─────────────────────────────────────────── */

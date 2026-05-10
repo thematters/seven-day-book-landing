@@ -749,6 +749,83 @@ const promptIso = (mdStr: string) => {
       return `${y} 年 ${Number(m)} 月`;
     };
 
+    // ── 美編 helper：算 narrative stats / mini timeline / 章節 ornament ──
+
+    // 從 markdown 算純文字字數（拿掉 markup / 圖片 / 標點）
+    const countWords = (md) => {
+      if (!md) return 0;
+      return md
+        .replace(/<[^>]+>/g, "")
+        .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+        .replace(/[*_`#>\-\s]/g, "")
+        .length;
+    };
+
+    // 算所有「(year, month)」tuple，用於 timeline
+    const monthKey = (iso) => iso?.slice(0, 7); // "2026-05"
+
+    const computeBookStats = (groups) => {
+      const allArts = groups.flatMap((g) => g.articles);
+      const dates = allArts.map((a) => a.createdAt).filter(Boolean).sort();
+      const firstIso = dates[0];
+      const lastIso = dates[dates.length - 1];
+      const totalWords = allArts.reduce(
+        (s, a) => s + countWords(a.contents?.markdown || a.summary || ""),
+        0
+      );
+      const monthsActive = new Set(allArts.map((a) => monthKey(a.createdAt))).size;
+      const firstYear = firstIso ? firstIso.slice(0, 4) : "—";
+      const firstMonth = firstIso ? Number(firstIso.slice(5, 7)) : 0;
+      const lastYear = lastIso ? lastIso.slice(0, 4) : "—";
+      const lastMonth = lastIso ? Number(lastIso.slice(5, 7)) : 0;
+      // 跨幾個月（從 first 到 last）
+      const spanMonths = firstIso && lastIso
+        ? (Number(lastIso.slice(0, 4)) - Number(lastIso.slice(0, 4) === firstIso.slice(0, 4) ? lastIso.slice(0, 4) : firstIso.slice(0, 4))) * 12 + (Number(lastIso.slice(5, 7)) - Number(firstIso.slice(5, 7))) + 1
+        : 0;
+      return { totalWords, monthsActive, firstIso, firstYear, firstMonth, lastYear, lastMonth, spanMonths, totalArts: allArts.length };
+    };
+
+    // 產生迷你 timeline HTML (純 div + CSS dot)，不用 SVG —
+    // PDF 那邊 cjkRenderPdfPreview 的 sanitize 會把 <svg> 拔掉避免 paged.js
+    // 知名 abspos 雷。所以改用 div + flex 排版，PDF / EPUB 都通用。
+    const renderTimelineSvg = (groups) => {
+      const allArts = groups.flatMap((g) => g.articles);
+      const monthSet = new Set(allArts.map((a) => monthKey(a.createdAt)).filter(Boolean));
+      if (monthSet.size === 0) return "";
+      const months = [...monthSet].sort();
+      const firstY = Number(months[0].slice(0, 4));
+      const firstM = Number(months[0].slice(5, 7));
+      const lastY = Number(months[months.length - 1].slice(0, 4));
+      const lastM = Number(months[months.length - 1].slice(5, 7));
+      const total = (lastY - firstY) * 12 + (lastM - firstM) + 1;
+      const axis = [];
+      for (let i = 0; i < total; i++) {
+        const y = firstY + Math.floor((firstM - 1 + i) / 12);
+        const m = ((firstM - 1 + i) % 12) + 1;
+        axis.push({ key: `${y}-${String(m).padStart(2, "0")}`, y, m });
+      }
+      // HTML version: flex bar with dots, year labels rendered separately
+      let prevY = null;
+      const dotsHtml = axis
+        .map((mo) => {
+          const active = monthSet.has(mo.key);
+          const yearMarker = mo.y !== prevY;
+          prevY = mo.y;
+          const cls = active ? "book-tl-dot book-tl-dot--on" : "book-tl-dot";
+          const yearLabel = yearMarker
+            ? `<span class="book-tl-year">${mo.y}</span>`
+            : "";
+          return `<span class="book-tl-cell">${yearLabel}<span class="${cls}" title="${mo.key}"></span></span>`;
+        })
+        .join("");
+      return `<div class="book-stats-timeline">${dotsHtml}</div>`;
+    };
+
+    // 中文章節 ornament — 古典裝飾字符或細線
+    // 用 ⁕ ※ ❦ ❧ ◆ 等。我們選比較含蓄的「✦・✦」
+    const CHAPTER_ORNAMENT = `<span class="book-ornament" aria-hidden="true">✦ · ✦</span>`;
+
     const renderResult = (user) => {
       if (!user) {
         passportResult.innerHTML = `
@@ -856,47 +933,62 @@ const promptIso = (mdStr: string) => {
       const { user, groups, totalArticles } = journey;
       const today = new Date();
       const dateStr = `${today.getFullYear()} 年 ${today.getMonth() + 1} 月 ${today.getDate()} 日`;
+      const stats = computeBookStats(groups);
 
-      // ── Cover page：七日書 SVG 大尺寸 + 兩個 POAP scribble + freewrite gradient ──
+      // ── Cover：書名 + 副題 + 細線 + 作者 + 出版資訊 hierarchy ─────
       const cover = `
-        <article class="book-page book-page--cover">
+        <article class="book-page book-page--cover" data-section-name="封面">
           <img class="book-scribble book-scribble--tr" src="${SCRIBBLE_TR}" alt="" />
           <img class="book-scribble book-scribble--bl" src="${SCRIBBLE_BL}" alt="" />
           <div class="book-cover-content">
-            <p class="book-cover-eyebrow">Matters · 自由寫</p>
-            <img class="book-cover-logo" src="${SDB_LOGO_SRC}" alt="七日書" />
-            <h1 class="book-cover-title">${escapeHtml(user.displayName)}<br/>的小書</h1>
-            <p class="book-cover-handle">@${escapeHtml(user.userName)}</p>
+            <div class="book-cover-frame">
+              <p class="book-cover-eyebrow">Matters · 自由寫 · 七日書</p>
+              <img class="book-cover-logo" src="${SDB_LOGO_SRC}" alt="七日書" />
+              <h1 class="book-cover-title">${escapeHtml(user.displayName)}<br/>的小書</h1>
+              <p class="book-cover-subtitle">${groups.length} 期七日書 · 一本人生紀念冊</p>
+              <div class="book-cover-rule" aria-hidden="true"></div>
+              <p class="book-cover-handle">@${escapeHtml(user.userName)}</p>
+            </div>
           </div>
-          <p class="book-cover-date">${dateStr} 編製</p>
+          <p class="book-cover-date">${dateStr} 編製 · matters.town</p>
         </article>`;
 
-      // ── Stats page ─────────────────────────────────────────
-      const firstYear = groups.length
-        ? formatMonthLabel(groups[groups.length - 1].articles[0].createdAt).split(' 年')[0]
-        : '—';
-      const stats = `
-        <article class="book-page book-page--stats">
+      // ── Stats：敘事化 + mini timeline SVG ──────────────────
+      const yearText = stats.firstYear === String(today.getFullYear())
+        ? `今年 ${stats.firstMonth} 月`
+        : `${stats.firstYear} 年 ${stats.firstMonth} 月`;
+      const wordsRoughly = stats.totalWords >= 10000
+        ? `${Math.round(stats.totalWords / 1000)} 千`
+        : stats.totalWords >= 1000
+          ? `${(stats.totalWords / 1000).toFixed(1)} 千`
+          : `${stats.totalWords}`;
+      const timelineSvg = renderTimelineSvg(groups);
+      const statsPage = `
+        <article class="book-page book-page--stats" data-section-name="這幾年的書寫">
           <img class="book-scribble book-scribble--tr" src="${SCRIBBLE_TR}" alt="" />
           <p class="book-stats-eyebrow">這幾年的書寫</p>
-          <div class="book-stats-grid">
-            <div><strong>${groups.length}</strong><span>期七日書</span></div>
-            <div><strong>${totalArticles}</strong><span>篇文章</span></div>
-            <div><strong>${firstYear}</strong><span>第一次參與</span></div>
+          <p class="book-stats-narrative">
+            你的第一次七日書，是在 <strong>${yearText}</strong>。<br/>
+            從那時起，這本書收進了 <strong>${totalArticles}</strong> 篇文章、跨 <strong>${groups.length}</strong> 期、約 <strong>${wordsRoughly}</strong> 字。<br/>
+            在這 <strong>${stats.spanMonths || 1}</strong> 個月裡，你曾在 <strong>${stats.monthsActive}</strong> 個月份留下文字。
+          </p>
+          <div class="book-stats-timeline-wrap">
+            <p class="book-stats-timeline-label">書寫月份分佈</p>
+            ${timelineSvg}
           </div>
           <p class="book-stats-tagline">每一篇都是一個七天裡安靜的下午。</p>
           <img class="book-scribble book-scribble--bl" src="${SCRIBBLE_BL}" alt="" />
         </article>`;
 
-      // ── TOC page ──────────────────────────────────────────
+      // ── TOC：dotted leader + 月份對齊右側 ──────────────────
       const tocItems = groups
         .map((g, i) => {
           const earliestArt = [...g.articles].sort((a, b) => +new Date(a.createdAt) - +new Date(b.createdAt))[0];
           const period = formatMonthLabel(earliestArt.createdAt);
-          return `<li><span class="book-toc-no">${String(i + 1).padStart(2, "0")}</span><span class="book-toc-title">${escapeHtml(g.campaign.name)}</span><span class="book-toc-date">${escapeHtml(period)}</span></li>`;
+          return `<li><span class="book-toc-no">${String(i + 1).padStart(2, "0")}</span><span class="book-toc-title">${escapeHtml(g.campaign.name)}</span><span class="book-toc-leader" aria-hidden="true"></span><span class="book-toc-date">${escapeHtml(period)}</span></li>`;
         }).join("");
       const toc = `
-        <article class="book-page book-page--toc">
+        <article class="book-page book-page--toc" data-section-name="目錄">
           <img class="book-scribble book-scribble--tr" src="${SCRIBBLE_TR}" alt="" />
           <p class="book-page-eyebrow">目錄</p>
           <h2 class="book-page-h2">這本書收錄的 ${groups.length} 期</h2>
@@ -904,7 +996,7 @@ const promptIso = (mdStr: string) => {
           <img class="book-cover-logo book-toc-logo" src="${SDB_LOGO_SRC}" alt="七日書" />
         </article>`;
 
-      // ── Per-issue: divider page + per-article pages ────────
+      // ── Per-issue: divider 加 ornament + article footer 簡化 + hyperlink ─
       const issuePages = groups
         .map((g, i) => {
           const period = formatMonthLabel(g.articles[0].createdAt);
@@ -912,44 +1004,41 @@ const promptIso = (mdStr: string) => {
             (a, b) => +new Date(a.createdAt) - +new Date(b.createdAt),
           );
 
-          // Divider page (一張，主題大字 + 月份 + freewrite studio 宣傳圖背景)
           const studioArt = STUDIO_ART[i % STUDIO_ART.length];
+          const sectionName = g.campaign.name;
           const divider = `
-            <article class="book-page book-page--divider">
+            <article class="book-page book-page--divider" data-section-name="${escapeHtml(sectionName)}">
               <div class="book-divider-art" style="background-image: url('${studioArt}')" aria-hidden="true"></div>
               <div class="book-divider-mask" aria-hidden="true"></div>
               <img class="book-scribble book-scribble--tr" src="${SCRIBBLE_TR}" alt="" />
               <div class="book-divider-content">
                 <p class="book-divider-section">第 ${String(i + 1).padStart(2, "0")} 站</p>
+                ${CHAPTER_ORNAMENT}
                 <p class="book-divider-period">${escapeHtml(period)}</p>
                 <h2 class="book-divider-title">${escapeHtml(g.campaign.name)}</h2>
                 <p class="book-divider-meta">在這期，你寫了 ${sortedArts.length} 篇</p>
+                ${CHAPTER_ORNAMENT}
               </div>
               <img class="book-scribble book-scribble--bl" src="${SCRIBBLE_BL}" alt="" />
             </article>`;
 
-          // Per-article pages (一篇一張 — 但長文章自然 flow 多頁 PDF)
-          // body 用完整 markdown → HTML，包含段落 / 標題 / 圖片
           const articlePages = sortedArts
             .map((a) => {
               const bodyHtml = a.contents?.markdown
                 ? mdToHtml(a.contents.markdown)
-                : `<p class="book-article-fallback">${escapeHtml(a.summary || "（這篇沒有摘要）")}</p>`;
+                : `<p class="book-article-fallback">${escapeHtml(a.summary || "(這篇沒有摘要)")}</p>`;
               const dateLine = a.createdAt
-                ? `${a.createdAt.slice(0, 4)} 年 ${Number(a.createdAt.slice(5, 7))} 月 ${Number(a.createdAt.slice(8, 10))} 日`
+                ? `${a.createdAt.slice(0, 4)}.${String(Number(a.createdAt.slice(5, 7))).padStart(2, "0")}.${String(Number(a.createdAt.slice(8, 10))).padStart(2, "0")}`
                 : "";
-              const coverHtml = a.cover
-                ? `<div class="book-article-cover"><img src="${escapeHtml(a.cover)}" alt="" loading="lazy" /></div>`
-                : "";
+              const articleUrl = `https://matters.town/a/${a.shortHash}`;
               return `
-                <article class="book-page book-page--article">
+                <article class="book-page book-page--article" data-section-name="${escapeHtml(sectionName)}">
                   <p class="book-page-eyebrow">${escapeHtml(period)} · ${escapeHtml(g.campaign.name)}</p>
                   <h2 class="book-article-title">${escapeHtml(a.title)}</h2>
-                  ${coverHtml}
                   <div class="book-article-body">${bodyHtml}</div>
                   <p class="book-article-footer">
-                    <span>${escapeHtml(dateLine)}</span>
-                    <span class="book-article-source">matters.town/a/${escapeHtml(a.shortHash)}</span>
+                    <span class="book-article-date">${escapeHtml(dateLine)}</span>
+                    <a class="book-article-source" href="${articleUrl}">matters.town/a/${escapeHtml(a.shortHash)}</a>
                   </p>
                 </article>`;
             }).join("");
@@ -957,11 +1046,12 @@ const promptIso = (mdStr: string) => {
           return divider + articlePages;
         }).join("");
 
-      // ── Closing page：七日書 SVG + scribble + tagline ─────
+      // ── Closing：保留原本，加 ornament ─────
       const closing = `
-        <article class="book-page book-page--closing">
+        <article class="book-page book-page--closing" data-section-name="封底">
           <img class="book-scribble book-scribble--tr" src="${SCRIBBLE_TR}" alt="" />
           <div class="book-closing-content">
+            ${CHAPTER_ORNAMENT}
             <p class="book-closing-quote">「下一個七天，<br/>繼續寫。」</p>
             <img class="book-closing-logo" src="${SDB_LOGO_SRC}" alt="七日書" />
             <p class="book-closing-meta">每月一期 · freewriting.matters.town</p>
@@ -970,7 +1060,7 @@ const promptIso = (mdStr: string) => {
           <img class="book-scribble book-scribble--bl" src="${SCRIBBLE_BL}" alt="" />
         </article>`;
 
-      return cover + stats + toc + issuePages + closing;
+      return cover + statsPage + toc + issuePages + closing;
     };
 
     // ── paged.js 整合：開源 CSS Paged Media polyfill ───────────────
@@ -1097,9 +1187,17 @@ const promptIso = (mdStr: string) => {
   text-justify: auto !important;
   letter-spacing: normal !important;
   word-spacing: normal !important;
+  /* 中文標點避頭尾 — , 。 ！ ? 」 等不會在行首 */
+  line-break: strict !important;
+  word-break: normal !important;
+}
+.book-article-body {
+  /* 中英 / 中數字之間自動加空格 (Chrome 113+ / Safari) */
+  text-spacing: ideograph-alpha ideograph-numeric;
 }
 .book-article-body p {
-  margin: 0 0 0.5em !important;
+  /* 段落間距 0 — 傳統中文書段落間沒有空隙、純靠 indent 區隔 */
+  margin: 0 !important;
   text-indent: 2em !important;
   font-size: 11pt !important;
   line-height: 1.85 !important;
@@ -1147,6 +1245,32 @@ const promptIso = (mdStr: string) => {
     //   - BOOK_PAGED_CSS (museum 客製版心，跟 cjk-book-builder/styles/pdf.css 對齊但 selector 用 .book-page)
     //   - dividerSelector / pageNumberClass (用 museum 既有 .book-page-* 命名，不必 rename CSS)
     //   - extraSanitizeSelectors (museum 自家裝飾元素)
+    // Running header — 中文書頁眉慣例：奇頁右上「章節名」、偶頁左上「書名」。
+    // paged.js 沒有 @top-left/@top-right 支援 (跟 @bottom-center counter
+    // 一樣會炸)。我們用 JS post-process 自己加 .book-running-header。
+    const stampRunningHeaders = (container, opts = {}) => {
+      const bookTitle = opts.bookTitle || "";
+      const pages = container.querySelectorAll(".pagedjs_page");
+      pages.forEach((p, i) => {
+        if (i === 0) return; // 封面不放
+        if (p.querySelector(".book-running-header")) return;
+        const article = p.querySelector("article.book-page");
+        const sectionName = article?.dataset.sectionName || "";
+        const isOdd = (i + 1) % 2 === 1;
+        const text = isOdd ? sectionName : bookTitle;
+        if (!text) return;
+        const header = document.createElement("div");
+        header.className = `book-running-header book-running-header--${isOdd ? "odd" : "even"}`;
+        header.textContent = text;
+        header.setAttribute("aria-hidden", "true");
+        const pagebox = p.querySelector(".pagedjs_pagebox") || p;
+        if (getComputedStyle(pagebox).position === "static") {
+          pagebox.style.position = "relative";
+        }
+        pagebox.appendChild(header);
+      });
+    };
+
     const openBook = async () => {
       if (!lastJourney || !bookModal) return;
       bookModal.removeAttribute("hidden");
@@ -1169,6 +1293,10 @@ const promptIso = (mdStr: string) => {
           ],
           dividerSelector: ".book-page--divider",
           pageNumberClass: "book-page-number",
+        });
+        // 加 running header (奇頁 章節名 / 偶頁 書名)
+        stampRunningHeaders(bookPagesEl, {
+          bookTitle: `${lastJourney.user.displayName} 的七日書小書`,
         });
       } catch (e) {
         console.warn("paged.js 失敗，回退到簡易 preview：", e);
@@ -1204,6 +1332,10 @@ body {
   margin: 0;
   padding: 1em;
   color: #2b2926;
+  /* 中文標點避頭尾 + 自然中英字距 */
+  line-break: strict;
+  word-break: normal;
+  text-spacing: ideograph-alpha ideograph-numeric;
 }
 h1, h2, h3 {
   font-weight: 600;
@@ -1215,21 +1347,41 @@ h1 { font-size: 1.6em; text-align: center; margin-top: 2em; }
 h2 { font-size: 1.3em; }
 h3 { font-size: 1.1em; }
 p {
-  margin: 0 0 0.4em;
+  /* 段落間距 0 — 傳統中文書段落間沒有空隙 */
+  margin: 0;
   text-indent: 2em;
   text-align: left;
 }
 p:first-child, h1 + p, h2 + p, h3 + p, figure + p, .eyebrow + p, .eyebrow + h1, .eyebrow + h2 { text-indent: 0; }
+
+/* article eyebrow muted gray (內文標題才當主角) */
 .eyebrow {
   display: block;
-  color: #666;
-  font-size: 0.9em;
-  letter-spacing: 0.06em;
+  color: #8a857d;
+  font-size: 0.85em;
+  font-weight: 400;
+  letter-spacing: 0.12em;
   text-indent: 0;
   margin: 0 0 0.4em;
 }
+
+/* 中文書 ornament */
+.ornament {
+  display: block;
+  text-align: center;
+  text-indent: 0;
+  letter-spacing: 0.4em;
+  color: #8a857d;
+  margin: 1em 0;
+  opacity: 0.6;
+}
+
 .center { text-align: center; text-indent: 0; }
-.handle, .date, .meta { text-align: center; color: #666; text-indent: 0; }
+.handle, .date, .meta, .subtitle, .narrative, .timeline-label, .timeline-wrap, .quote {
+  text-align: center;
+  text-indent: 0;
+}
+.handle, .date, .meta { color: #666; }
 blockquote {
   margin: 0.6em 1.5em;
   padding: 0.4em 0.8em;
@@ -1237,11 +1389,112 @@ blockquote {
   color: #555;
 }
 blockquote p { text-indent: 0; }
-section.cover { text-align: center; margin-top: 4em; }
-section.cover h1 { font-size: 2em; }
-section.divider { text-align: center; margin-top: 3em; page-break-before: always; break-before: page; }
+
+section.cover {
+  text-align: center;
+  margin-top: 4em;
+  padding: 2em 1em;
+}
+section.cover h1 { font-size: 2em; margin-bottom: 0.4em; }
+section.cover .subtitle {
+  color: #8a857d;
+  margin: 0.6em 0;
+  font-size: 0.95em;
+  letter-spacing: 0.06em;
+}
+section.cover .handle {
+  color: #045898;
+  font-style: italic;
+  font-size: 1.1em;
+  margin: 1em 0;
+}
+section.cover .date {
+  font-size: 0.8em;
+  letter-spacing: 0.1em;
+  margin-top: 2em;
+}
+hr.cover-rule {
+  width: 4em;
+  height: 0;
+  border: none;
+  border-top: 1px solid #045898;
+  margin: 1em auto;
+}
+
+section.cover .narrative {
+  margin: 1em 0;
+  font-size: 1.05em;
+  line-height: 2;
+}
+section.cover .narrative strong {
+  display: inline-block;
+  margin: 0 0.1em;
+  color: #045898;
+  font-size: 1.4em;
+  font-weight: 700;
+  vertical-align: -0.05em;
+}
+section.cover .timeline-label {
+  margin: 1.5em 0 0.4em;
+  font-size: 0.8em;
+  letter-spacing: 0.12em;
+  color: #8a857d;
+}
+section.cover .timeline-wrap svg {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+}
+
+section.divider {
+  text-align: center;
+  margin-top: 3em;
+  padding: 4em 1em;
+  page-break-before: always;
+  break-before: page;
+}
 section.divider h2 { font-size: 1.5em; margin: 0.6em 0; }
-section.closing { text-align: center; margin-top: 3em; page-break-before: always; break-before: page; }
+
+section.article {
+  page-break-before: always;
+  break-before: page;
+}
+
+.article-footer {
+  margin: 2em 0 0;
+  display: block;
+  text-indent: 0;
+  font-size: 0.8em;
+  color: #8a857d;
+  letter-spacing: 0.06em;
+}
+.article-footer .date {
+  display: inline-block;
+  margin-right: 1em;
+  text-align: left;
+  color: #8a857d;
+}
+.article-footer .source {
+  color: #045898;
+  text-decoration: none;
+  border-bottom: 1px dotted currentColor;
+}
+
+section.closing {
+  text-align: center;
+  margin-top: 3em;
+  padding: 4em 1em;
+  page-break-before: always;
+  break-before: page;
+}
+section.closing .quote {
+  font-size: 1.4em;
+  font-weight: 600;
+  margin: 1.5em 0;
+  color: #2b2926;
+  text-indent: 0;
+}
 `;
 
     // EPUB 用 mdToEpubXhtml — 同 mdToHtml 但走 XHTML 模式 (self-closing tags
@@ -1269,6 +1522,17 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
       const dateStr = `${today.getFullYear()} 年 ${today.getMonth() + 1} 月 ${today.getDate()} 日`;
       const bookTitle = `${user.displayName} 的七日書小書`;
       const author = `@${user.userName}`;
+      const stats = computeBookStats(groups);
+      const yearText = stats.firstYear === String(today.getFullYear())
+        ? `今年 ${stats.firstMonth} 月`
+        : `${stats.firstYear} 年 ${stats.firstMonth} 月`;
+      const wordsRoughly = stats.totalWords >= 10000
+        ? `${Math.round(stats.totalWords / 1000)} 千`
+        : stats.totalWords >= 1000
+          ? `${(stats.totalWords / 1000).toFixed(1)} 千`
+          : `${stats.totalWords}`;
+      // EPUB 的 timeline SVG 跟 PDF 一樣，但 inline 進 XHTML
+      const timelineSvg = renderTimelineSvg(groups);
       const chapters = [];
 
       chapters.push({
@@ -1277,18 +1541,17 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
         title: "封面",
         content: epubXhtml(
           `<section class="cover">\n` +
-            `  <p class="eyebrow">Matters · 自由寫</p>\n` +
+            `  <p class="eyebrow">Matters · 自由寫 · 七日書</p>\n` +
             `  <h1>${cjkEscapeXml(bookTitle)}</h1>\n` +
+            `  <p class="subtitle">${groups.length} 期七日書 · 一本人生紀念冊</p>\n` +
+            `  <hr class="cover-rule"/>\n` +
             `  <p class="handle">${cjkEscapeXml(author)}</p>\n` +
-            `  <p class="date">${cjkEscapeXml(dateStr)} 編製</p>\n` +
+            `  <p class="date">${cjkEscapeXml(dateStr)} 編製 · matters.town</p>\n` +
             `</section>`,
           bookTitle
         ),
       });
 
-      const firstYear = groups.length
-        ? formatMonthLabel(groups[groups.length - 1].articles[0].createdAt).split(" 年")[0]
-        : "—";
       chapters.push({
         id: "stats",
         href: "stats.xhtml",
@@ -1296,8 +1559,13 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
         content: epubXhtml(
           `<section class="cover">\n` +
             `  <p class="eyebrow">這幾年的書寫</p>\n` +
-            `  <h2 class="center">${groups.length} 期七日書 · ${totalArticles} 篇文章</h2>\n` +
-            `  <p class="meta">第一次參與：${cjkEscapeXml(firstYear)}</p>\n` +
+            `  <p class="narrative">\n` +
+            `    你的第一次七日書，是在 <strong>${cjkEscapeXml(yearText)}</strong>。<br/>\n` +
+            `    從那時起，這本書收進了 <strong>${totalArticles}</strong> 篇文章、跨 <strong>${groups.length}</strong> 期、約 <strong>${wordsRoughly}</strong> 字。<br/>\n` +
+            `    在這 <strong>${stats.spanMonths || 1}</strong> 個月裡，你曾在 <strong>${stats.monthsActive}</strong> 個月份留下文字。\n` +
+            `  </p>\n` +
+            `  <p class="timeline-label">書寫月份分佈</p>\n` +
+            `  <div class="timeline-wrap">${timelineSvg}</div>\n` +
             `  <p class="meta">每一篇都是一個七天裡安靜的下午。</p>\n` +
             `</section>`,
           "這幾年的書寫"
@@ -1319,9 +1587,11 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
           content: epubXhtml(
             `<section class="divider">\n` +
               `  <p class="eyebrow">第 ${idx} 站</p>\n` +
+              `  <p class="ornament" aria-hidden="true">✦ · ✦</p>\n` +
               `  <p class="meta">${cjkEscapeXml(period)}</p>\n` +
               `  <h2>${cjkEscapeXml(g.campaign.name)}</h2>\n` +
               `  <p class="meta">在這期，你寫了 ${sortedArts.length} 篇</p>\n` +
+              `  <p class="ornament" aria-hidden="true">✦ · ✦</p>\n` +
               `</section>`,
             g.campaign.name
           ),
@@ -1333,18 +1603,22 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
             ? mdToEpubXhtml(a.contents.markdown)
             : `<p>${cjkEscapeXml(a.summary || "")}</p>`;
           const dateLine = a.createdAt
-            ? `${a.createdAt.slice(0, 4)} 年 ${Number(a.createdAt.slice(5, 7))} 月 ${Number(a.createdAt.slice(8, 10))} 日`
+            ? `${a.createdAt.slice(0, 4)}.${String(Number(a.createdAt.slice(5, 7))).padStart(2, "0")}.${String(Number(a.createdAt.slice(8, 10))).padStart(2, "0")}`
             : "";
+          const articleUrl = `https://matters.town/a/${a.shortHash}`;
           chapters.push({
             id: artId,
             href: `${artId}.xhtml`,
             title: a.title,
             content: epubXhtml(
-              `<section>\n` +
+              `<section class="article">\n` +
                 `  <p class="eyebrow">${cjkEscapeXml(period)} · ${cjkEscapeXml(g.campaign.name)}</p>\n` +
                 `  <h2>${cjkEscapeXml(a.title)}</h2>\n` +
                 bodyHtml +
-                `\n  <p class="meta">${cjkEscapeXml(dateLine)} · matters.town/a/${cjkEscapeXml(a.shortHash)}</p>\n` +
+                `\n  <p class="article-footer">\n` +
+                `    <span class="date">${cjkEscapeXml(dateLine)}</span>\n` +
+                `    <a class="source" href="${cjkEscapeXml(articleUrl)}">matters.town/a/${cjkEscapeXml(a.shortHash)}</a>\n` +
+                `  </p>\n` +
                 `</section>`,
               a.title
             ),
@@ -1358,16 +1632,92 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
         title: "封底",
         content: epubXhtml(
           `<section class="closing">\n` +
-            `  <p class="eyebrow">「下一個七天，繼續寫。」</p>\n` +
-            `  <h2 class="center">Matters 自由寫 × 七日書</h2>\n` +
+            `  <p class="ornament" aria-hidden="true">✦ · ✦</p>\n` +
+            `  <p class="quote">「下一個七天，繼續寫。」</p>\n` +
             `  <p class="meta">每月一期 · freewriting.matters.town</p>\n` +
+            `  <p class="meta">Matters 自由寫 × 七日書</p>\n` +
             `</section>`,
           "封底"
         ),
       });
 
+
       return { chapters, bookTitle, author };
     };
+
+    // EPUB cover image — 用 OffscreenCanvas / canvas 動態畫一張 600×900 PNG
+    // (EPUB 3 推薦 cover 比例 2:3, 600px 寬剛好給 reader 縮圖)
+    // Apple Books / Kobo / Calibre 都會用這張當書封顯示。
+    const generateEpubCoverPng = (journey) => new Promise((resolve, reject) => {
+      try {
+        const W = 600, H = 900;
+        const canvas = document.createElement("canvas");
+        canvas.width = W;
+        canvas.height = H;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject(new Error("canvas 2d unsupported"));
+
+        // 背景：米白漸層
+        const bg = ctx.createLinearGradient(0, 0, 0, H);
+        bg.addColorStop(0, "#fffaf2");
+        bg.addColorStop(0.5, "#fefdf9");
+        bg.addColorStop(1, "#f0f9fe");
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, W, H);
+
+        // 細邊框 frame
+        ctx.strokeStyle = "rgba(43, 41, 38, 0.32)";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(40, 60, W - 80, H - 120);
+
+        // eyebrow
+        ctx.fillStyle = "#8a857d";
+        ctx.font = "16px 'PingFang TC', serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "alphabetic";
+        ctx.fillText("Matters · 自由寫 · 七日書", W / 2, 130);
+
+        // 書名 (大)
+        ctx.fillStyle = "#2b2926";
+        ctx.font = "bold 64px 'PingFang TC', serif";
+        const displayName = journey.user.displayName;
+        ctx.fillText(displayName, W / 2, 320);
+        ctx.fillText("的小書", W / 2, 410);
+
+        // 副題
+        ctx.fillStyle = "#8a857d";
+        ctx.font = "20px 'PingFang TC', serif";
+        ctx.fillText(`${journey.groups.length} 期七日書 · 一本人生紀念冊`, W / 2, 470);
+
+        // 細線
+        ctx.strokeStyle = "#045898";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(W / 2 - 50, 510);
+        ctx.lineTo(W / 2 + 50, 510);
+        ctx.stroke();
+
+        // handle
+        ctx.fillStyle = "#045898";
+        ctx.font = "italic 26px 'PingFang TC', serif";
+        ctx.fillText(`@${journey.user.userName}`, W / 2, 560);
+
+        // 底部 metadata
+        const today = new Date();
+        ctx.fillStyle = "#8a857d";
+        ctx.font = "16px 'PingFang TC', serif";
+        ctx.fillText(`${today.getFullYear()} 年 ${today.getMonth() + 1} 月 ${today.getDate()} 日 編製`, W / 2, H - 100);
+        ctx.fillText("matters.town", W / 2, H - 70);
+
+        canvas.toBlob(
+          (blob) => (blob ? resolve(blob) : reject(new Error("canvas toBlob 失敗"))),
+          "image/png",
+          0.92
+        );
+      } catch (e) {
+        reject(e);
+      }
+    });
 
     epubBtn?.addEventListener("click", async () => {
       if (!lastJourney) return;
@@ -1376,10 +1726,19 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
       epubBtn.textContent = "打包中…";
       try {
         const { chapters, bookTitle, author } = buildEpubChaptersFromJourney(lastJourney);
+        // 生封面 PNG (~30KB)
+        let coverImage = null;
+        try {
+          const coverBlob = await generateEpubCoverPng(lastJourney);
+          coverImage = { blob: coverBlob, mediaType: "image/png", filename: "cover.png" };
+        } catch (e) {
+          console.warn("封面 PNG 生成失敗，降級不放 cover-image:", e);
+        }
         const blob = await cjkBuildEpub({
           metadata: { title: bookTitle, author, language: "zh-Hant", publisher: "Matters · 自由寫" },
           chapters,
           css: BOOK_EPUB_CSS,
+          coverImage,
           onImageProgress: (done, total) => {
             epubBtn.textContent = `下載圖片 ${done} / ${total}…`;
           },

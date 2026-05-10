@@ -1469,7 +1469,70 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     };
 
-    const buildEpub = async (journey) => {
+    // 把 imagedelivery.net (Cloudflare Images) URL 轉成 ~900px 寬 + 85% 品質
+    // 變體，原圖通常 1920+ 大小、完整下載每張 100-200KB；EPUB 整本可能 50MB+。
+    // 用 width= 變體後一張只剩 30-60KB，整本 ~3MB，可下載多了。
+    // 不是 Cloudflare Images 的 URL 就不轉。
+    const transformImgUrl = (url) => {
+      if (!/imagedelivery\.net\//.test(url)) return url;
+      return url.replace(/\/[^\/?#]+([?#]|$)/, "/width=900,quality=85$1");
+    };
+
+    // 把 .xhtml 內所有遠端 <img> URL 抓下來塞進 zip + 改 src 為本地路徑。
+    // 為什麼非做不可：W3C epubcheck 會把外連 img 當 RSC-006 / OPF-014 error，
+    // 而且離線讀者根本看不到圖。Cloudflare Images CORS=*，瀏覽器可以 fetch。
+    const embedRemoteImages = async (chapters, zip, onProgress) => {
+      // 1. 收集所有獨特的遠端 URL
+      const allUrls = new Set();
+      const urlPattern = /<img[^>]+src=["'](https?:\/\/[^"']+)["']/g;
+      for (const c of chapters) {
+        let m;
+        while ((m = urlPattern.exec(c.content)) !== null) allUrls.add(m[1]);
+      }
+      const urls = [...allUrls];
+      const total = urls.length;
+      if (total === 0) return new Map();
+
+      // 2. 並行 fetch（以 6 個一批，不要一次 30 個 socket 全開）
+      const urlToInfo = new Map(); // url → { path, mediaType, blob }
+      let done = 0;
+      const BATCH = 6;
+      for (let i = 0; i < urls.length; i += BATCH) {
+        const batch = urls.slice(i, i + BATCH);
+        await Promise.all(
+          batch.map(async (url) => {
+            try {
+              const fetchUrl = transformImgUrl(url);
+              const res = await fetch(fetchUrl);
+              if (!res.ok) throw new Error("HTTP " + res.status);
+              const ct = (res.headers.get("content-type") || "image/jpeg")
+                .split(";")[0]
+                .trim();
+              const extMap = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif" };
+              const ext = extMap[ct] || "jpg";
+              const blob = await res.blob();
+              const localIdx = urlToInfo.size;
+              const path = `images/img-${String(localIdx).padStart(3, "0")}.${ext}`;
+              urlToInfo.set(url, { path, mediaType: ct, blob });
+            } catch (e) {
+              console.warn("EPUB image fetch failed:", url, e.message);
+              // 沒抓到就保留遠端，那個 chapter 會被標 properties="remote-resources"
+            } finally {
+              done++;
+              onProgress?.(done, total);
+            }
+          })
+        );
+      }
+
+      // 3. 把抓到的圖塞進 zip
+      for (const info of urlToInfo.values()) {
+        zip.file(`OEBPS/${info.path}`, info.blob);
+      }
+      return urlToInfo;
+    };
+
+    const buildEpub = async (journey, onProgress) => {
       await ensureJSZip();
       const zip = new window.JSZip();
       const { user, groups, totalArticles } = journey;
@@ -1484,8 +1547,6 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
 
       // mimetype 必須第一個 + uncompressed (EPUB spec)
       zip.file("mimetype", "application/epub+zip", { compression: "STORE" });
-
-      // META-INF
       zip.file(
         "META-INF/container.xml",
         `<?xml version="1.0" encoding="UTF-8"?>\n` +
@@ -1495,18 +1556,16 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
           `  </rootfiles>\n` +
           `</container>\n`
       );
-
-      // styles
       zip.file("OEBPS/styles/book.css", BOOK_EPUB_CSS);
 
-      // 收集 chapter 用 (id / href / title)
+      // 1. 把 chapters 先建成資料結構（不直接 zip.file，要等 image embed 改完再寫）
       const chapters = [];
 
-      // cover
-      chapters.push({ id: "cover", href: "cover.xhtml", title: "封面" });
-      zip.file(
-        "OEBPS/cover.xhtml",
-        xhtml(
+      chapters.push({
+        id: "cover",
+        href: "cover.xhtml",
+        title: "封面",
+        content: xhtml(
           `<section class="cover">\n` +
             `  <p class="eyebrow">Matters · 自由寫</p>\n` +
             `  <h1>${escapeXml(bookTitle)}</h1>\n` +
@@ -1514,17 +1573,17 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
             `  <p class="date">${escapeXml(dateStr)} 編製</p>\n` +
             `</section>`,
           bookTitle
-        )
-      );
+        ),
+      });
 
-      // stats
       const firstYear = groups.length
         ? formatMonthLabel(groups[groups.length - 1].articles[0].createdAt).split(" 年")[0]
         : "—";
-      chapters.push({ id: "stats", href: "stats.xhtml", title: "這幾年的書寫" });
-      zip.file(
-        "OEBPS/stats.xhtml",
-        xhtml(
+      chapters.push({
+        id: "stats",
+        href: "stats.xhtml",
+        title: "這幾年的書寫",
+        content: xhtml(
           `<section class="cover">\n` +
             `  <p class="eyebrow">這幾年的書寫</p>\n` +
             `  <h2 class="center">${groups.length} 期七日書 · ${totalArticles} 篇文章</h2>\n` +
@@ -1532,10 +1591,9 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
             `  <p class="meta">每一篇都是一個七天裡安靜的下午。</p>\n` +
             `</section>`,
           "這幾年的書寫"
-        )
-      );
+        ),
+      });
 
-      // For each issue: divider + per-article xhtml
       groups.forEach((g, i) => {
         const idx = String(i + 1).padStart(2, "0");
         const sortedArts = [...g.articles].sort(
@@ -1543,16 +1601,12 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
         );
         const period = formatMonthLabel(sortedArts[0].createdAt);
 
-        // divider
         const dividerId = `ch${idx}-divider`;
         chapters.push({
           id: dividerId,
           href: `${dividerId}.xhtml`,
           title: g.campaign.name,
-        });
-        zip.file(
-          `OEBPS/${dividerId}.xhtml`,
-          xhtml(
+          content: xhtml(
             `<section class="divider">\n` +
               `  <p class="eyebrow">第 ${idx} 站</p>\n` +
               `  <p class="meta">${escapeXml(period)}</p>\n` +
@@ -1560,10 +1614,9 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
               `  <p class="meta">在這期，你寫了 ${sortedArts.length} 篇</p>\n` +
               `</section>`,
             g.campaign.name
-          )
-        );
+          ),
+        });
 
-        // articles
         sortedArts.forEach((a, j) => {
           const artId = `ch${idx}-art${String(j + 1).padStart(2, "0")}`;
           const bodyHtml = a.contents?.markdown
@@ -1572,10 +1625,11 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
           const dateLine = a.createdAt
             ? `${a.createdAt.slice(0, 4)} 年 ${Number(a.createdAt.slice(5, 7))} 月 ${Number(a.createdAt.slice(8, 10))} 日`
             : "";
-          chapters.push({ id: artId, href: `${artId}.xhtml`, title: a.title });
-          zip.file(
-            `OEBPS/${artId}.xhtml`,
-            xhtml(
+          chapters.push({
+            id: artId,
+            href: `${artId}.xhtml`,
+            title: a.title,
+            content: xhtml(
               `<section>\n` +
                 `  <p class="eyebrow">${escapeXml(period)} · ${escapeXml(g.campaign.name)}</p>\n` +
                 `  <h2>${escapeXml(a.title)}</h2>\n` +
@@ -1583,26 +1637,49 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
                 `\n  <p class="meta">${escapeXml(dateLine)} · matters.town/a/${escapeXml(a.shortHash)}</p>\n` +
                 `</section>`,
               a.title
-            )
-          );
+            ),
+          });
         });
       });
 
-      // closing
-      chapters.push({ id: "closing", href: "closing.xhtml", title: "封底" });
-      zip.file(
-        "OEBPS/closing.xhtml",
-        xhtml(
+      chapters.push({
+        id: "closing",
+        href: "closing.xhtml",
+        title: "封底",
+        content: xhtml(
           `<section class="closing">\n` +
             `  <p class="eyebrow">「下一個七天，繼續寫。」</p>\n` +
             `  <h2 class="center">Matters 自由寫 × 七日書</h2>\n` +
             `  <p class="meta">每月一期 · freewriting.matters.town</p>\n` +
             `</section>`,
           "封底"
-        )
-      );
+        ),
+      });
 
-      // toc.xhtml (EPUB 3 nav)
+      // 2. 把所有遠端圖抓下來塞進 zip + 重寫 chapter.content
+      const urlToInfo = await embedRemoteImages(chapters, zip, onProgress);
+
+      // 3. 改寫 chapter content：本地有就 swap，沒有就維持遠端 + 標記 hasRemote
+      for (const c of chapters) {
+        let hasRemote = false;
+        c.content = c.content.replace(
+          /(<img[^>]+src=["'])(https?:\/\/[^"']+)(["'])/g,
+          (full, before, url, after) => {
+            const local = urlToInfo.get(url);
+            if (local) return `${before}${local.path}${after}`;
+            hasRemote = true;
+            return full;
+          }
+        );
+        c.hasRemote = hasRemote;
+      }
+
+      // 4. 寫每張 chapter 進 zip
+      for (const c of chapters) {
+        zip.file(`OEBPS/${c.href}`, c.content);
+      }
+
+      // 5. toc.xhtml (EPUB 3 nav)
       const navList = chapters
         .map((c) => `      <li><a href="${escapeXml(c.href)}">${escapeXml(c.title)}</a></li>`)
         .join("\n");
@@ -1617,7 +1694,7 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
         )
       );
 
-      // toc.ncx (legacy NCX, 給舊閱讀器)
+      // 6. toc.ncx (legacy NCX)
       const navPoints = chapters
         .map(
           (c, i) =>
@@ -1643,12 +1720,20 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
           `</ncx>\n`
       );
 
-      // content.opf
-      const manifestItems = chapters
-        .map(
-          (c) =>
-            `    <item id="${c.id}" href="${escapeXml(c.href)}" media-type="application/xhtml+xml"/>`
-        )
+      // 7. content.opf — chapter 有 hasRemote 就加 properties="remote-resources"
+      //    image manifest 加每張本地圖的 item
+      const chapterItems = chapters
+        .map((c) => {
+          const props = c.hasRemote ? ` properties="remote-resources"` : "";
+          return `    <item id="${c.id}" href="${escapeXml(c.href)}" media-type="application/xhtml+xml"${props}/>`;
+        })
+        .join("\n");
+      let imgIdx = 0;
+      const imageItems = [...urlToInfo.values()]
+        .map((info) => {
+          const id = `img-${String(imgIdx++).padStart(3, "0")}`;
+          return `    <item id="${id}" href="${escapeXml(info.path)}" media-type="${info.mediaType}"/>`;
+        })
         .join("\n");
       const spineItems = chapters
         .map((c) => `    <itemref idref="${c.id}"/>`)
@@ -1669,7 +1754,8 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
           `    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>\n` +
           `    <item id="nav" href="toc.xhtml" media-type="application/xhtml+xml" properties="nav"/>\n` +
           `    <item id="css" href="styles/book.css" media-type="text/css"/>\n` +
-          `${manifestItems}\n` +
+          `${chapterItems}\n` +
+          (imageItems ? imageItems + "\n" : "") +
           `  </manifest>\n` +
           `  <spine toc="ncx">\n` +
           `    <itemref idref="nav"/>\n` +
@@ -1692,7 +1778,9 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
       epubBtn.disabled = true;
       epubBtn.textContent = "打包中…";
       try {
-        const blob = await buildEpub(lastJourney);
+        const blob = await buildEpub(lastJourney, (done, total) => {
+          epubBtn.textContent = `下載圖片 ${done} / ${total}…`;
+        });
         const fname = `${lastJourney.user.userName}-七日書小書.epub`;
         triggerDownload(blob, fname);
       } catch (e) {

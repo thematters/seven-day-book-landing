@@ -611,7 +611,23 @@ const promptIso = (mdStr: string) => {
         <div class="book-modal__chrome">
           <div class="book-modal__chrome-left">
             <h2 id="book-modal-title">你的七日書小書</h2>
-            <p>翻翻看下方預覽 — 想印實體就按「下載 PDF」（A5 開本），<br/>想在手機上讀就按「下載 EPUB」（自由縮放、Apple Books / Kobo 都能開）。</p>
+            <p>翻翻看下方預覽 — 想印實體就按「下載 PDF」（A5 開本），<br/>想在手機上讀就按「下載 EPUB」（自由縮放、各家閱讀器通用）。</p>
+            <details class="epub-help">
+              <summary>下載 EPUB 後怎麼開？</summary>
+              <ul>
+                <li><strong>Mac</strong> — 拖進 Books.app（內建）</li>
+                <li>
+                  <strong>PC</strong> — <a href="https://calibre-ebook.com/" target="_blank" rel="noopener">Calibre</a> 免費跨平台
+                </li>
+                <li><strong>iPhone</strong> — 在「檔案」app 點 .epub，自動匯入 Books</li>
+                <li>
+                  <strong>Android</strong> — <a href="https://play.google.com/store/apps/details?id=org.readera" target="_blank" rel="noopener">ReadEra</a> 或 <a href="https://play.google.com/store/apps/details?id=com.flyersoft.moonreader" target="_blank" rel="noopener">Moon+ Reader</a>
+                </li>
+                <li>
+                  <strong>Readmoo</strong> — 登入 <a href="https://readmoo.com" target="_blank" rel="noopener">readmoo.com</a> 上傳到個人書庫
+                </li>
+              </ul>
+            </details>
           </div>
           <div class="book-modal__chrome-actions">
             <button

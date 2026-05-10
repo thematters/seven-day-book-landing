@@ -656,7 +656,19 @@ const promptIso = (mdStr: string) => {
     </div>
   </div>
 
-  <script is:inline>
+  <script>
+    // 注意：原本是 <script is:inline>，改成 <script> 以支援 import。
+    // Astro 會自動 bundle 這個 script 為 ESM，內部 import 都會打進 bundle。
+    import {
+      mdToHtml as cjkMdToHtml,
+      escapeHtml as cjkEscapeHtml,
+      escapeXml as cjkEscapeXml,
+      renderPdfPreview as cjkRenderPdfPreview,
+      buildEpub as cjkBuildEpub,
+      printPdf as cjkPrintPdf,
+      triggerDownload as cjkTriggerDownload,
+    } from "@thematters/cjk-book-builder";
+
     // ── /museum 個人足跡：跟 / 寫作者頁同 logic 但加「製作我的小書」按鈕 ──
     const passportForm = document.getElementById("museum-passport-search");
     const passportResult = document.getElementById("museum-passport-result");
@@ -674,10 +686,8 @@ const promptIso = (mdStr: string) => {
     // 全域暫存最後一次查詢結果，按下「製作小書」時用
     let lastJourney = null;
 
-    const escapeHtml = (s) =>
-      String(s ?? "").replace(/[&<>"']/g, (c) => (
-        { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
-      ));
+    // 從 @thematters/cjk-book-builder import 進來的 helper
+    const escapeHtml = cjkEscapeHtml;
 
     const fetchUserArticles = async (handle) => {
       // 加 cover + summary + contents.markdown，小書直接取用內文與圖片
@@ -705,111 +715,16 @@ const promptIso = (mdStr: string) => {
       return json.data.user;
     };
 
-    // Matters 的 contents.markdown 其實是「markdown + raw HTML」混合：
-    //   - 圖片走 <figure class="image"><img src="..."><figcaption>...</figcaption></figure>
-    //   - 空段落走 <p><br class="smart"></p>
-    //   - <br class="smart"> 也會直接出現在段落中
-    // 所以這裡先抽出所有 <figure class="image">、再把剩下的 HTML / markdown 標籤剝乾淨，
-    // 切段落後重新組裝成乾淨的 book HTML。
-    const extractFigures = (raw) => {
-      // 把 <figure class="image"...><img src="X" ...><figcaption>...</figcaption></figure>
-      // 換成 placeholder N + 收集進 figures[]
-      const figures = [];
-      const out = raw.replace(
-        /<figure[^>]*class="[^"]*\bimage\b[^"]*"[^>]*>([\s\S]*?)<\/figure>/gi,
-        (_m, inner) => {
-          const imgMatch = inner.match(/<img[^>]*\bsrc=["']([^"']+)["'][^>]*>/i);
-          if (!imgMatch) return ""; // 沒 src 就丟掉
-          const altMatch = inner.match(/<img[^>]*\balt=["']([^"']*)["']/i);
-          const capMatch = inner.match(/<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i);
-          const idx = figures.length;
-          figures.push({
-            src: imgMatch[1],
-            alt: altMatch ? altMatch[1] : "",
-            caption: capMatch ? capMatch[1].replace(/<[^>]+>/g, "").trim() : "",
-          });
-          return `FIG${idx}`;
-        },
-      );
-      return { text: out, figures };
-    };
-
-    const stripInlineHtml = (s) =>
-      String(s)
-        // 拔掉 XML 不允許的 ASCII control chars (U+0001-08, 0B-0C, 0E-1F)。
-        // Matters editor 偶爾會留 U+0001 在 figure 後的空行，會讓 EPUB
-        // 的 XHTML parser 整個 fail。
-        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "")
-        // <br class="smart"> / <br/> / <br> → 統一 \n
-        .replace(/<br\s*[^>]*>/gi, "\n")
-        // 其他 inline tag 一律拔掉，保留純文字
-        .replace(/<\/?(?:span|em|strong|b|i|u|a|code|small|sub|sup|mark|ins|del|s)[^>]*>/gi, "")
-        // 殘留所有未識別 tag 也拔掉（不要把 raw <div> 字串塞給使用者）
-        .replace(/<\/?[a-z][^>]*>/gi, "");
-
-    // 完整 markdown / HTML 混合 → 乾淨 HTML：段落 / 標題 / 圖片 / 引言
+    // markdown / HTML 混合 → 乾淨 HTML — 改用 @thematters/cjk-book-builder
+    // 包的 mdToHtml。包內預設 figure 的 class 是 .cjk-book-fig；museum CSS
+    // 用 .book-article-fig，所以後處理把 class 改回來。
     const mdToHtml = (md) => {
-      if (!md) return "";
-      const { text, figures } = extractFigures(md);
-      // 段落切分：以兩個換行為界，但保留圖片 placeholder 為獨立段落
-      const blocks = text
-        .replace(/FIG(\d+)/g, "\n\nFIG$1\n\n")
-        .split(/\n\s*\n+/);
-      const html = blocks
-        .map((blk) => {
-          const t = blk.trim();
-          if (!t) return "";
-          // 圖片 placeholder
-          const figMatch = t.match(/^FIG(\d+)$/);
-          if (figMatch) {
-            const f = figures[Number(figMatch[1])];
-            if (!f) return "";
-            const cap = f.caption
-              ? `<figcaption>${escapeHtml(f.caption)}</figcaption>`
-              : "";
-            return `<figure class="book-article-fig"><img src="${escapeHtml(f.src)}" alt="${escapeHtml(f.alt)}" loading="lazy" />${cap}</figure>`;
-          }
-          // Heading（# / ## / ### → 統一渲染 h3 級）
-          const h = t.match(/^(#{1,6})\s+(.+)$/);
-          if (h) {
-            const txt = escapeHtml(stripInlineHtml(h[2]).replace(/[*_`]/g, "").trim());
-            if (!txt) return "";
-            return `<h3>${txt}</h3>`;
-          }
-          // Image-only markdown block
-          const img = t.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
-          if (img) {
-            return `<figure class="book-article-fig"><img src="${escapeHtml(img[2])}" alt="${escapeHtml(img[1])}" loading="lazy" /></figure>`;
-          }
-          // Block quote
-          if (t.startsWith("> ")) {
-            const q = escapeHtml(
-              stripInlineHtml(t.slice(2))
-                .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-                .replace(/[*_`]/g, "")
-                .trim(),
-            );
-            if (!q) return "";
-            return `<blockquote>${q}</blockquote>`;
-          }
-          // Paragraph：先剝 HTML、再去 markdown
-          const cleaned = stripInlineHtml(t)
-            .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
-            .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-            .replace(/\*\*([^*]+)\*\*/g, "$1")
-            .replace(/\*([^*]+)\*/g, "$1")
-            .replace(/`([^`]+)`/g, "$1")
-            .trim();
-          if (!cleaned) return "";
-          // 段落內手動換行 → <br/>
-          const escaped = escapeHtml(cleaned).replace(/\n+/g, "<br/>");
-          return `<p>${escaped}</p>`;
-        })
-        .filter(Boolean)
-        .join("");
-      return html;
+      const html = cjkMdToHtml(md, { output: "html", includeFigures: true });
+      return html.replace(
+        /<figure class="cjk-book-fig">/g,
+        '<figure class="book-article-fig">'
+      );
     };
-
     const groupByCampaign = (articles) => {
       const groups = new Map();
       articles.forEach((a) => {
@@ -1213,81 +1128,8 @@ const promptIso = (mdStr: string) => {
 .book-page--divider { text-align: center; }
 `;
 
-    const ensurePagedJs = (() => {
-      let p = null;
-      return () => {
-        if (window.PagedPolyfill) return Promise.resolve();
-        if (p) return p;
-        window.PagedConfig = window.PagedConfig || {};
-        window.PagedConfig.auto = false;
-        p = new Promise((resolve, reject) => {
-          const s = document.createElement("script");
-          s.src = "https://unpkg.com/pagedjs@0.4.3/dist/paged.polyfill.js";
-          s.onload = () => resolve();
-          s.onerror = () => reject(new Error("paged.js 載入失敗"));
-          document.head.appendChild(s);
-        });
-        return p;
-      };
-    })();
-
-    // paged.js 對 abspos 子節點 / 部分 <img> / SVG cover 不穩，會中斷分頁。
-    // 用 DOMParser 把書 HTML 過濾乾淨：拿掉所有裝飾元素 + 圖片，留純文字版心，
-    // 這樣 paged.js 走得順、頁數正確、書頁讀得下。
-    const sanitizeBookForPagedJs = (html) => {
-      const doc = new DOMParser().parseFromString(`<div>${html}</div>`, "text/html");
-      const root = doc.body.firstElementChild;
-      // 一律移除所有圖片 (<img>, <svg>, <picture>) 與裝飾性 div
-      root
-        .querySelectorAll(
-          "img, svg, picture, .book-scribble, .book-divider-art, .book-divider-mask, .book-toc-logo, .book-article-cover, .book-article-fig",
-        )
-        .forEach((el) => el.remove());
-      // figcaption 留下作圖說（但若 figure 已被移除就 noop）
-      return root.innerHTML;
-    };
-
-    // paged.js 用 CSS multi-column 把內容切到 .pagedjs_page_content，會在中間
-    // 塞一個 anonymous <div>，所以 flex 鏈斷掉、CSS 怎麼寫都不能讓 .book-page--divider
-    // 上下置中。改 post-process：找出每個 divider 計算 padding-top 把內容推到中間。
-    const centerDividerPages = (target) => {
-      target.querySelectorAll(".pagedjs_page").forEach((p) => {
-        const divider = p.querySelector(".book-page--divider");
-        if (!divider) return;
-        const pageContent = p.querySelector(".pagedjs_page_content");
-        if (!pageContent) return;
-        const totalH = pageContent.getBoundingClientRect().height;
-        const contentH = divider.getBoundingClientRect().height;
-        if (contentH >= totalH) return;
-        const padding = Math.max(0, (totalH - contentH) / 2);
-        divider.style.paddingTop = `${padding}px`;
-      });
-    };
-
-    // paged.js v0.4.x 不能用 @bottom-center counter(page) (會炸 item doesn't
-     // belong to list)，所以頁碼用 DOM 後處理：每張 .pagedjs_page 加一個 abspos
-     // 的 div 在底部置中，封面 (page 1) 不放
-    const stampPageNumbers = (target) => {
-      const pages = target.querySelectorAll(".pagedjs_page");
-      pages.forEach((p, i) => {
-        if (i === 0) return; // 封面不放頁碼
-        if (p.querySelector(".book-page-number")) return; // 已加過
-        const num = document.createElement("div");
-        num.className = "book-page-number";
-        num.textContent = String(i + 1);
-        num.setAttribute("aria-hidden", "true");
-        const pagebox = p.querySelector(".pagedjs_pagebox") || p;
-        if (getComputedStyle(pagebox).position === "static") {
-          pagebox.style.position = "relative";
-        }
-        pagebox.appendChild(num);
-      });
-    };
-
-    // 把 BOOK_PAGED_CSS 同時注入到：
-    //  (a) <head><style> — 確保最終渲染後的 .pagedjs_page_* 都應用到
-    //  (b) PagedPolyfill.preview(_, [dataUrl], _) — 讓 paged.js 在 chunk
-    //      時也讀得到 @page rule
+    // 把 BOOK_PAGED_CSS 注入到 <head><style> 確保最終渲染後 .pagedjs_page_*
+    // 也應用到（不只 paged.js chunker 階段看到）
     const ensureBookCss = (() => {
       let added = false;
       return () => {
@@ -1300,6 +1142,12 @@ const promptIso = (mdStr: string) => {
       };
     })();
 
+    // 開「製作我的小書」modal — 用 cjk-book-builder 的 renderPdfPreview
+    // 接管 paged.js 載入、sanitize、頁碼注入、divider 上下置中等所有後處理。
+    // museum 自己保留的：
+    //   - BOOK_PAGED_CSS (museum 客製版心，跟 cjk-book-builder/styles/pdf.css 對齊但 selector 用 .book-page)
+    //   - dividerSelector / pageNumberClass (用 museum 既有 .book-page-* 命名，不必 rename CSS)
+    //   - extraSanitizeSelectors (museum 自家裝飾元素)
     const openBook = async () => {
       if (!lastJourney || !bookModal) return;
       bookModal.removeAttribute("hidden");
@@ -1307,19 +1155,22 @@ const promptIso = (mdStr: string) => {
       document.body.style.overflow = "hidden";
       bookPagesEl.innerHTML = `<p class="book-modal__placeholder" aria-busy="true">正在排版你的小書，A5 開本中…（首次需 2-5 秒）</p>`;
       try {
-        await ensurePagedJs();
         ensureBookCss();
-        const rawHtml = buildBookHtml(lastJourney);
-        const cleanHtml = sanitizeBookForPagedJs(rawHtml);
-        const wrapper = document.createElement("div");
-        wrapper.className = "book-source";
-        wrapper.innerHTML = cleanHtml;
-        bookPagesEl.innerHTML = "";
-        const cssUrl = `data:text/css;charset=utf-8,${encodeURIComponent(BOOK_PAGED_CSS)}`;
-        await window.PagedPolyfill.preview(wrapper, [cssUrl], bookPagesEl);
-        stampPageNumbers(bookPagesEl);
-        centerDividerPages(bookPagesEl);
-        bookPagesEl.scrollTop = 0;
+        const html = buildBookHtml(lastJourney);
+        await cjkRenderPdfPreview(html, {
+          container: bookPagesEl,
+          css: BOOK_PAGED_CSS,
+          extraSanitizeSelectors: [
+            ".book-scribble",
+            ".book-divider-art",
+            ".book-divider-mask",
+            ".book-toc-logo",
+            ".book-article-cover",
+            ".book-article-fig",
+          ],
+          dividerSelector: ".book-page--divider",
+          pageNumberClass: "book-page-number",
+        });
       } catch (e) {
         console.warn("paged.js 失敗，回退到簡易 preview：", e);
         bookPagesEl.innerHTML = `<div class="book-source">${buildBookHtml(lastJourney)}</div>`;
@@ -1340,36 +1191,12 @@ const promptIso = (mdStr: string) => {
         closeBook();
       }
     });
-    // 列印：直接 sync call window.print()。之前 rAF 包兩層會被 Chromium /
-    // Safari 的 popup blocker 視為「非使用者觸發」而靜默吃掉。
-    printBtn?.addEventListener("click", () => {
-      window.print();
-    });
+    // 列印：直接 sync call window.print() (cjkPrintPdf 包裝)。被 rAF / setTimeout
+    // 包起來會被 popup blocker 視為非使用者觸發、靜默吃掉。
+    printBtn?.addEventListener("click", () => cjkPrintPdf());
 
-    // ── EPUB 3 builder: 純 client-side zip，不靠 paged.js（reflowable
-    //    閱讀，Apple Books / Kobo / Calibre 都能開）─────────────────
-    const ensureJSZip = (() => {
-      let p = null;
-      return () => {
-        if (window.JSZip) return Promise.resolve();
-        if (p) return p;
-        p = new Promise((resolve, reject) => {
-          const s = document.createElement("script");
-          s.src = "https://unpkg.com/jszip@3.10.1/dist/jszip.min.js";
-          s.onload = () => resolve();
-          s.onerror = () => reject(new Error("JSZip 載入失敗"));
-          document.head.appendChild(s);
-        });
-        return p;
-      };
-    })();
-
-    const escapeXml = (s) =>
-      String(s ?? "").replace(/[&<>"']/g, (c) =>
-        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" }[c])
-      );
-
-    // EPUB 中文書版心 CSS — reflowable 給閱讀器自己處理斷頁，不需要 @page
+    // ── EPUB 3：用 @thematters/cjk-book-builder 包打包，museum 只負責把
+    //    Matters journey 數據 → chapters[] 陣列。 ─────────────────
     const BOOK_EPUB_CSS = `
 @charset "UTF-8";
 body {
@@ -1416,184 +1243,45 @@ section.cover h1 { font-size: 2em; }
 section.divider { text-align: center; margin-top: 3em; page-break-before: always; break-before: page; }
 section.divider h2 { font-size: 1.5em; margin: 0.6em 0; }
 section.closing { text-align: center; margin-top: 3em; page-break-before: always; break-before: page; }
-.toc-item { margin: 0.3em 0; }
-.toc-num { display: inline-block; width: 2.5em; color: #045898; font-weight: 600; }
 `;
 
-    const xhtml = (body, title) =>
+    // EPUB 用 mdToEpubXhtml — 同 mdToHtml 但走 XHTML 模式 (self-closing tags
+    // 等)，且 figure 保留 (EPUB reader 渲染圖片很 OK)。class 一樣由 museum 控。
+    const mdToEpubXhtml = (md) =>
+      cjkMdToHtml(md, { output: "xhtml", includeFigures: true });
+
+    // EPUB chapter 用簡易 XHTML wrapper (museum 用自家 .eyebrow / .center
+    // / .meta / .handle / .date / section.divider 等 class 對應 BOOK_EPUB_CSS)
+    const epubXhtml = (body, title) =>
       `<?xml version="1.0" encoding="UTF-8"?>\n` +
       `<!DOCTYPE html>\n` +
       `<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="zh-Hant">\n` +
       `<head>\n` +
       `  <meta charset="UTF-8"/>\n` +
-      `  <title>${escapeXml(title || "")}</title>\n` +
+      `  <title>${cjkEscapeXml(title || "")}</title>\n` +
       `  <link rel="stylesheet" type="text/css" href="styles/book.css"/>\n` +
       `</head>\n` +
       `<body>\n${body}\n</body>\n</html>\n`;
 
-    // markdown / Matters HTML → EPUB 友善 XHTML
-    // 跟 PDF 用的 mdToHtml 邏輯類似，但保留 figure 圖片（EPUB reader 處理得很好），
-    // 同時把所有 inline HTML tag 收乾淨，避免 XHTML parse error
-    const mdToEpubXhtml = (md) => {
-      if (!md) return "";
-      const { text, figures } = extractFigures(md);
-      const blocks = text.replace(/FIG(\d+)/g, "\n\nFIG$1\n\n").split(/\n\s*\n+/);
-      return blocks
-        .map((blk) => {
-          const t = blk.trim();
-          if (!t) return "";
-          const figMatch = t.match(/^FIG(\d+)$/);
-          if (figMatch) {
-            const f = figures[Number(figMatch[1])];
-            if (!f) return "";
-            // EPUB 閱讀器普遍允許外連 https://，但保險起見只放 alt + caption
-            const cap = f.caption ? `<figcaption>${escapeXml(f.caption)}</figcaption>` : "";
-            return `<figure><img src="${escapeXml(f.src)}" alt="${escapeXml(f.alt)}"/>${cap}</figure>`;
-          }
-          const h = t.match(/^(#{1,6})\s+(.+)$/);
-          if (h) {
-            const txt = escapeXml(stripInlineHtml(h[2]).replace(/[*_`]/g, "").trim());
-            if (!txt) return "";
-            return `<h3>${txt}</h3>`;
-          }
-          if (t.startsWith("> ")) {
-            const q = escapeXml(
-              stripInlineHtml(t.slice(2))
-                .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-                .replace(/[*_`]/g, "")
-                .trim()
-            );
-            if (!q) return "";
-            return `<blockquote><p>${q}</p></blockquote>`;
-          }
-          const cleaned = stripInlineHtml(t)
-            .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
-            .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-            .replace(/\*\*([^*]+)\*\*/g, "$1")
-            .replace(/\*([^*]+)\*/g, "$1")
-            .replace(/`([^`]+)`/g, "$1")
-            .trim();
-          if (!cleaned) return "";
-          const escaped = escapeXml(cleaned).replace(/\n+/g, "<br/>");
-          return `<p>${escaped}</p>`;
-        })
-        .filter(Boolean)
-        .join("\n");
-    };
-
-    const triggerDownload = (blob, filename) => {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    };
-
-    // 把 imagedelivery.net (Cloudflare Images) URL 轉成 ~900px 寬 + 85% 品質
-    // 變體，原圖通常 1920+ 大小、完整下載每張 100-200KB；EPUB 整本可能 50MB+。
-    // 用 width= 變體後一張只剩 30-60KB，整本 ~3MB，可下載多了。
-    // 不是 Cloudflare Images 的 URL 就不轉。
-    const transformImgUrl = (url) => {
-      if (!/imagedelivery\.net\//.test(url)) return url;
-      return url.replace(/\/[^\/?#]+([?#]|$)/, "/width=900,quality=85$1");
-    };
-
-    // 把 .xhtml 內所有遠端 <img> URL 抓下來塞進 zip + 改 src 為本地路徑。
-    // 為什麼非做不可：W3C epubcheck 會把外連 img 當 RSC-006 / OPF-014 error，
-    // 而且離線讀者根本看不到圖。Cloudflare Images CORS=*，瀏覽器可以 fetch。
-    const embedRemoteImages = async (chapters, zip, onProgress) => {
-      // 1. 收集所有獨特的遠端 URL
-      const allUrls = new Set();
-      const urlPattern = /<img[^>]+src=["'](https?:\/\/[^"']+)["']/g;
-      for (const c of chapters) {
-        let m;
-        while ((m = urlPattern.exec(c.content)) !== null) allUrls.add(m[1]);
-      }
-      const urls = [...allUrls];
-      const total = urls.length;
-      if (total === 0) return new Map();
-
-      // 2. 並行 fetch（以 6 個一批，不要一次 30 個 socket 全開）
-      const urlToInfo = new Map(); // url → { path, mediaType, blob }
-      let done = 0;
-      const BATCH = 6;
-      for (let i = 0; i < urls.length; i += BATCH) {
-        const batch = urls.slice(i, i + BATCH);
-        await Promise.all(
-          batch.map(async (url) => {
-            try {
-              const fetchUrl = transformImgUrl(url);
-              const res = await fetch(fetchUrl);
-              if (!res.ok) throw new Error("HTTP " + res.status);
-              const ct = (res.headers.get("content-type") || "image/jpeg")
-                .split(";")[0]
-                .trim();
-              const extMap = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif" };
-              const ext = extMap[ct] || "jpg";
-              const blob = await res.blob();
-              const localIdx = urlToInfo.size;
-              const path = `images/img-${String(localIdx).padStart(3, "0")}.${ext}`;
-              urlToInfo.set(url, { path, mediaType: ct, blob });
-            } catch (e) {
-              console.warn("EPUB image fetch failed:", url, e.message);
-              // 沒抓到就保留遠端，那個 chapter 會被標 properties="remote-resources"
-            } finally {
-              done++;
-              onProgress?.(done, total);
-            }
-          })
-        );
-      }
-
-      // 3. 把抓到的圖塞進 zip
-      for (const info of urlToInfo.values()) {
-        zip.file(`OEBPS/${info.path}`, info.blob);
-      }
-      return urlToInfo;
-    };
-
-    const buildEpub = async (journey, onProgress) => {
-      await ensureJSZip();
-      const zip = new window.JSZip();
+    // 把 journey → cjk-book-builder 用的 chapters[] 陣列
+    const buildEpubChaptersFromJourney = (journey) => {
       const { user, groups, totalArticles } = journey;
       const today = new Date();
       const dateStr = `${today.getFullYear()} 年 ${today.getMonth() + 1} 月 ${today.getDate()} 日`;
       const bookTitle = `${user.displayName} 的七日書小書`;
       const author = `@${user.userName}`;
-      const bookId = "urn:uuid:" + (crypto.randomUUID
-        ? crypto.randomUUID()
-        : Date.now() + "-" + Math.random().toString(36).slice(2));
-      const isoDate = today.toISOString().split(".")[0] + "Z";
-
-      // mimetype 必須第一個 + uncompressed (EPUB spec)
-      zip.file("mimetype", "application/epub+zip", { compression: "STORE" });
-      zip.file(
-        "META-INF/container.xml",
-        `<?xml version="1.0" encoding="UTF-8"?>\n` +
-          `<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">\n` +
-          `  <rootfiles>\n` +
-          `    <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>\n` +
-          `  </rootfiles>\n` +
-          `</container>\n`
-      );
-      zip.file("OEBPS/styles/book.css", BOOK_EPUB_CSS);
-
-      // 1. 把 chapters 先建成資料結構（不直接 zip.file，要等 image embed 改完再寫）
       const chapters = [];
 
       chapters.push({
         id: "cover",
         href: "cover.xhtml",
         title: "封面",
-        content: xhtml(
+        content: epubXhtml(
           `<section class="cover">\n` +
             `  <p class="eyebrow">Matters · 自由寫</p>\n` +
-            `  <h1>${escapeXml(bookTitle)}</h1>\n` +
-            `  <p class="handle">${escapeXml(author)}</p>\n` +
-            `  <p class="date">${escapeXml(dateStr)} 編製</p>\n` +
+            `  <h1>${cjkEscapeXml(bookTitle)}</h1>\n` +
+            `  <p class="handle">${cjkEscapeXml(author)}</p>\n` +
+            `  <p class="date">${cjkEscapeXml(dateStr)} 編製</p>\n` +
             `</section>`,
           bookTitle
         ),
@@ -1606,11 +1294,11 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
         id: "stats",
         href: "stats.xhtml",
         title: "這幾年的書寫",
-        content: xhtml(
+        content: epubXhtml(
           `<section class="cover">\n` +
             `  <p class="eyebrow">這幾年的書寫</p>\n` +
             `  <h2 class="center">${groups.length} 期七日書 · ${totalArticles} 篇文章</h2>\n` +
-            `  <p class="meta">第一次參與：${escapeXml(firstYear)}</p>\n` +
+            `  <p class="meta">第一次參與：${cjkEscapeXml(firstYear)}</p>\n` +
             `  <p class="meta">每一篇都是一個七天裡安靜的下午。</p>\n` +
             `</section>`,
           "這幾年的書寫"
@@ -1629,11 +1317,11 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
           id: dividerId,
           href: `${dividerId}.xhtml`,
           title: g.campaign.name,
-          content: xhtml(
+          content: epubXhtml(
             `<section class="divider">\n` +
               `  <p class="eyebrow">第 ${idx} 站</p>\n` +
-              `  <p class="meta">${escapeXml(period)}</p>\n` +
-              `  <h2>${escapeXml(g.campaign.name)}</h2>\n` +
+              `  <p class="meta">${cjkEscapeXml(period)}</p>\n` +
+              `  <h2>${cjkEscapeXml(g.campaign.name)}</h2>\n` +
               `  <p class="meta">在這期，你寫了 ${sortedArts.length} 篇</p>\n` +
               `</section>`,
             g.campaign.name
@@ -1644,7 +1332,7 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
           const artId = `ch${idx}-art${String(j + 1).padStart(2, "0")}`;
           const bodyHtml = a.contents?.markdown
             ? mdToEpubXhtml(a.contents.markdown)
-            : `<p>${escapeXml(a.summary || "")}</p>`;
+            : `<p>${cjkEscapeXml(a.summary || "")}</p>`;
           const dateLine = a.createdAt
             ? `${a.createdAt.slice(0, 4)} 年 ${Number(a.createdAt.slice(5, 7))} 月 ${Number(a.createdAt.slice(8, 10))} 日`
             : "";
@@ -1652,12 +1340,12 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
             id: artId,
             href: `${artId}.xhtml`,
             title: a.title,
-            content: xhtml(
+            content: epubXhtml(
               `<section>\n` +
-                `  <p class="eyebrow">${escapeXml(period)} · ${escapeXml(g.campaign.name)}</p>\n` +
-                `  <h2>${escapeXml(a.title)}</h2>\n` +
+                `  <p class="eyebrow">${cjkEscapeXml(period)} · ${cjkEscapeXml(g.campaign.name)}</p>\n` +
+                `  <h2>${cjkEscapeXml(a.title)}</h2>\n` +
                 bodyHtml +
-                `\n  <p class="meta">${escapeXml(dateLine)} · matters.town/a/${escapeXml(a.shortHash)}</p>\n` +
+                `\n  <p class="meta">${cjkEscapeXml(dateLine)} · matters.town/a/${cjkEscapeXml(a.shortHash)}</p>\n` +
                 `</section>`,
               a.title
             ),
@@ -1669,7 +1357,7 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
         id: "closing",
         href: "closing.xhtml",
         title: "封底",
-        content: xhtml(
+        content: epubXhtml(
           `<section class="closing">\n` +
             `  <p class="eyebrow">「下一個七天，繼續寫。」</p>\n` +
             `  <h2 class="center">Matters 自由寫 × 七日書</h2>\n` +
@@ -1679,120 +1367,7 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
         ),
       });
 
-      // 2. 把所有遠端圖抓下來塞進 zip + 重寫 chapter.content
-      const urlToInfo = await embedRemoteImages(chapters, zip, onProgress);
-
-      // 3. 改寫 chapter content：本地有就 swap，沒有就維持遠端 + 標記 hasRemote
-      for (const c of chapters) {
-        let hasRemote = false;
-        c.content = c.content.replace(
-          /(<img[^>]+src=["'])(https?:\/\/[^"']+)(["'])/g,
-          (full, before, url, after) => {
-            const local = urlToInfo.get(url);
-            if (local) return `${before}${local.path}${after}`;
-            hasRemote = true;
-            return full;
-          }
-        );
-        c.hasRemote = hasRemote;
-      }
-
-      // 4. 寫每張 chapter 進 zip
-      for (const c of chapters) {
-        zip.file(`OEBPS/${c.href}`, c.content);
-      }
-
-      // 5. toc.xhtml (EPUB 3 nav)
-      const navList = chapters
-        .map((c) => `      <li><a href="${escapeXml(c.href)}">${escapeXml(c.title)}</a></li>`)
-        .join("\n");
-      zip.file(
-        "OEBPS/toc.xhtml",
-        xhtml(
-          `<nav epub:type="toc" id="toc">\n` +
-            `  <h1>目錄</h1>\n` +
-            `  <ol>\n${navList}\n  </ol>\n` +
-            `</nav>`,
-          "目錄"
-        )
-      );
-
-      // 6. toc.ncx (legacy NCX)
-      const navPoints = chapters
-        .map(
-          (c, i) =>
-            `  <navPoint id="np-${c.id}" playOrder="${i + 1}">\n` +
-            `    <navLabel><text>${escapeXml(c.title)}</text></navLabel>\n` +
-            `    <content src="${escapeXml(c.href)}"/>\n` +
-            `  </navPoint>`
-        )
-        .join("\n");
-      zip.file(
-        "OEBPS/toc.ncx",
-        `<?xml version="1.0" encoding="UTF-8"?>\n` +
-          `<ncx version="2005-1" xmlns="http://www.daisy.org/z3986/2005/ncx/">\n` +
-          `  <head>\n` +
-          `    <meta name="dtb:uid" content="${bookId}"/>\n` +
-          `    <meta name="dtb:depth" content="1"/>\n` +
-          `    <meta name="dtb:totalPageCount" content="0"/>\n` +
-          `    <meta name="dtb:maxPageNumber" content="0"/>\n` +
-          `  </head>\n` +
-          `  <docTitle><text>${escapeXml(bookTitle)}</text></docTitle>\n` +
-          `  <docAuthor><text>${escapeXml(author)}</text></docAuthor>\n` +
-          `  <navMap>\n${navPoints}\n  </navMap>\n` +
-          `</ncx>\n`
-      );
-
-      // 7. content.opf — chapter 有 hasRemote 就加 properties="remote-resources"
-      //    image manifest 加每張本地圖的 item
-      const chapterItems = chapters
-        .map((c) => {
-          const props = c.hasRemote ? ` properties="remote-resources"` : "";
-          return `    <item id="${c.id}" href="${escapeXml(c.href)}" media-type="application/xhtml+xml"${props}/>`;
-        })
-        .join("\n");
-      let imgIdx = 0;
-      const imageItems = [...urlToInfo.values()]
-        .map((info) => {
-          const id = `img-${String(imgIdx++).padStart(3, "0")}`;
-          return `    <item id="${id}" href="${escapeXml(info.path)}" media-type="${info.mediaType}"/>`;
-        })
-        .join("\n");
-      const spineItems = chapters
-        .map((c) => `    <itemref idref="${c.id}"/>`)
-        .join("\n");
-      zip.file(
-        "OEBPS/content.opf",
-        `<?xml version="1.0" encoding="UTF-8"?>\n` +
-          `<package version="3.0" xmlns="http://www.idpf.org/2007/opf" unique-identifier="bookid">\n` +
-          `  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">\n` +
-          `    <dc:identifier id="bookid">${escapeXml(bookId)}</dc:identifier>\n` +
-          `    <dc:title>${escapeXml(bookTitle)}</dc:title>\n` +
-          `    <dc:creator>${escapeXml(author)}</dc:creator>\n` +
-          `    <dc:language>zh-Hant</dc:language>\n` +
-          `    <dc:publisher>Matters · 自由寫</dc:publisher>\n` +
-          `    <meta property="dcterms:modified">${isoDate}</meta>\n` +
-          `  </metadata>\n` +
-          `  <manifest>\n` +
-          `    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>\n` +
-          `    <item id="nav" href="toc.xhtml" media-type="application/xhtml+xml" properties="nav"/>\n` +
-          `    <item id="css" href="styles/book.css" media-type="text/css"/>\n` +
-          `${chapterItems}\n` +
-          (imageItems ? imageItems + "\n" : "") +
-          `  </manifest>\n` +
-          `  <spine toc="ncx">\n` +
-          `    <itemref idref="nav"/>\n` +
-          `${spineItems}\n` +
-          `  </spine>\n` +
-          `</package>\n`
-      );
-
-      return await zip.generateAsync({
-        type: "blob",
-        mimeType: "application/epub+zip",
-        compression: "DEFLATE",
-        compressionOptions: { level: 6 },
-      });
+      return { chapters, bookTitle, author };
     };
 
     epubBtn?.addEventListener("click", async () => {
@@ -1801,11 +1376,16 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
       epubBtn.disabled = true;
       epubBtn.textContent = "打包中…";
       try {
-        const blob = await buildEpub(lastJourney, (done, total) => {
-          epubBtn.textContent = `下載圖片 ${done} / ${total}…`;
+        const { chapters, bookTitle, author } = buildEpubChaptersFromJourney(lastJourney);
+        const blob = await cjkBuildEpub({
+          metadata: { title: bookTitle, author, language: "zh-Hant", publisher: "Matters · 自由寫" },
+          chapters,
+          css: BOOK_EPUB_CSS,
+          onImageProgress: (done, total) => {
+            epubBtn.textContent = `下載圖片 ${done} / ${total}…`;
+          },
         });
-        const fname = `${lastJourney.user.userName}-七日書小書.epub`;
-        triggerDownload(blob, fname);
+        cjkTriggerDownload(blob, `${lastJourney.user.userName}-七日書小書.epub`);
       } catch (e) {
         console.error("EPUB 打包失敗", e);
         alert("EPUB 打包失敗：" + (e.message || e));

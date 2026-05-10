@@ -15,7 +15,9 @@
   "dependencies": {
     "@astrojs/check": "^0.9.6",
     "@astrojs/sitemap": "^3.6.0",
+    "@thematters/cjk-book-builder": "github:thematters/cjk-book-builder#v0.1.1",
     "astro": "^5.13.6",
+    "jszip": "^3.10.1",
     "typescript": "^5.9.3"
   },
   "devDependencies": {

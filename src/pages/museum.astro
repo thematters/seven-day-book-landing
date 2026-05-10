@@ -46,6 +46,14 @@ const promptStateLabel: Record<string, string> = {
 };
 // 名家講座預設 show 6 位、按「展開更多」秀全部
 const LECTURES_INITIAL = 6;
+
+// 本月七題：把 prompt.date ("5/4") 補上年份，轉成 ISO「2026-05-04」
+// 之後 client-side 會用這個 ISO 算「今天距該日 N 天」即時更新狀態
+const issueYear = Number(currentIssue.period.split("/")[0]) || new Date().getFullYear();
+const promptIso = (mdStr: string) => {
+  const [m, d] = mdStr.split("/").map(Number);
+  return `${issueYear}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+};
 ---
 
 <BaseLayout
@@ -281,13 +289,23 @@ const LECTURES_INITIAL = 6;
             </p>
           </header>
 
+          <p class="museum-current__progress" data-issue-progress aria-live="polite">
+            <span data-issue-progress-text>本期共 {currentIssue.prompts.length} 道題目</span>
+          </p>
+
           <ol class="day-unlock-strip day-unlock-strip--full day-unlock-strip--on-dark" aria-label="本期七道題目">
             {
               currentIssue.prompts.map((prompt) => (
-                <li class={`day-unlock-card day-unlock-card--${prompt.state}`}>
+                <li
+                  class={`day-unlock-card day-unlock-card--${prompt.state}`}
+                  data-day-card
+                  data-day-iso={promptIso(prompt.date)}
+                >
                   <div class="day-unlock-card__top">
                     <span>{prompt.date}</span>
-                    <span>{promptStateLabel[prompt.state] ?? "題目"}</span>
+                    <span data-day-status>
+                      {promptStateLabel[prompt.state] ?? "題目"}
+                    </span>
                   </div>
                   <span class="day-unlock-card__day">{prompt.day}</span>
                   <h3>{prompt.title}</h3>
@@ -1756,6 +1774,79 @@ section.closing { text-align: center; margin-top: 3em; page-break-before: always
           grid.scrollIntoView({ behavior: "smooth", block: "start" });
         }
       });
+    })();
+
+    // ── 本月七題：依今天日期即時更新狀態 pill + 進度 ─────────
+    // 寫死的 prompt.state（"past"/"today"/"locked"）只是資料快照，會過時。
+    // 這邊每次載入頁面用 client-side 算「今天距該日 N 天」推回真實狀態：
+    //   delta < 0 → 已開放 N 天（過去）
+    //   delta == 0 → 今日 · 進行中（今天）
+    //   delta == 1 → 明天開放
+    //   delta > 1 → N 天後開放
+    (() => {
+      const cards = document.querySelectorAll("[data-day-card]");
+      if (!cards.length) return;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayMs = today.getTime();
+
+      let pastCount = 0;
+      let todayIso = null;
+
+      cards.forEach((card) => {
+        const iso = card.getAttribute("data-day-iso");
+        if (!iso) return;
+        const promptDate = new Date(iso + "T00:00:00");
+        const deltaDays = Math.round((promptDate.getTime() - todayMs) / 86400000);
+        const status = card.querySelector("[data-day-status]");
+
+        let label, stateClass;
+        if (deltaDays < 0) {
+          label = `已開放 ${Math.abs(deltaDays)} 天`;
+          stateClass = "day-unlock-card--past";
+          pastCount++;
+        } else if (deltaDays === 0) {
+          label = "今日 · 進行中";
+          stateClass = "day-unlock-card--today";
+          todayIso = iso;
+        } else if (deltaDays === 1) {
+          label = "明天開放";
+          stateClass = "day-unlock-card--locked";
+        } else {
+          label = `${deltaDays} 天後開放`;
+          stateClass = "day-unlock-card--locked";
+        }
+        if (status) status.textContent = label;
+        card.classList.remove(
+          "day-unlock-card--past",
+          "day-unlock-card--today",
+          "day-unlock-card--locked"
+        );
+        card.classList.add(stateClass);
+      });
+
+      // 整體進度條文案（本期已進行 N / 7 天 / 即將開始 / 已結束）
+      const progressEl = document.querySelector("[data-issue-progress-text]");
+      if (progressEl) {
+        const total = cards.length;
+        if (todayIso) {
+          progressEl.textContent = `本期已進行 ${pastCount + 1} / ${total} 天 · 今日題目正在進行中`;
+        } else if (pastCount === 0) {
+          // 還沒開始
+          const firstCard = cards[0];
+          const firstIso = firstCard?.getAttribute("data-day-iso");
+          const startDays = firstIso
+            ? Math.round((new Date(firstIso + "T00:00:00").getTime() - todayMs) / 86400000)
+            : 0;
+          progressEl.textContent =
+            startDays === 1 ? `本期明天開始` : `本期 ${startDays} 天後開始`;
+        } else if (pastCount >= total) {
+          // 已結束
+          progressEl.textContent = `本期已結束 · 共 ${total} 天 ${total} 道題目`;
+        } else {
+          progressEl.textContent = `本期已進行 ${pastCount} / ${total} 天`;
+        }
+      }
     })();
 
     // ── 馬拉松選手：查看更多 / 收合 ─────────────────────────

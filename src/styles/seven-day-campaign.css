@@ -251,18 +251,21 @@
 .hero__banner {
   width: min(1280px, calc(100% - 32px));
   margin: clamp(20px, 3vw, 36px) auto 0;
-  padding: clamp(16px, 2vw, 24px);
-  border: 1px solid var(--hairline);
+  /* 拿掉內 padding / border / bg — 圖片邊到邊，沒有白框 */
+  padding: 0;
+  border: none;
   border-radius: 16px;
-  background: var(--campaign-soft);
+  background: transparent;
+  overflow: hidden;
 }
 
 .hero__banner img {
   width: 100%;
-  aspect-ratio: 16 / 7;
-  object-fit: contain;
-  border-radius: 10px;
-  background: var(--paper);
+  height: auto;
+  /* 拿掉 aspect-ratio — 用圖片原生比例，不再有上下白邊 */
+  display: block;
+  border-radius: 16px;
+  background: transparent;
 }
 
 .hero--stacked .hero__copy {

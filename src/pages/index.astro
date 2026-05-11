@@ -4,6 +4,7 @@ import GrandBadge from "../components/GrandBadge.astro";
 import MattersWordmark from "../components/MattersWordmark.astro";
 import SevenDayBookLogo from "../components/SevenDayBookLogo.astro";
 import {
+  allThemes,
   audienceFaq,
   audiencePage,
   contactEmail,
@@ -155,26 +156,81 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
 
       <section
         id="museum-promo"
-        class="section section--soft"
+        class="museum-promo-dark"
         aria-labelledby="museum-promo-title"
       >
-        <div class="section__inner">
-          <header class="section__header">
-            <p class="eyebrow">想看現在 / 想看過去</p>
-            <h2 id="museum-promo-title">所有期數，都在七日書博物館。</h2>
-            <p>
-              本月正在進行的題目、24 期歷來主題、{
-                audiencePage.stats[1]?.value ?? "3,200+"
-              } 位文友的足跡 ——
-              都收進博物館，點任何一張主視覺都能進到那場活動頁。
-            </p>
-          </header>
+        <div
+          class="museum-promo-bg"
+          style={`background-image: url('${HERO_BANNER_SRC}');`}
+          aria-hidden="true"
+        ></div>
+        <div class="museum-promo-overlay" aria-hidden="true"></div>
 
-          <div class="theme-pager__more" style="margin-top: 32px;">
-            <a class="button button--primary" href={archiveHref}
-              >走進七日書博物館 →</a
-            >
+        <div class="museum-promo-inner">
+          <div class="museum-promo-content">
+            <p class="museum-promo-eyebrow">想看現在 · 想看過去</p>
+            <h2 id="museum-promo-title">
+              所有期數，都在<br/><span class="museum-promo-hl">七日書博物館</span>
+            </h2>
+            <p class="museum-promo-lead">
+              本月正在進行的題目、{allThemes.length} 期歷來主題、3,200+ 位文友的足跡 ——
+              都收進博物館。每張主視覺都連回 Matters 那場活動。
+            </p>
+
+            <ul class="museum-promo-stats" aria-label="博物館內容統計">
+              <li>
+                <strong>{allThemes.length}</strong>
+                <span>期主題</span>
+              </li>
+              <li>
+                <strong>3,200<sup>+</sup></strong>
+                <span>位文友</span>
+              </li>
+              <li>
+                <strong>9,000<sup>+</sup></strong>
+                <span>篇人生</span>
+              </li>
+              <li>
+                <strong>869</strong>
+                <span>枚大滿貫</span>
+              </li>
+            </ul>
+
+            <div class="museum-promo-actions">
+              <a class="button museum-promo-cta" href={archiveHref}>
+                <span>走進博物館</span>
+                <span class="museum-promo-cta-arrow" aria-hidden="true">→</span>
+              </a>
+              <a class="museum-promo-link" href={`${archiveHref}#current-issue`}>
+                看本月七題 →
+              </a>
+              <a class="museum-promo-link" href={`${archiveHref}#featured`}>
+                看歷年精選 →
+              </a>
+            </div>
           </div>
+
+          <ul class="museum-promo-thumbs" aria-label="近期七日書主視覺預覽">
+            {
+              allThemes
+                .slice(-6)
+                .reverse()
+                .map((theme, i) => (
+                  <li class="museum-promo-thumb" style={`--i: ${i}`}>
+                    <a href={archiveHref} aria-label={`看 ${theme.name}`}>
+                      <img
+                        src={assetSrc(theme.announceCover)}
+                        alt=""
+                        loading="lazy"
+                      />
+                      <span class="museum-promo-thumb-label">
+                        {theme.monthLabel}
+                      </span>
+                    </a>
+                  </li>
+                ))
+            }
+          </ul>
         </div>
       </section>
 

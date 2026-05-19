@@ -14,6 +14,7 @@ import {
 } from "../data/seven-day-campaign";
 import "../styles/seven-day-campaign.css";
 import { withBase } from "../utils/paths";
+import { EMAIL_REMINDER_ENDPOINT } from "../site.config";
 
 const partnersHref = withBase(shared.partnersHref);
 const archiveHref = withBase("museum/");
@@ -436,11 +437,12 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
       id="reminder-dialog"
       aria-labelledby="reminder-title"
       data-contact-email={contactEmail}
+      data-endpoint={EMAIL_REMINDER_ENDPOINT}
     >
       <div class="reminder-dialog__inner">
         <h2 id="reminder-title">獲得活動提醒郵件</h2>
         <p>留下 email，我們會在下一期七日書開放時通知你。</p>
-        <form class="reminder-form" id="reminder-form">
+        <form class="reminder-form" id="reminder-form" novalidate>
           <label>
             Email
             <input
@@ -451,13 +453,14 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
               placeholder="you@example.com"
             />
           </label>
+          <p class="reminder-form__status" id="reminder-status" role="status" aria-live="polite"></p>
           <div class="reminder-form__actions">
             <button
               class="button button--quiet"
               type="button"
               data-close-reminder>取消</button
             >
-            <button class="button button--primary" type="submit"
+            <button class="button button--primary" type="submit" id="reminder-submit"
               >送出提醒需求</button
             >
           </div>
@@ -490,13 +493,25 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
 
     const dialog = document.getElementById("reminder-dialog");
     const form = document.getElementById("reminder-form");
+    const statusEl = document.getElementById("reminder-status");
+    const submitBtn = document.getElementById("reminder-submit");
+    const endpoint = dialog?.getAttribute("data-endpoint") || "";
     const contactEmail =
       dialog?.getAttribute("data-contact-email") || "freewrite@matters.town";
     const openButtons = document.querySelectorAll("[data-open-reminder]");
     const closeButtons = document.querySelectorAll("[data-close-reminder]");
 
+    const setStatus = (msg, kind) => {
+      if (!statusEl) return;
+      statusEl.textContent = msg || "";
+      statusEl.dataset.kind = kind || "";
+    };
+
     openButtons.forEach((button) => {
       button.addEventListener("click", () => {
+        setStatus("", "");
+        if (form) form.reset();
+        if (submitBtn) submitBtn.disabled = false;
         if (dialog && typeof dialog.showModal === "function")
           dialog.showModal();
       });
@@ -506,17 +521,43 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
       button.addEventListener("click", () => dialog?.close());
     });
 
-    form?.addEventListener("submit", (event) => {
+    form?.addEventListener("submit", async (event) => {
       event.preventDefault();
       const formData = new FormData(form);
       const email = String(formData.get("email") || "").trim();
-      if (!email) return;
-      const subject = encodeURIComponent("我想收到七日書活動提醒");
-      const body = encodeURIComponent(
-        `請將這個 email 加入七日書活動提醒名單：${email}`,
-      );
-      window.location.href = `mailto:${contactEmail}?subject=${subject}&body=${body}`;
-      dialog?.close();
+      if (!email || !/.+@.+\..+/.test(email)) {
+        setStatus("請輸入有效的 email", "error");
+        return;
+      }
+      if (!endpoint) {
+        // Fallback：endpoint 沒設好就回到 mailto
+        const subject = encodeURIComponent("我想收到七日書活動提醒");
+        const body = encodeURIComponent(`請將這個 email 加入七日書活動提醒名單：${email}`);
+        window.location.href = `mailto:${contactEmail}?subject=${subject}&body=${body}`;
+        dialog?.close();
+        return;
+      }
+      submitBtn && (submitBtn.disabled = true);
+      setStatus("送出中…", "loading");
+      try {
+        // text/plain 避開 CORS preflight (Apps Script Web App 不接 preflight)
+        await fetch(endpoint, {
+          method: "POST",
+          mode: "no-cors", // Apps Script doPost 不回 CORS header；no-cors 不讀 response 也 OK
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            email,
+            source: "landing-reminder",
+            userAgent: navigator.userAgent,
+            referrer: document.referrer || "",
+          }),
+        });
+        setStatus("✓ 已收到！下一期開放時會寄通知給你。", "success");
+        setTimeout(() => dialog?.close(), 1800);
+      } catch (err) {
+        setStatus("送出失敗，請稍後再試或直接寄信給我們。", "error");
+        submitBtn && (submitBtn.disabled = false);
+      }
     });
   </script>
 

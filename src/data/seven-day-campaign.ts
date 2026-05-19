@@ -1,4 +1,6 @@
 import { sevenDayBookLanding as legacy } from "./seven-day-book";
+import { totalGrandSlams } from "./freewrite-marathoners";
+import { featuredCampaigns, featuredArticles } from "./freewrite-featured";
 
 const CDN = "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod";
 
@@ -565,102 +567,23 @@ export const milestones = [
   },
 ];
 
-// === 12 篇本期精選文章（取自 matters.town/e/wem6xy6u7okv）===
-export const latestArticles = [
-  {
-    title: "易未央 AI 世界 × 我的職場人格5",
-    author: "因田木",
-    summary: "第五天：職場困難時刻。",
-    href: "https://matters.town/a/3k94y9x4dzaq",
-    avatar: `${CDN}/avatar/36f9d854-6168-46ee-afad-9f3a96f41cd7.jpeg/public`,
-    cover: `${CDN}/cover/07329068-9adb-4788-be2a-312c395fc181.png/public`,
-  },
-  {
-    title: "看不見的暴力，和一本沒人要求我寫的書",
-    author: "mythogen.engine",
-    summary: "「不知道有沒有救到」比「沒救到」更難捱──沒有事實，沒有結論，只有一個永遠不會被回答的問題。",
-    href: "https://matters.town/a/iff4jej2f33p",
-    avatar: `${CDN}/avatar/cf0835df-34d7-473e-a9df-a5d9463e26d8.webp/public`,
-  },
-  {
-    title: "不想當間諜的採購經理，不是好藝術家",
-    author: "Anne",
-    summary: "我那橫跨三界的「專業」人設。",
-    href: "https://matters.town/a/dgkyaadpyvql",
-    avatar: `${CDN}/avatar/233c2fca-f34c-48d6-8cdf-2ccc2579a5d1.jpeg/public`,
-    cover: `${CDN}/embed/1a88a6a6-7cf7-4b5c-872e-d49075b716d9.png/public`,
-  },
-  {
-    title: "職場進化論：從大聲通耳屎到優雅裝軟弱",
-    author: "Anne",
-    summary: "在職場打滾多年，重新理解責任感與清爽的距離。",
-    href: "https://matters.town/a/bmffxkppo9r1",
-    avatar: `${CDN}/avatar/233c2fca-f34c-48d6-8cdf-2ccc2579a5d1.jpeg/public`,
-    cover: `${CDN}/embed/ae9ff14e-7201-4090-9874-28a4a5da2ce2.png/public`,
-  },
-  {
-    title: "七日書 S21.4 — 只有一號表情",
-    author: "Moonleap",
-    summary: "不出錯、不沾鍋、準時下班、不需要說話就不說話。",
-    href: "https://matters.town/a/99r3ryzts7c0",
-    avatar: `${CDN}/avatar/dba0352e-73b1-4254-ba8e-b6b314d9d608.png/public`,
-  },
-  {
-    title: "我的職場人格 — 傳承",
-    author: "黎明之弧",
-    summary: "傳承，是點一盞燈，照亮後來的路。",
-    href: "https://matters.town/a/gjgjbgraujnh",
-    avatar: `${CDN}/avatar/0effabfd-8a41-4a48-bfab-ff6f6386b45a.jpeg/public`,
-    cover: `${CDN}/embed/3aa3b177-bc26-4cbe-8a85-6b5cf1b18c2b.png/public`,
-  },
-  {
-    title: "第五天｜長期業績都是零",
-    author: "waiwaili",
-    summary: "我真的沒這本事，我認輸了。",
-    href: "https://matters.town/a/vzlybqxf53zy",
-    avatar: `${CDN}/avatar/05cf3c7b-6788-4d34-9d63-4f6f671a9975.jpeg/public`,
-    cover: `${CDN}/cover/0e0e689c-e49e-458c-a590-ffb132d95168.jpeg/public`,
-  },
-  {
-    title: "《我職七日書》第五天〈承擔不起的暗潮〉",
-    author: "蘇禕Suy",
-    summary: "我進連鎖文具店前，在藥局工作。沒有醫學背景，卻要面對配藥與過敏注意。",
-    href: "https://matters.town/a/9ei1vs7fypmh",
-    avatar: `${CDN}/avatar/457bc512-a308-4068-bfe9-113d9923dd26.jpeg/public`,
-    cover: `${CDN}/cover/d42f0e4a-85ab-4642-9f24-f6ebc8f24fd0.png/public`,
-  },
-  {
-    title: "別人笑我太瘋癲",
-    author: "陳費雪",
-    summary: "我的職場人設就是「瘋子」。",
-    href: "https://matters.town/a/51l83q4vz0fe",
-    avatar: `${CDN}/avatar/55c2bcde-d024-43ca-a991-b879ee3cb830.jpeg/public`,
-  },
-  {
-    title: "來者不拒是心裡的軟弱",
-    author: "宥縈",
-    summary: "為了滿足主管常常忘了自己也有極限，需要停下來休息。",
-    href: "https://matters.town/a/8c2our5yg4on",
-    avatar: `${CDN}/avatar/609d122b-ed12-41ee-b838-b2aa83c6f776.jpeg/public`,
-    cover: `${CDN}/cover/d78ed590-70ed-4907-ad52-9789acc3d659.jpeg/public`,
-  },
-  {
-    title: "《職場七日書》第四天 — 在溫和與強硬之間遊走",
-    author: "crossing",
-    summary: "職場如戲，我不停切換不同角色。",
-    href: "https://matters.town/a/cqbipbg9pp1g",
-    avatar: `${CDN}/avatar/4bf028dd-9464-4c2e-ad11-3fe17f67c661.png/public`,
-    cover: `${CDN}/embed/b2418da7-5830-4f3d-8321-e976b14870af.png/public`,
-  },
-  {
-    // 取代原 IceYuzu 簡中文章（當時 jf-jinxuan 不支援簡體字；2026-05 已改 jf-openhuninn 粉圓，但此條保留紀錄）
-    title: "第四天｜我曾經經營過的冷靜",
-    author: "Tony_Chan",
-    summary: "在不同的職場位置裡，我最常有意識經營的面向是冷靜。這種冷靜不是天生，也不是沒有情緒；正因為內在反應很快，才更需要學會把第一時間的判斷收住。",
-    href: "https://matters.town/a/iwk97brx7rpp",
-    avatar: `${CDN}/avatar/bdd22741-d5fe-4446-ab44-9b027688f236.png/public`,
-  },
-];
+
+// === 「最近一期作品」改為直接從 featuredArticles 取最新一期（CC #3）===
+// 原本是手動 curate 12 篇，但 CC 反映其中混到非精選文。改為自動從
+// freewrite-featured.ts 拉 featuredCampaigns[0]（時序最新一期）的精選文，
+// 確保「最近一期作品」一定都是團隊選出的精選。
+// 每月底新一期上線時，重跑 freewrite-featured.ts 的 ETL 即可自動更新。
+const _latestCampaign = featuredCampaigns[0];
+export const latestArticles = featuredArticles
+  .filter((a) => a.campaignHash === _latestCampaign.shortHash)
+  .map((a) => ({
+    title: a.title,
+    author: a.author.displayName,
+    summary: a.summary,
+    href: `https://matters.town/a/${a.shortHash}`,
+    avatar: a.author.avatar || undefined,
+    cover: a.cover || undefined,
+  }));
 
 export const audiencePage = {
   title: "七日書｜下一個七天，一起寫",
@@ -677,7 +600,7 @@ export const audiencePage = {
     { value: "24", label: "歷來舉辦期數", note: "2024 / 4 至今每月一期" },
     { value: "3,200+", label: "累積參與人次", note: "由各期完結報告加總" },
     { value: "9,000+", label: "累積作品", note: "寫下超過 800 萬字" },
-    { value: "189+", label: "大滿貫完成者", note: "完成七天七篇" },
+    { value: `${totalGrandSlams.toLocaleString()}+`, label: "大滿貫完成者", note: "完成七天七篇" },
   ],
   currentIssue,
   articlesHeading: "他們正在寫這些",
@@ -797,7 +720,7 @@ export const partnerPage = {
     {
       title: "書寫憑證",
       iconKind: "badge",
-      body: "完成者可獲得七日書徽章或鏈上參與憑證，讓參與感從活動週延伸到個人頁與社群關係。已發出超過 189 枚大滿貫徽章。",
+      body: `完成者可獲得七日書徽章或鏈上參與憑證，讓參與感從活動週延伸到個人頁與社群關係。已發出超過 ${totalGrandSlams.toLocaleString()} 枚大滿貫徽章。`,
     },
   ],
   faqHeading: "如何與七日書合作",

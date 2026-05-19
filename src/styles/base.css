@@ -61,6 +61,13 @@
   box-sizing: border-box;
 }
 
+/* Inline utility：包住中文短語以避免在不合適的位置斷行
+ * 用法：<h2><span class="nowrap-group">從題目設計，</span>...</h2>
+ * 比手插 <br> 對 responsive 友善，比 word-break: keep-all 更精準。 */
+.nowrap-group {
+  white-space: nowrap;
+}
+
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 5rem;

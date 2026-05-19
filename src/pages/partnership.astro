@@ -25,8 +25,8 @@ const assetSrc = (src?: string) => {
 const nav = [
   { href: homeHref, label: "七日書介紹" },
   { href: museumHref, label: "博物館" },
-  { href: "#themes", label: "歷次主題" },
   { href: "#impact", label: "參與數據" },
+  { href: "#themes", label: "歷次主題" },
   { href: "#packages", label: "合作內容" },
   { href: "#faq", label: "FAQ" },
 ];
@@ -87,6 +87,67 @@ const marqueeAvatars = [
               >洽談合作</a
             >
             <a class="button button--soft" href={homeHref}>加入寫作</a>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="impact"
+        class="section section--paper"
+        aria-labelledby="impact-title"
+      >
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">累積參與</p>
+            <h2 id="impact-title">七日書已經累積出一個可合作的書寫社群。</h2>
+            <p>
+              對合作方來說，重要的不只是流量，而是同一題目下持續出現的真實回應。
+            </p>
+          </header>
+
+          <div class="metrics-grid">
+            {
+              partnerPage.impact.map((item) => (
+                <article
+                  class={`metric-card ${item.emphasis ? "metric-card--emphasis" : ""}`}
+                >
+                  <strong>{item.value}</strong>
+                  <span>{item.label}</span>
+                </article>
+              ))
+            }
+          </div>
+
+          <div class="avatar-marquee" aria-label="七日書創作者頭像">
+            <div class="avatar-marquee__track">
+              {
+                marqueeAvatars.map((avatar) => (
+                  <a
+                    href={`https://matters.town/@${avatar.handle}`}
+                    target="_blank"
+                    rel="noopener"
+                    title={avatar.name}
+                  >
+                    <img
+                      src={assetSrc(avatar.src)}
+                      alt={avatar.name}
+                      loading="lazy"
+                    />
+                  </a>
+                ))
+              }
+            </div>
+          </div>
+
+          <div class="signal-grid signal-grid--spaced">
+            {
+              partnerPage.businessSignals.map((item) => (
+                <article class="signal-card">
+                  <h3>{item.title}</h3>
+                  <p>{item.body}</p>
+                </article>
+              ))
+            }
           </div>
         </div>
       </section>
@@ -173,7 +234,7 @@ const marqueeAvatars = [
           <header class="section__header">
             <p class="eyebrow">七日書執行內容</p>
             <h2 id="execution-title">
-              從題目設計，到七天書寫，再到可保存的成果。
+              <span class="nowrap-group">從題目設計，</span><span class="nowrap-group">到七天書寫，</span><span class="nowrap-group">再到可保存的成果。</span>
             </h2>
             <p>
               它不只是一次徵文，而是一套有節奏、有陪伴感，也能沉澱內容資產的書寫機制。
@@ -185,67 +246,6 @@ const marqueeAvatars = [
               partnerPage.executionIntro.map((item) => (
                 <article class="flow-card">
                   <span class="flow-card__step">{item.step}</span>
-                  <h3>{item.title}</h3>
-                  <p>{item.body}</p>
-                </article>
-              ))
-            }
-          </div>
-        </div>
-      </section>
-
-      <section
-        id="impact"
-        class="section section--paper"
-        aria-labelledby="impact-title"
-      >
-        <div class="section__inner">
-          <header class="section__header">
-            <p class="eyebrow">累積參與</p>
-            <h2 id="impact-title">七日書已經累積出一個可合作的書寫社群。</h2>
-            <p>
-              對合作方來說，重要的不只是流量，而是同一題目下持續出現的真實回應。
-            </p>
-          </header>
-
-          <div class="metrics-grid">
-            {
-              partnerPage.impact.map((item) => (
-                <article
-                  class={`metric-card ${item.emphasis ? "metric-card--emphasis" : ""}`}
-                >
-                  <strong>{item.value}</strong>
-                  <span>{item.label}</span>
-                </article>
-              ))
-            }
-          </div>
-
-          <div class="avatar-marquee" aria-label="七日書創作者頭像">
-            <div class="avatar-marquee__track">
-              {
-                marqueeAvatars.map((avatar) => (
-                  <a
-                    href={`https://matters.town/@${avatar.handle}`}
-                    target="_blank"
-                    rel="noopener"
-                    title={avatar.name}
-                  >
-                    <img
-                      src={assetSrc(avatar.src)}
-                      alt={avatar.name}
-                      loading="lazy"
-                    />
-                  </a>
-                ))
-              }
-            </div>
-          </div>
-
-          <div class="signal-grid signal-grid--spaced">
-            {
-              partnerPage.businessSignals.map((item) => (
-                <article class="signal-card">
                   <h3>{item.title}</h3>
                   <p>{item.body}</p>
                 </article>
@@ -276,7 +276,11 @@ const marqueeAvatars = [
 
           <div class="lecture-grid lecture-grid--dense">
             {
-              lectures.map((lecture) => {
+              /* CC #2：有文字稿（hasTranscript）的講者排前面、整理中的排後面。
+               * 用 stable sort：穩定 false 之前的相對順序不變。 */
+              [...lectures]
+                .sort((a, b) => Number(b.hasTranscript) - Number(a.hasTranscript))
+                .map((lecture) => {
                 return (
                   <article class="lecture-card lecture-card--compact">
                     <div class="lecture-card__speaker lecture-card__speaker--text">

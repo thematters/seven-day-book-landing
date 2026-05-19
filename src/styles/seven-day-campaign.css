@@ -268,6 +268,31 @@
   background: transparent;
 }
 
+/* 小視窗高度（例如 MacBook Air 1440×900 + Firefox tab/url bar）下限縮 hero
+ * 高度，讓下方「把一週，寫成一本」標題能在 above-the-fold 完整露出。
+ * (CC #5, #7 反映：圖太大把標題擠出螢幕) */
+@media (max-height: 900px) {
+  .hero__banner {
+    max-height: 46vh;
+  }
+  .hero__banner img {
+    height: 100%;
+    max-height: 46vh;
+    object-fit: cover;
+    object-position: center;
+  }
+}
+
+/* 更短的視窗（例如外接小螢幕、舊筆電）再收緊一階 */
+@media (max-height: 760px) {
+  .hero__banner {
+    max-height: 42vh;
+  }
+  .hero__banner img {
+    max-height: 42vh;
+  }
+}
+
 .hero--stacked .hero__copy {
   width: min(var(--content-max), 100%);
   margin: clamp(28px, 4vw, 44px) auto 0;
@@ -638,6 +663,18 @@
 .day-unlock-strip--full .day-unlock-card {
   flex: 1 1 auto;
   min-width: 0;
+}
+
+/* CC #9：手機 (< 1040px) 七張卡 fallback 到 flex 橫向時，覆蓋掉
+ * .day-unlock-strip--full 的 flex: 1 1 auto，避免 7 張卡擠進 100vw
+ * 變得「Day 1 / Day 2 ...」每張只有 1/7 寬、內文被截斷看不到。
+ * 改回跟非 --full 預設一致的 flex: 0 0 min(248px, 78vw) + scroll-snap。 */
+@media (max-width: 1040px) {
+  .day-unlock-strip--full .day-unlock-card {
+    flex: 0 0 min(248px, 78vw);
+    min-width: 0;
+    scroll-snap-align: start;
+  }
 }
 
 /* Today — vivid freewrite gradient + glow border */
@@ -1821,6 +1858,18 @@
   justify-content: flex-end;
   gap: 8px;
 }
+
+/* Reminder form 送出狀態訊息（loading / success / error） */
+.reminder-form__status {
+  margin: 0;
+  min-height: 1.2em;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--ink-muted);
+}
+.reminder-form__status[data-kind="success"] { color: #2e8540; font-weight: 500; }
+.reminder-form__status[data-kind="error"]   { color: #d04545; }
+.reminder-form__status[data-kind="loading"] { color: var(--campaign-accent-dark); }
 
 /* ─── Archive page (七日書博物館，深色底) ──────────────────────── */
 .campaign-page--dark {

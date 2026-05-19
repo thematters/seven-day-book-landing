@@ -1,0 +1,77 @@
+name: Monthly auto-refresh (prompts + featured + quotes)
+
+# 每月 25 號台北 09:00 自動跑（七日書官方在每月 25 號公布新一期主題）
+# 重抓：
+#   - scripts/scrape-campaign-prompts.mjs  → 24+1 期 prompts
+#   - scripts/curate-community-quotes.mjs → 8 句精選社群 quote
+# （freewrite-themes.json / freewrite-featured.json 仍需手動更新或另寫 ETL）
+#
+# 流程：跑兩個 script → 把改動開 PR
+# 注意：scripts 用的是 Matters public GraphQL，無需 secret
+#
+# 手動觸發：workflow_dispatch（如果 25 號漏跑或新一期上線想立刻刷新）
+
+on:
+  schedule:
+    - cron: "0 1 25 * *" # 每月 25 日 UTC 01:00 (台北 09:00)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Refresh campaign prompts
+        run: node scripts/scrape-campaign-prompts.mjs --write
+
+      - name: Refresh community quotes
+        run: node scripts/curate-community-quotes.mjs --write
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet src/data/freewrite-prompts.ts src/data/community-quotes.ts; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: auto/monthly-refresh
+          delete-branch: true
+          base: main
+          title: "chore(content): 每月 25 號自動刷新 prompts + quotes"
+          commit-message: |
+            chore(content): 每月 25 號自動刷新
+
+            從 Matters GraphQL 重抓最新一期公告內的七題 + 從新精選文做文本分析挑社群 quote。
+            Review 後 merge 即可 deploy。
+          body: |
+            ## 月度自動刷新
+
+            來源：
+            - `scripts/scrape-campaign-prompts.mjs` → `src/data/freewrite-prompts.ts`
+            - `scripts/curate-community-quotes.mjs` → `src/data/community-quotes.ts`
+
+            **檢查重點：**
+            1. `freewrite-prompts.ts` 有沒有新增最新一期 (新月份)
+            2. `community-quotes.ts` 抽出的 8 句是否合理（少數可能還是有題目提示文味道，可微調 script 內 SCORE_WEIGHTS）
+
+            ⚠️ 如果新一期還沒收錄到 `research/freewrite-themes.json` (announceHref)，這個 PR 不會包含新期。需要先手動把新期加進去。
+
+            🤖 由 `.github/workflows/refresh-monthly.yml` 排程觸發
+          labels: |
+            automated
+            content

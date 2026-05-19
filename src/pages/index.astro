@@ -15,6 +15,7 @@ import {
 } from "../data/seven-day-campaign";
 import { communityQuotes } from "../data/community-quotes";
 import { totalUniqueGrandSlamWinners } from "../data/freewrite-marathoners";
+import { freewriteIssues } from "../data/freewrite-prompts";
 import "../styles/seven-day-campaign.css";
 import { withBase } from "../utils/paths";
 import { EMAIL_REMINDER_ENDPOINT } from "../site.config";
@@ -40,12 +41,8 @@ const marqueeAvatars = [
   ...shared.avatarWall.slice(0, 22),
   ...shared.avatarWall.slice(0, 22),
 ];
-// 全部過去主題 → 4 張一頁，提供分頁點點切換
-const themesPerPage = 4;
-const themesPages: typeof pastThemes[] = [];
-for (let i = 0; i < pastThemes.length; i += themesPerPage) {
-  themesPages.push(pastThemes.slice(i, i + themesPerPage));
-}
+// 「過去主題」分頁切換已退役 — 改為 §Section 3 題目庫 (#prompts) 用 details accordion
+// 顯示完整 24 期 156 題，資料來自 src/data/freewrite-prompts.ts
 
 ---
 
@@ -363,76 +360,79 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
         </div>
       </section>
 
+      {/* CC ys §Section 3: 題目庫
+          以期為單位，每期 details 預設收合（最新一期預設展開）。
+          每期顯示主題名 + announceSummary 一句，展開後列 7 (三日書 3) 道題目。
+          資料：src/data/freewrite-prompts.ts (24 期 156 題，scrape 自 Matters 公告)
+          重抓：node scripts/scrape-campaign-prompts.mjs --write */}
       <section
-        id="themes"
+        id="prompts"
         class="section section--soft"
-        aria-labelledby="themes-title"
+        aria-labelledby="prompts-title"
       >
         <div class="section__inner">
           <header class="section__header">
-            <p class="eyebrow">過去主題</p>
-            <h2 id="themes-title">{audiencePage.pastThemesHeading}</h2>
+            <p class="eyebrow">題目庫</p>
+            <h2 id="prompts-title">{audiencePage.pastThemesHeading}</h2>
             <p>
-              每一期都像一本已經完成的小書。你可以從任何一個題目回去，找到下一次想寫的入口。
+              {freewriteIssues.length} 期共 {freewriteIssues.reduce((s, i) => s + i.prompts.length, 0)} 道題目。點開期數可以看每天的題目，也可以連到 Matters 看完整公告。
             </p>
           </header>
 
-          <div class="theme-pager" data-theme-pager>
+          <ol class="prompt-issue-list" data-prompt-list>
             {
-              themesPages.map((page, pageIdx) => (
-                <div
-                  class="theme-grid theme-grid--landscape theme-pager__page"
-                  data-page-index={pageIdx}
-                  hidden={pageIdx !== 0}
-                >
-                  {page.map((theme) => (
-                    <a
-                      class="theme-card theme-card--landscape"
-                      href={theme.announceHref}
-                      target="_blank"
-                      rel="noopener"
-                    >
-                      <div class="theme-card__media">
-                        <img
-                          src={assetSrc(theme.announceCover)}
-                          alt=""
-                          loading="lazy"
-                        />
-                      </div>
-                      <div class="theme-card__body">
-                        <span class="theme-card__meta">{theme.monthLabel} · {theme.series}</span>
-                        <h3>{theme.name}</h3>
-                        <p>
-                          {theme.announceSummary && theme.announceSummary.length > 70
-                            ? theme.announceSummary.slice(0, 70) + "…"
-                            : theme.announceSummary}
-                        </p>
-                      </div>
-                    </a>
-                  ))}
-                </div>
-              ))
+              freewriteIssues.map((issue, idx) => {
+                const themeMeta = allThemes.find((t) => t.series === issue.series);
+                const oneLine = themeMeta?.announceSummary
+                  ? (themeMeta.announceSummary.length > 50
+                      ? themeMeta.announceSummary.slice(0, 50) + "…"
+                      : themeMeta.announceSummary)
+                  : "";
+                return (
+                  <li class="prompt-issue">
+                    <details class="prompt-issue__details" open={idx === 0}>
+                      <summary class="prompt-issue__summary">
+                        <span class="prompt-issue__series">{issue.series}</span>
+                        <span class="prompt-issue__name">
+                          <strong>{issue.name.replace(/^七日書[｜：]/, "")}</strong>
+                          {oneLine && <em>{oneLine}</em>}
+                        </span>
+                        <span class="prompt-issue__month">{issue.monthLabel}</span>
+                      </summary>
+                      <ol class="prompt-issue__days">
+                        {issue.prompts.map((p) => (
+                          <li class="prompt-day">
+                            <span class="prompt-day__label">{p.day}</span>
+                            <div class="prompt-day__body">
+                              <h4>{p.title}</h4>
+                              {p.prompt !== p.title && (
+                                <p>
+                                  {p.prompt.length > 180
+                                    ? p.prompt.slice(0, 180) + "…"
+                                    : p.prompt}
+                                </p>
+                              )}
+                            </div>
+                          </li>
+                        ))}
+                      </ol>
+                      <a
+                        class="prompt-issue__source"
+                        href={issue.announceHref}
+                        target="_blank"
+                        rel="noopener"
+                      >到 Matters 看完整公告 →</a>
+                    </details>
+                  </li>
+                );
+              })
             }
+          </ol>
 
-            <nav class="theme-pager__dots" aria-label="過去主題分頁切換">
-              {
-                themesPages.map((_, pageIdx) => (
-                  <button
-                    type="button"
-                    class="theme-pager__dot"
-                    data-page-target={pageIdx}
-                    aria-label={`切換到第 ${pageIdx + 1} 頁過去主題`}
-                    aria-current={pageIdx === 0 ? "true" : "false"}
-                  />
-                ))
-              }
-            </nav>
-
-            <div class="theme-pager__more">
-              <a class="button button--quiet" href={archiveHref}
-                >看完整七日書歷來主題 →</a
-              >
-            </div>
+          <div class="prompt-issue-list__cta">
+            <a class="button button--quiet" href={archiveHref}
+              >到博物館看歷年作品 →</a
+            >
           </div>
         </div>
       </section>
@@ -625,27 +625,6 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
   </div>
 
   <script is:inline>
-    // ── 過去主題分頁點點 ───────────────────────────────────────
-    const pager = document.querySelector("[data-theme-pager]");
-    if (pager) {
-      const pages = pager.querySelectorAll(".theme-pager__page");
-      const dots = pager.querySelectorAll("[data-page-target]");
-      dots.forEach((dot) => {
-        dot.addEventListener("click", () => {
-          const target = Number(dot.getAttribute("data-page-target"));
-          pages.forEach((p, i) => {
-            if (i === target) p.removeAttribute("hidden");
-            else p.setAttribute("hidden", "");
-          });
-          dots.forEach((d, i) => {
-            d.setAttribute("aria-current", i === target ? "true" : "false");
-          });
-        });
-      });
-    }
-
-    // 名家講座 展開 / 收起 → 已搬到 /museum
-
     // CC ys #1 + #7: 活動週狀態偵測，動態切換 hero CTA 與 final CTA section
     //
     // 規則：

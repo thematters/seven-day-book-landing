@@ -1858,6 +1858,161 @@
   font-weight: 500;
 }
 
+/* ─── §Section 3 題目庫 accordion (CC ys) ────────────────────── */
+.prompt-issue-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.prompt-issue {
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.prompt-issue__details summary {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  cursor: pointer;
+  list-style: none;
+  transition: background 0.15s ease;
+}
+
+.prompt-issue__details summary::-webkit-details-marker { display: none; }
+
+.prompt-issue__details summary::before {
+  content: "▸";
+  position: absolute;
+  right: 22px;
+  color: var(--campaign-accent-dark);
+  transition: transform 0.18s ease;
+  font-size: 14px;
+}
+
+.prompt-issue__details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.prompt-issue__details summary {
+  position: relative;
+  padding-right: 50px;
+}
+
+.prompt-issue__details[open] summary {
+  background: var(--campaign-soft);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.prompt-issue__details summary:hover {
+  background: var(--campaign-soft);
+}
+
+.prompt-issue__series {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--campaign-accent-dark);
+  letter-spacing: 0.04em;
+}
+
+.prompt-issue__name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.prompt-issue__name strong {
+  font-family: var(--font-display);
+  font-size: 16.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.prompt-issue__name em {
+  color: var(--ink-muted);
+  font-style: normal;
+  font-size: 13px;
+}
+
+.prompt-issue__month {
+  color: var(--ink-muted);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.prompt-issue__days {
+  list-style: none;
+  padding: 18px 20px 8px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.prompt-day {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.prompt-day__label {
+  padding: 4px 10px;
+  background: var(--campaign-soft);
+  color: var(--campaign-accent-dark);
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.prompt-day__body h4 {
+  margin: 2px 0 4px;
+  font-family: var(--font-display);
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.prompt-day__body p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--ink-muted);
+}
+
+.prompt-issue__source {
+  display: inline-block;
+  margin: 8px 20px 18px;
+  padding: 6px 0;
+  color: var(--campaign-accent-dark);
+  font-size: 13.5px;
+  text-decoration: none;
+  border-bottom: 1px dashed var(--campaign-accent-dark);
+}
+
+.prompt-issue__source:hover {
+  border-bottom-style: solid;
+}
+
+.prompt-issue-list__cta {
+  margin-top: 22px;
+  text-align: center;
+}
+
 /* ─── §Section 4 怎麼運作 機制 chip (CC ys) ────────────────────── */
 .how-grid {
   display: grid;

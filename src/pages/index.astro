@@ -13,6 +13,8 @@ import {
   pastThemes,
   shared,
 } from "../data/seven-day-campaign";
+import { communityQuotes } from "../data/community-quotes";
+import { totalUniqueGrandSlamWinners } from "../data/freewrite-marathoners";
 import "../styles/seven-day-campaign.css";
 import { withBase } from "../utils/paths";
 import { EMAIL_REMINDER_ENDPOINT } from "../site.config";
@@ -114,6 +116,57 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
         </div>
       </section>
 
+      {/* CC ys §Section 2a: 社群溫度 — 8 句精華 quote
+          來源：scripts/curate-community-quotes.mjs 從 531 篇精選文做文本評分挑出
+          重跑：node scripts/curate-community-quotes.mjs --write */}
+      <section
+        id="voices"
+        class="section section--paper"
+        aria-labelledby="voices-title"
+      >
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">社群的聲音</p>
+            <h2 id="voices-title">有人和你在同一週，把生活寫下來。</h2>
+            <p>八句句子，來自七日書過往的精選文章，可以點開整篇。</p>
+          </header>
+
+          <ul class="voices-grid">
+            {communityQuotes.map((q) => (
+              <li class="voice-card">
+                <blockquote class="voice-card__text">
+                  「{q.text}」
+                </blockquote>
+                <a
+                  class="voice-card__attr"
+                  href={`https://matters.town/a/${q.articleHash}`}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  {q.avatar && (
+                    <img
+                      class="voice-card__avatar"
+                      src={q.avatar}
+                      alt=""
+                      loading="lazy"
+                    />
+                  )}
+                  <span class="voice-card__author">{q.author}</span>
+                  <span class="voice-card__campaign">{q.campaignLabel}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          <p class="voices-grid__more">
+            還有 <strong>531</strong> 篇精選作品在
+            <a href={archiveHref}>博物館</a> 裡 →
+          </p>
+        </div>
+      </section>
+
+      {/* CC ys §Section 2b: 數字帶 — 精簡，原 #stats 拿掉「大滿貫」（搬到 §5），
+          只留 期數 / 參與人次 / 篇數 三個數字 + avatar marquee */}
       <section
         id="stats"
         class="section section--paper"
@@ -121,21 +174,20 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
       >
         <div class="section__inner">
           <header class="section__header">
-            <p class="eyebrow">此刻在寫</p>
-            <h2 id="stats-title">有人和你在同一週，把生活寫下來。</h2>
-            <p>先看見同行的人，題目才不會像一張孤單的待辦清單。</p>
+            <p class="eyebrow">這兩年寫了多少</p>
+            <h2 id="stats-title">把這個社群的書寫量化一下。</h2>
           </header>
 
           <div class="metrics-grid">
-            {
-              audiencePage.stats.map((item) => (
+            {audiencePage.stats
+              .filter((s) => !/大滿貫/.test(s.label))
+              .map((item) => (
                 <article class="metric-card">
                   <strong>{item.value}</strong>
                   <span>{item.label}</span>
                   <small>{item.note}</small>
                 </article>
-              ))
-            }
+              ))}
           </div>
 
           <div class="avatar-marquee" aria-label="近期參與作者頭像">
@@ -238,6 +290,50 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
                 ))
             }
           </ul>
+        </div>
+      </section>
+
+      {/* CC ys §Section 4: 怎麼運作 — 機制 chip + 實例細節
+          回應 ys 提案「每月一週 / 七天七道題目 / 集體一起完成」並補實例。 */}
+      <section
+        id="how"
+        class="section"
+        aria-labelledby="how-title"
+      >
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">怎麼參與</p>
+            <h2 id="how-title">每月一次，七天寫成一本小書。</h2>
+            <p>免費報名、完全公開；不寫批改、只看書寫節奏。</p>
+          </header>
+
+          <ol class="how-grid">
+            <li class="how-chip">
+              <span class="how-chip__step">01</span>
+              <h3>每月底開放報名</h3>
+              <p>
+                每月 25 號公布下一期主題，月底前到
+                <a href={shared.joinHref} target="_blank" rel="noopener">活動頁</a>報名。
+                報名後活動頁進度條會記錄你的七天寫作。
+              </p>
+            </li>
+            <li class="how-chip">
+              <span class="how-chip__step">02</span>
+              <h3>七天，七道題目</h3>
+              <p>
+                每天一道題目，總共七題。當天題目要當天寫；
+                晚一天才寫也算（過了一週就只算「參與」不算「大滿貫」）。
+              </p>
+            </li>
+            <li class="how-chip">
+              <span class="how-chip__step">03</span>
+              <h3>FreeWrite 精神</h3>
+              <p>
+                自由書寫不批改自己；先讓字流出來、回頭再改。
+                七篇寫完獲得鏈上大滿貫徽章。
+              </p>
+            </li>
+          </ol>
         </div>
       </section>
 

@@ -4,9 +4,11 @@ name: Marathoners sanity-check (GraphQL)
 # （5-25 期算出 276 vs observablehq DB ground truth 673，落差 397）。
 # 原因：GraphQL 不會列出被作者隱藏 / 撤回 / 刪除的文章。
 #
-# 真正的 ground truth：`scripts/import-grand-slams.mjs` 從 observablehq
-# notebook 匯出的 JSON 載入（research/freewrite-grand-slams-observablehq.json）。
-# 此 JSON 由人手動每月從 observablehq notebook 重新匯出。
+# 真正的 ground truth：`scripts/import-awards.mjs` 從 observablehq notebook
+# 匯出的兩個 JSON 載入：
+#   - research/freewrite-grand-slams-observablehq.json (大滿貫 history)
+#   - research/freewrite-participation-awards-observablehq.json (參加獎 history)
+# 兩個 JSON 由人手動每月從 observablehq 兩個 notebook 重新匯出。
 #
 # 本 workflow 保留為「sanity-check」用途：每月跑 GraphQL dry-run，
 # 比對跟 marathoners.ts 內 totalGrandSlams 落差是否合理，

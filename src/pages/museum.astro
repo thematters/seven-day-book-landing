@@ -13,6 +13,9 @@ import {
   marathoners,
   totalGrandSlams,
   totalUniqueGrandSlamWinners,
+  totalParticipationAwards,
+  totalUniqueParticipationWinners,
+  totalUniqueAwardWinners,
   eventCount,
 } from "../data/freewrite-marathoners";
 import GrandBadge from "../components/GrandBadge.astro";
@@ -138,9 +141,10 @@ const promptIso = (mdStr: string) => {
               他們幾乎參與了所有七日書，是最擅長長跑的文友。點頭像可以看那位文友的書寫旅程。
             </p>
             <p>
-              完成七天寫作，就可以擁有大滿貫徽章；這兩年以來，
-              <strong>{totalUniqueGrandSlamWinners.toLocaleString()}</strong> 位文友拿過大滿貫，
-              累計發出 <strong>{totalGrandSlams.toLocaleString()}</strong> 枚鏈上徽章。
+              寫滿七天獲「大滿貫」、至少四天獲「參加獎」。這兩年以來，
+              <strong>{totalUniqueAwardWinners.toLocaleString()}</strong> 位文友拿過鏈上憑證
+              （{totalUniqueGrandSlamWinners} 位大滿貫、{totalUniqueParticipationWinners} 位參加獎，含 {totalUniqueGrandSlamWinners + totalUniqueParticipationWinners - totalUniqueAwardWinners} 位兩者都有），
+              累計發出 <strong>{(totalGrandSlams + totalParticipationAwards).toLocaleString()}</strong> 枚鏈上憑證。
             </p>
           </header>
 

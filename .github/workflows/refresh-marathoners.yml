@@ -1,0 +1,77 @@
+name: Refresh marathoners stats
+
+# 每週一台北時間早上 9 點（= UTC 週一 01:00）跑一次，從 Matters GraphQL 重算
+# 大滿貫 / 參加獎 / Top 50 marathoners，並開 PR 讓人 review 再 merge。
+#
+# 也可以手動觸發（workflow_dispatch）。
+#
+# 動機：取代手動跑 observablehq notebook，並讓 partnership 顯示的
+# `totalGrandSlams` 不會落後資料庫太久。
+#
+# 不需要任何 secret——純呼叫 server.matters.town/graphql public schema。
+
+on:
+  schedule:
+    - cron: "0 1 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Refresh marathoners data
+        run: node scripts/refresh-marathoners.mjs --write
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet src/data/freewrite-marathoners.ts; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "沒有變動，跳過 PR"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "偵測到變動，準備開 PR"
+          fi
+
+      - name: Create Pull Request
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: auto/refresh-marathoners
+          delete-branch: true
+          base: main
+          title: "chore(stats): 刷新 marathoners 統計（自動）"
+          commit-message: |
+            chore(stats): 刷新 marathoners 統計
+
+            scripts/refresh-marathoners.mjs 排程自動跑出來的新數字。
+            Review 過確認沒問題就 merge。
+          body: |
+            ## 自動產生的統計刷新
+
+            來源：`scripts/refresh-marathoners.mjs` →
+            `server.matters.town/graphql` 即時撈 21 期 campaign 的
+            所有 article + author + stage，重算大滿貫與參加獎。
+
+            **看一下變動的數字是否合理**（特別是 `totalGrandSlams`），
+            然後 merge 即可觸發 deploy。
+
+            如果某期數字異常下降，可能是：
+            - GraphQL 暫時降級（重跑 workflow_dispatch 一次）
+            - 該期 campaign 結構改變（用 observablehq notebook 對照）
+            - shortHash 改了（更新 scripts/refresh-marathoners.mjs 內 CAMPAIGNS 陣列）
+
+            🤖 由 `.github/workflows/refresh-marathoners.yml` 排程觸發
+          labels: |
+            automated
+            stats

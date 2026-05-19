@@ -129,8 +129,8 @@ const marqueeAvatars = [
         <div class="section__inner">
           <header class="section__header">
             <p class="eyebrow">社群的聲音</p>
-            <h2 id="voices-title">有人和你在同一週，把生活寫下來。</h2>
-            <p>八句句子，來自七日書過往的精選文章，可以點開整篇。</p>
+            <h2 id="voices-title">先聽聽他們在寫什麼。</h2>
+            <p>八句來自過往七日書的精選句子，每一句都能點開看完整篇。</p>
           </header>
 
           <ul class="voices-grid">
@@ -176,8 +176,9 @@ const marqueeAvatars = [
       >
         <div class="section__inner">
           <header class="section__header">
-            <p class="eyebrow">這兩年寫了多少</p>
-            <h2 id="stats-title">把這個社群的書寫量化一下。</h2>
+            <p class="eyebrow">兩年累積</p>
+            <h2 id="stats-title">有人和你在同一週，把生活寫下來。</h2>
+            <p>下面是這個社群這兩年寫出來的量。</p>
           </header>
 
           <div class="metrics-grid">
@@ -445,6 +446,9 @@ const marqueeAvatars = [
       <!-- 名家講座 已搬到 /museum 「歷年精選文章」下方 -->
 
 
+      {/* CC ys 第三階段：milestones 從卡片牆縮成一行水平時間軸（不重複兩次連結）
+          只留 date + title，點 title 直接到 Matters 公告。
+          舊 milestone 卡片帶 image / body 縮回博物館或外連時再展開。 */}
       <section
         id="milestones"
         class="section section--soft"
@@ -455,32 +459,23 @@ const marqueeAvatars = [
             <p class="eyebrow">{audiencePage.milestonesHeading}</p>
             <h2 id="milestones-title">從第一期到 {totalArticles.toLocaleString()} 篇人生。</h2>
             <p>
-              2024 春開始，每一個月一期，到 2026 年累積出來的時間軸。每個節點都連回 Matters 上的官方公告。
+              2024 春開始，每月一期。點任一節點到 Matters 看當期公告。
             </p>
           </header>
 
-          <ol class="milestone-timeline">
+          <ol class="milestone-row" aria-label="七日書里程節點">
             {
               milestones.map((m) => (
-                <li>
-                  <span class="milestone-timeline__date">{m.date}</span>
-                  <div class="milestone-timeline__body">
-                    <h3>{m.title}</h3>
-                    <p>{m.body}</p>
-                    <a
-                      class="lecture-card__link"
-                      href={m.href}
-                      target="_blank"
-                      rel="noopener"
-                    >
-                      閱讀公告 →
-                    </a>
-                  </div>
-                  {m.image && (
-                    <div class="milestone-timeline__media" aria-hidden="true">
-                      <img src={assetSrc(m.image)} alt="" loading="lazy" />
-                    </div>
-                  )}
+                <li class="milestone-row__item">
+                  <a
+                    class="milestone-row__link"
+                    href={m.href}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    <span class="milestone-row__date">{m.date}</span>
+                    <span class="milestone-row__title">{m.title}</span>
+                  </a>
                 </li>
               ))
             }

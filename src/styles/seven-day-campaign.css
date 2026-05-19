@@ -2013,6 +2013,56 @@
   text-align: center;
 }
 
+/* ─── #milestones 縮成水平時間軸（CC ys 第三階段）──────────────
+ * 替代原 milestone-timeline（垂直卡片牆 + image + body + 「閱讀公告」連結）
+ * 只留 date + title 一行，整段內容點 title 連到 Matters 公告 */
+.milestone-row {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: stretch;
+}
+
+.milestone-row__item {
+  flex: 0 1 auto;
+}
+
+.milestone-row__link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.4;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.milestone-row__link:hover {
+  border-color: var(--campaign-accent-dark);
+  background: var(--campaign-soft);
+}
+
+.milestone-row__date {
+  font-family: var(--font-display);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--campaign-accent-dark);
+  white-space: nowrap;
+}
+
+.milestone-row__title {
+  color: var(--ink);
+}
+
 /* ─── §Section 4 怎麼運作 機制 chip (CC ys) ────────────────────── */
 .how-grid {
   display: grid;

@@ -105,6 +105,10 @@ function scoreSentence(s) {
   if (promptCues >= 2 || (youCount >= 3 && promptCues >= 1)) penalty += 1.5;
   if (/(是否|有沒有|要不要).{0,8}[？?]/.test(txt)) penalty += 1; // 問句邀請
 
+  // 常見 typo / 同音錯字（landing 上會像我們自己錯字，避開）
+  // 「或得」→「獲得」/「在意」→「在乎」等等
+  if (/或得|或設|侯來|那兒|怎樣的|無遐|無曉/.test(txt)) penalty += 3;
+
   return (
     SCORE_WEIGHTS.length * lengthScore +
     SCORE_WEIGHTS.specificity * specificityScore +

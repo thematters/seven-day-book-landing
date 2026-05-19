@@ -1772,6 +1772,69 @@
   color: var(--campaign-accent-dark);
 }
 
+/* ─── CTA 雙態 (CC ys #7) ───────────────────────────────────────
+ * 同一個 section 內包兩個 state block：
+ *   .cta-band__state--writing  活動週版（倒數 + 加入按鈕）
+ *   .cta-band__state--reminder 非活動週版（email 訂閱表單）
+ * inline script 在 page load 根據 currentIssue.period 切換 hidden 屬性 */
+.cta-band--dual {
+  display: block;
+}
+
+.cta-band__state[hidden] {
+  display: none;
+}
+
+/* 活動週倒數天數強調 */
+.cta-band__state--writing strong[data-days-left] {
+  font-family: var(--font-display);
+  font-size: 1.4em;
+  font-weight: 700;
+  color: var(--campaign-accent-dark);
+  padding: 0 0.15em;
+}
+
+/* CTA 內聯 email 訂閱表單 */
+.cta-reminder-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.cta-reminder-form__label {
+  flex: 1 1 280px;
+  max-width: 360px;
+}
+
+.cta-reminder-form input[type="email"] {
+  width: 100%;
+  padding: 11px 14px;
+  font-size: 15px;
+  border: 1px solid var(--campaign-label);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.cta-reminder-form input[type="email"]:focus {
+  outline: 2px solid var(--campaign-accent-dark);
+  outline-offset: 1px;
+}
+
+.cta-reminder-form__status {
+  margin: 10px 0 0;
+  min-height: 1.2em;
+  font-size: 13.5px;
+  color: var(--ink-muted);
+  text-align: center;
+}
+.cta-reminder-form__status[data-kind="success"] { color: #2e8540; font-weight: 500; }
+.cta-reminder-form__status[data-kind="error"]   { color: #d04545; }
+.cta-reminder-form__status[data-kind="loading"] { color: var(--campaign-accent-dark); }
+
 /* ─── Page footer ────────────────────────────────────────────── */
 .page-footer {
   display: flex;

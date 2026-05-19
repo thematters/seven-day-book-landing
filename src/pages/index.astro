@@ -8,6 +8,7 @@ import {
   audienceFaq,
   audiencePage,
   contactEmail,
+  currentIssue,
   milestones,
   pastThemes,
   shared,
@@ -25,13 +26,13 @@ const assetSrc = (src?: string) => {
 // 永久性 hero banner — 不綁本月活動，用 freewrite 自由寫的氣味博物館主視覺
 const HERO_BANNER_SRC =
   "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/campaignCover/fb1bd2c2-754d-493b-9750-352ef7fe27b7.png/w=1920,h=600,fit=cover";
+// CC ys 提案第三階段：nav 從 6 項精簡到 3 項
+//   - 大滿貫 / 過去主題 / 歷年里程 / FAQ 改為頁內 anchor，不放 nav-level
+//   - 博物館 / 本月題目 / 洽談合作 三個是訪客真正會跳轉的目的地
 const nav = [
   { href: archiveHref, label: "博物館" },
-  { href: "#badge", label: "大滿貫" },
-  { href: "#themes", label: "過去主題" },
-  { href: "#milestones", label: "歷年里程" },
-  { href: "#faq", label: "FAQ" },
-  { href: partnersHref, label: "合作洽談" },
+  { href: "#current", label: "本月題目" },
+  { href: partnersHref, label: "洽談合作" },
 ];
 const marqueeAvatars = [
   ...shared.avatarWall.slice(0, 22),
@@ -93,17 +94,22 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
           <p class="eyebrow">{audiencePage.hero.eyebrow}</p>
           <h1 id="hero-title">{audiencePage.hero.headline}</h1>
           <p class="hero__lead">{audiencePage.hero.lead}</p>
+          {/* CC ys #1: Hero 3 個 CTA → 1 個。
+              data-hero-cta 由 inline script 在 page load 時根據 currentIssue.period
+              判斷活動週狀態，動態替換文案與 href（活動週「加入本月寫作」、
+              非活動週「看看大家寫了什麼」）。 */}
           <div class="hero__actions">
-            <a class="button button--primary" href={archiveHref}
-              >走進七日書博物館 →</a
-            >
             <a
-              class="button button--soft"
+              class="button button--primary"
+              data-hero-cta
+              data-href-writing={shared.joinHref}
+              data-href-browse={archiveHref}
+              data-label-writing="加入本月寫作 →"
+              data-label-browse="看看大家寫了什麼 →"
               href={shared.joinHref}
               target="_blank"
-              rel="noopener">加入本月寫作</a
+              rel="noopener">加入本月寫作 →</a
             >
-            <a class="button button--quiet" href={partnersHref}>洽談合作</a>
           </div>
         </div>
       </section>
@@ -405,22 +411,75 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
         </div>
       </section>
 
-      <section class="section" aria-labelledby="cta-title">
+      {/* CC ys #7: 最終 CTA 雙態切換
+          - 活動週：「本月七日書進行中，還有 X 天」+ 加入按鈕
+          - 非活動週：「下一期 M 月 D 日開始」+ inline email subscribe（不再用 modal）
+          inline script 在 load 時 detect currentIssue.period 切換顯示。
+          email submit 走原本 reminder-dialog 的 Apps Script endpoint，邏輯共用。 */}
+      <section
+        class="section section--cta"
+        id="next-up"
+        aria-labelledby="cta-title"
+        data-current-period={currentIssue.period}
+        data-event-href={shared.joinHref}
+        data-current-days-left=""
+      >
         <div class="section__inner">
-          <div class="cta-band">
-            <h2 id="cta-title">{audiencePage.cta.headline}</h2>
-            <p>{audiencePage.cta.body}</p>
-            <div class="cta-band__actions">
-              <button
-                class="button button--primary"
-                type="button"
-                data-open-reminder
+          <div class="cta-band cta-band--dual">
+            {/* 活動週版（預設隱藏，由 JS 切換） */}
+            <div class="cta-band__state cta-band__state--writing" hidden>
+              <h2 id="cta-title-writing">本月七日書進行中</h2>
+              <p>
+                還有 <strong data-days-left>—</strong> 天，現在加入還來得及。
+              </p>
+              <div class="cta-band__actions">
+                <a
+                  class="button button--primary"
+                  href={shared.joinHref}
+                  target="_blank"
+                  rel="noopener">加入本月寫作 →</a
+                >
+                <a class="button button--quiet" href={archiveHref}
+                  >走進博物館看歷年作品</a
+                >
+              </div>
+            </div>
+
+            {/* 非活動週版（預設顯示） */}
+            <div class="cta-band__state cta-band__state--reminder">
+              <h2 id="cta-title">{audiencePage.cta.headline}</h2>
+              <p>
+                <span data-next-issue-text>{audiencePage.cta.body}</span>
+              </p>
+              <form
+                class="cta-reminder-form"
+                id="cta-reminder-form"
+                novalidate
+                data-endpoint={EMAIL_REMINDER_ENDPOINT}
               >
-                {audiencePage.cta.button}
-              </button>
-              <a class="button button--quiet" href={archiveHref}
-                >走進博物館看歷年作品</a
-              >
+                <label class="cta-reminder-form__label">
+                  <span class="sr-only">Email</span>
+                  <input
+                    name="email"
+                    type="email"
+                    autocomplete="email"
+                    required
+                    placeholder="留下 email，下一期開放通知你"
+                  />
+                </label>
+                <button class="button button--primary" type="submit"
+                  >訂閱提醒</button
+                >
+                <a class="button button--quiet" href={archiveHref}
+                  >先看歷年作品</a
+                >
+              </form>
+              <p
+                class="cta-reminder-form__status"
+                id="cta-reminder-status"
+                role="status"
+                aria-live="polite"
+              ></p>
             </div>
           </div>
         </div>
@@ -490,6 +549,109 @@ for (let i = 0; i < pastThemes.length; i += themesPerPage) {
     }
 
     // 名家講座 展開 / 收起 → 已搬到 /museum
+
+    // CC ys #1 + #7: 活動週狀態偵測，動態切換 hero CTA 與 final CTA section
+    //
+    // 規則：
+    //   - 活動週 = 今天落在 currentIssue.period 範圍內（例如 "2026/5/4 - 2026/5/11"）
+    //   - 非活動週 = 否
+    //
+    // 影響元件：
+    //   - [data-hero-cta]：切換 label + href（活動週用 "加入本月寫作" / 非活動週用 "看看大家寫了什麼"）
+    //   - #next-up section：兩種 state，活動週顯示倒數天數 + CTA、非活動週顯示 email 訂閱表單
+    const ctaSection = document.getElementById("next-up");
+    const periodStr = ctaSection?.getAttribute("data-current-period") || "";
+    const isWritingWeek = (() => {
+      if (!periodStr) return false;
+      const [startStr, endStr] = periodStr.split(/\s*-\s*/);
+      if (!startStr || !endStr) return false;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const parseDate = (s) => {
+        // 容錯解析 "2026/5/4" 或 "2026-05-04"
+        const parts = s.trim().split(/[\/\-]/).map(Number);
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+      };
+      const start = parseDate(startStr);
+      const end = parseDate(endStr);
+      end.setHours(23, 59, 59, 999); // 活動最後一天含整天
+      return today >= start && today <= end;
+    })();
+
+    // Hero CTA 切換
+    const heroCta = document.querySelector("[data-hero-cta]");
+    if (heroCta) {
+      if (isWritingWeek) {
+        heroCta.textContent = heroCta.getAttribute("data-label-writing") || heroCta.textContent;
+        heroCta.setAttribute("href", heroCta.getAttribute("data-href-writing") || "#");
+      } else {
+        heroCta.textContent = heroCta.getAttribute("data-label-browse") || heroCta.textContent;
+        heroCta.setAttribute("href", heroCta.getAttribute("data-href-browse") || "#");
+        heroCta.removeAttribute("target"); // 內部連結不開新分頁
+        heroCta.removeAttribute("rel");
+      }
+    }
+
+    // Final CTA section 切換 + 算剩餘天數
+    if (ctaSection) {
+      const writingBlock = ctaSection.querySelector(".cta-band__state--writing");
+      const reminderBlock = ctaSection.querySelector(".cta-band__state--reminder");
+      if (isWritingWeek && writingBlock && reminderBlock) {
+        writingBlock.hidden = false;
+        reminderBlock.hidden = true;
+        // 算剩餘天數
+        const [, endStr] = periodStr.split(/\s*-\s*/);
+        const parts = endStr.trim().split(/[\/\-]/).map(Number);
+        const end = new Date(parts[0], parts[1] - 1, parts[2], 23, 59, 59, 999);
+        const today = new Date();
+        const daysLeft = Math.max(0, Math.ceil((end - today) / (1000 * 60 * 60 * 24)));
+        const daysEl = writingBlock.querySelector("[data-days-left]");
+        if (daysEl) daysEl.textContent = String(daysLeft);
+      }
+      // else: 維持預設（reminder 顯示、writing 隱藏）
+    }
+
+    // CTA section inline reminder form (非活動週 email 訂閱)
+    const ctaForm = document.getElementById("cta-reminder-form");
+    const ctaStatusEl = document.getElementById("cta-reminder-status");
+    if (ctaForm) {
+      const ctaEndpoint = ctaForm.getAttribute("data-endpoint") || "";
+      const setCtaStatus = (msg, kind) => {
+        if (!ctaStatusEl) return;
+        ctaStatusEl.textContent = msg || "";
+        ctaStatusEl.dataset.kind = kind || "";
+      };
+      ctaForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const fd = new FormData(ctaForm);
+        const email = String(fd.get("email") || "").trim();
+        if (!email || !/.+@.+\..+/.test(email)) {
+          setCtaStatus("請輸入有效的 email", "error");
+          return;
+        }
+        const submit = ctaForm.querySelector("button[type=submit]");
+        submit && (submit.disabled = true);
+        setCtaStatus("送出中…", "loading");
+        try {
+          await fetch(ctaEndpoint, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({
+              email,
+              source: "landing-cta-inline",
+              userAgent: navigator.userAgent,
+              referrer: document.referrer || "",
+            }),
+          });
+          setCtaStatus("✓ 已收到！下一期開放時會寄通知給你。", "success");
+          ctaForm.reset();
+        } catch (err) {
+          setCtaStatus("送出失敗，請稍後再試。", "error");
+          submit && (submit.disabled = false);
+        }
+      });
+    }
 
     const dialog = document.getElementById("reminder-dialog");
     const form = document.getElementById("reminder-form");

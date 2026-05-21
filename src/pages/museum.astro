@@ -700,31 +700,121 @@ const promptIso = (mdStr: string) => {
     // 從 @thematters/cjk-book-builder import 進來的 helper
     const escapeHtml = cjkEscapeHtml;
 
-    const fetchUserArticles = async (handle) => {
-      // 加 cover + summary + contents.markdown，小書直接取用內文與圖片
-      const query = `query($userName: String!) {
+    // 抓使用者的「七日書」相關文章
+    //
+    // 為什麼分兩階段：
+    //   - 階段 1：paginate user.articles 100 篇/批，只拿輕量欄位（沒 markdown）
+    //     用來確認該用戶共有多少篇文章 / 哪些屬於七日書 campaign
+    //   - 階段 2：對 階段 1 篩出的「七日書系列」文章，再個別補 contents.markdown
+    //     （小書需要 markdown，但對 200+ 篇文用戶來說全撈會很慢）
+    //
+    // Bug fix (2026-05): 原本只 fetch 第一批 100 篇，舊期七日書被截斷
+    // 因此 JK_talk (20 期大滿貫 ≥ 140 篇) 只顯示最新 2 期 8 篇。
+    const MATTERS_PAGE_SIZE = 100;
+    const MAX_PAGES = 10; // 安全上限 1000 篇
+
+    const fetchUserArticleList = async (handle, onProgress) => {
+      // 階段 1：paginate 拿輕量 list（不含 markdown）
+      const query = `query($userName: String!, $first: Int!, $after: String) {
         user(input: { userName: $userName }) {
           userName displayName avatar
-          articles(input: { first: 100 }) {
+          articles(input: { first: $first, after: $after }) {
+            pageInfo { hasNextPage endCursor }
             edges {
               node {
                 shortHash slug title createdAt cover summary
-                contents { markdown }
                 campaigns { campaign { shortHash name } }
               }
             }
           }
         }
       }`;
+      let after = null;
+      let user = null;
+      const allArticles = [];
+      for (let page = 0; page < MAX_PAGES; page++) {
+        const res = await fetch(MATTERS_GQL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query, variables: { userName: handle, first: MATTERS_PAGE_SIZE, after } }),
+        });
+        const json = await res.json();
+        if (json.errors) throw new Error(json.errors[0]?.message || "GraphQL error");
+        const u = json.data.user;
+        if (!u) throw new Error("找不到這位作者");
+        if (!user) user = { userName: u.userName, displayName: u.displayName, avatar: u.avatar };
+        for (const e of u.articles.edges) allArticles.push(e.node);
+        onProgress?.({ page: page + 1, fetched: allArticles.length, hasMore: u.articles.pageInfo.hasNextPage });
+        if (!u.articles.pageInfo.hasNextPage) break;
+        after = u.articles.pageInfo.endCursor;
+      }
+      return { ...user, articles: allArticles };
+    };
+
+    // 階段 2：對指定的 article shortHash 個別 fetch contents.markdown
+    const ARTICLE_CONTENT_QUERY = `query($shortHash: String!) {
+      article(input: { shortHash: $shortHash }) {
+        contents { markdown }
+      }
+    }`;
+    const fetchArticleMarkdown = async (shortHash) => {
       const res = await fetch(MATTERS_GQL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, variables: { userName: handle } }),
+        body: JSON.stringify({ query: ARTICLE_CONTENT_QUERY, variables: { shortHash } }),
       });
       const json = await res.json();
-      if (json.errors) throw new Error(json.errors[0]?.message || "GraphQL error");
-      return json.data.user;
+      if (json.errors) return null;
+      return json.data.article?.contents?.markdown || null;
     };
+
+    /** 給目前已 fetch 的七日書文章批量補 contents.markdown（小書用） */
+    const enrichWithMarkdown = async (freewriteArticles, onProgress) => {
+      const total = freewriteArticles.length;
+      let done = 0;
+      // 並行 6 個避免被 throttle
+      const CONCURRENT = 6;
+      const queue = [...freewriteArticles];
+      const workers = Array.from({ length: CONCURRENT }, async () => {
+        while (queue.length) {
+          const a = queue.shift();
+          a.contents = { markdown: await fetchArticleMarkdown(a.shortHash) };
+          done++;
+          onProgress?.({ done, total });
+        }
+      });
+      await Promise.all(workers);
+    };
+
+    // Top-level 包裝：階段 1 拿全部 list、立刻 renderResult 顯示 quick view；
+    // 階段 2 在背景補 markdown 給「製作我的小書」用。
+    // 製作小書按鈕在 stage 2 還沒完成時點下會 await currentEnrichment。
+    let currentEnrichment = Promise.resolve();
+    const fetchUserArticles = async (handle) => {
+      const stage1 = await fetchUserArticleList(handle, ({ fetched, hasMore }) => {
+        passportResult.innerHTML = `<p class="passport-loading" aria-busy="true">已找到 ${fetched} 篇${hasMore ? "（還在抓更舊的⋯）" : ""}</p>`;
+      });
+      // 哪些是七日書系列？只對這些補 markdown（節省）
+      const freewriteOnly = stage1.articles.filter((a) =>
+        (a.campaigns || []).some((c) =>
+          FREEWRITE_NEEDLE.some((n) => (c.campaign?.name || "").includes(n)),
+        ),
+      );
+      // 背景補 markdown — 不阻塞 renderResult 顯示
+      currentEnrichment = enrichWithMarkdown(freewriteOnly, ({ done, total }) => {
+        // 更新「製作小書」按鈕 label 顯示進度
+        const btn = passportResult?.querySelector("[data-open-book]");
+        if (btn && done < total) {
+          btn.dataset.markdownProgress = `${done}/${total}`;
+          btn.disabled = false; // 仍允許點，按下會 await
+        } else if (btn) {
+          delete btn.dataset.markdownProgress;
+        }
+      });
+      return stage1;
+    };
+    // 暴露給 openBook 使用
+    window.__currentEnrichment = () => currentEnrichment;
 
     // markdown / HTML 混合 → 乾淨 HTML — 改用 @thematters/cjk-book-builder
     // 包的 mdToHtml。包內預設 figure 的 class 是 .cjk-book-fig；museum CSS
@@ -1290,6 +1380,12 @@ const promptIso = (mdStr: string) => {
       bookPagesEl.innerHTML = `<p class="book-modal__placeholder" aria-busy="true">正在排版你的小書，A5 開本中…（首次需 2-5 秒）</p>`;
       try {
         ensureBookCss();
+        // 等所有文章 markdown 都補完（背景 enrichment 可能還在跑）
+        if (window.__currentEnrichment) {
+          bookPagesEl.innerHTML = `<p class="book-modal__placeholder" aria-busy="true">正在抓你的文章內文⋯</p>`;
+          await window.__currentEnrichment();
+          bookPagesEl.innerHTML = `<p class="book-modal__placeholder" aria-busy="true">內文抓完了，開始排版 A5⋯</p>`;
+        }
         const html = buildBookHtml(lastJourney);
         await cjkRenderPdfPreview(html, {
           container: bookPagesEl,
@@ -1736,6 +1832,8 @@ section.closing .quote {
       epubBtn.disabled = true;
       epubBtn.textContent = "打包中…";
       try {
+        // 等所有文章 markdown 都補完（背景 enrichment 可能還在跑）
+        if (window.__currentEnrichment) await window.__currentEnrichment();
         const { chapters, bookTitle, author } = buildEpubChaptersFromJourney(lastJourney);
         // 生封面 PNG (~30KB)
         let coverImage = null;

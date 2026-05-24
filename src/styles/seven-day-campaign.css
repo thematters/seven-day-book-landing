@@ -1772,7 +1772,125 @@
   color: var(--campaign-accent-dark);
 }
 
-/* ─── §Section 2a 社群溫度 quote 卡 (CC ys) ────────────────────── */
+/* ─── §Section 2 本月主題 + 7 題（v2 改版）─────────────────────── */
+.current-prompts {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.current-prompts__item {
+  position: relative;
+}
+
+.current-prompts__link {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "day date"
+    "title title"
+    "prompt prompt"
+    "arrow arrow";
+  gap: 4px 12px;
+  align-items: baseline;
+  padding: 18px 20px 16px;
+  height: 100%;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  text-decoration: none;
+  color: var(--ink);
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.current-prompts__link:hover {
+  transform: translateY(-2px);
+  border-color: var(--campaign-accent-dark);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.current-prompts__day {
+  grid-area: day;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--campaign-accent-dark);
+  padding: 3px 9px;
+  background: var(--campaign-soft);
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.current-prompts__date {
+  grid-area: date;
+  justify-self: end;
+  color: var(--ink-muted);
+  font-size: 13px;
+  font-family: var(--font-display);
+}
+
+.current-prompts__title {
+  grid-area: title;
+  margin: 8px 0 4px;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+.current-prompts__prompt {
+  grid-area: prompt;
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--ink-muted);
+}
+
+.current-prompts__arrow {
+  grid-area: arrow;
+  justify-self: end;
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--campaign-accent-dark);
+  font-family: var(--font-display);
+  opacity: 0.6;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.current-prompts__link:hover .current-prompts__arrow {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
+/* 狀態 — past / today / locked */
+.current-prompts__item--today .current-prompts__link {
+  border-color: var(--campaign-accent-dark);
+  border-width: 2px;
+  padding: 17px 19px 15px;
+}
+
+.current-prompts__item--today .current-prompts__day::after {
+  content: " · 今天";
+}
+
+.current-prompts__item--locked .current-prompts__link {
+  opacity: 0.6;
+}
+
+.current-prompts__cta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+/* ─── §Section 3 (原 Section 2a) 社群溫度 quote 卡 ────────────────────── */
 .voices-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1877,10 +1995,10 @@
 
 .prompt-issue__details summary {
   display: grid;
-  grid-template-columns: 56px 1fr auto;
+  grid-template-columns: 56px 1fr auto auto;
   align-items: center;
   gap: 16px;
-  padding: 16px 20px;
+  padding: 18px 20px;
   cursor: pointer;
   list-style: none;
   transition: background 0.15s ease;
@@ -1932,15 +2050,23 @@
 
 .prompt-issue__name strong {
   font-family: var(--font-display);
-  font-size: 16.5px;
+  font-size: 19px; /* v2: 從 16.5px 拉大，對讀者友善 */
   font-weight: 700;
   color: var(--ink);
+  line-height: 1.35;
 }
 
 .prompt-issue__name em {
   color: var(--ink-muted);
   font-style: normal;
+  font-size: 14px;
+}
+
+/* v2: 每期 summary 旁的「參與寫作」連結 button */
+.prompt-issue__join {
+  white-space: nowrap;
   font-size: 13px;
+  padding: 7px 14px;
 }
 
 .prompt-issue__month {
@@ -1979,9 +2105,9 @@
 }
 
 .prompt-day__body h4 {
-  margin: 2px 0 4px;
+  margin: 2px 0 6px;
   font-family: var(--font-display);
-  font-size: 14.5px;
+  font-size: 16px; /* v2: 14.5 → 16 */
   font-weight: 700;
   color: var(--ink);
   line-height: 1.5;
@@ -1989,8 +2115,8 @@
 
 .prompt-day__body p {
   margin: 0;
-  font-size: 13.5px;
-  line-height: 1.7;
+  font-size: 14.5px; /* v2: 13.5 → 14.5 */
+  line-height: 1.75;
   color: var(--ink-muted);
 }
 
@@ -2066,7 +2192,7 @@
 /* ─── §Section 4 怎麼運作 機制 chip (CC ys) ────────────────────── */
 .how-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 18px;
   padding: 0;
   margin: 0;
@@ -2118,6 +2244,23 @@
   color: var(--campaign-accent-dark);
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+/* 第 4 chip 為大滿貫徽章，含 SVG visual */
+.how-chip--badge .how-chip__visual {
+  display: block;
+  margin: 2px 0 6px;
+}
+
+.how-chip__link {
+  margin: 12px 0 0 !important;
+  font-size: 13.5px;
+}
+
+.how-chip__link a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
 }
 
 /* ─── CTA 雙態 (CC ys #7) ───────────────────────────────────────

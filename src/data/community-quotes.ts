@@ -1,6 +1,6 @@
-// 七日書社群精華句子 — 由 scripts/curate-community-quotes.mjs (2026-05-19) 自動產生
+// 七日書社群精華句子 — 由 scripts/curate-community-quotes.mjs (2026-05-24) 自動產生
 // 從 freewriteFeatured 用文本分析評分（長度 / 具體性 / 情感 / 詩意）抽出每期最高分句
-// 跨期分散，目前取 8 句。
+// 跨期分散，目前取 9 句。
 // 重跑：node scripts/curate-community-quotes.mjs --write
 //
 // ⚠️ 抽出來後人工再 review 一遍，可以手動調整 text / 順序
@@ -24,4 +24,5 @@ export const communityQuotes: CommunityQuote[] = [
   { text: "是離開海島、重返現實的那一刻——所有的美好像夢一樣迅速消散", author: "yomi", userName: "yomi", avatar: "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/8f4c4b94-fdde-4c50-ad89-0c06f70ed790.jpeg/public", campaignName: "七日書：書寫地方", campaignLabel: "書寫地方", articleHash: "8kgndejck9vm" },
   { text: "或者是記下你曾經去過的島，來回水陸路上的風景、島上風光、人際交流等", author: "YSC 。角落與世界 。", userName: "klaviercindy", avatar: "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/7eebba52-2c0b-40cb-8423-d56184a552f8.jpeg/public", campaignName: "七日書：島嶼精神，另類人生", campaignLabel: "島嶼精神，另類人生", articleHash: "n8vd225ekc8a" },
   { text: "比方說，那些曾讓你放不下、纏繞著你、坐立不安的事情，終於「come out」的時刻", author: "siaosiaosiusiu", userName: "wuxiaoxiao", avatar: "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/b414206b-f2a6-4369-b372-69873f57fea5.jpeg/public", campaignName: "七日書：人間鬼故事", campaignLabel: "人間鬼故事", articleHash: "6o5msh712w94" },
+  { text: "我很想跟你聊一聊我的那些坏习惯，但我更想跟你聊一聊现代人的结构性孤独", author: "inmyewigkeit", userName: "inmyewigkeit", avatar: "https://imagedelivery.net/kDRCweMmqLnTPNlbum-pYA/prod/avatar/8de197d2-ae74-4a53-a162-7df89bd908d3.jpeg/public", campaignName: "七日書｜說聲告別，走向新的自己", campaignLabel: "說聲告別，走向新的自己", articleHash: "sichyg0guvuk" },
 ];

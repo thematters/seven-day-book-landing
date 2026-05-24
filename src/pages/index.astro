@@ -98,19 +98,12 @@ const marqueeAvatars = [
           <p class="eyebrow">{audiencePage.hero.eyebrow}</p>
           <h1 id="hero-title">{audiencePage.hero.headline}</h1>
           <p class="hero__lead">{audiencePage.hero.lead}</p>
-          {/* CC ys #1: Hero 3 個 CTA → 1 個。
-              data-hero-cta 由 inline script 在 page load 時根據 currentIssue.period
-              判斷活動週狀態，動態替換文案與 href（活動週「加入本月寫作」、
-              非活動週「看看大家寫了什麼」）。 */}
+          {/* v2 改版：hero CTA 永遠是「加入本月寫作」連到本月活動頁 (currentIssue.eventHref)
+              移除之前 dual-state JS 切換（活動週/非活動週兩種文案） */}
           <div class="hero__actions">
             <a
               class="button button--primary"
-              data-hero-cta
-              data-href-writing={shared.joinHref}
-              data-href-browse={archiveHref}
-              data-label-writing="加入本月寫作 →"
-              data-label-browse="看看大家寫了什麼 →"
-              href={shared.joinHref}
+              href={currentIssue.eventHref}
               target="_blank"
               rel="noopener">加入本月寫作 →</a
             >
@@ -118,7 +111,59 @@ const marqueeAvatars = [
         </div>
       </section>
 
-      {/* CC ys §Section 2a: 社群溫度 — 8 句精華 quote
+      {/* §Section 2 本月主題（v2 改版）— 本月七日書的主題 + 7 道題目 + CTA
+          資料：currentIssue (src/data/seven-day-campaign.ts)
+          注意：Matters event 頁面目前沒有 deep-link 到單天的 URL 結構，
+          所以每道題目卡片連的還是整個活動頁 (currentIssue.eventHref)，
+          讓使用者進去自己找對應天的 tab。 */}
+      <section
+        id="current"
+        class="section section--paper"
+        aria-labelledby="current-title"
+      >
+        <div class="section__inner">
+          <header class="section__header">
+            <p class="eyebrow">本月七日書 · {currentIssue.period}</p>
+            <h2 id="current-title">{currentIssue.title}</h2>
+            <p>{currentIssue.summary}</p>
+          </header>
+
+          <ol class="current-prompts">
+            {
+              currentIssue.prompts.map((p) => (
+                <li class={`current-prompts__item current-prompts__item--${p.state}`}>
+                  <a
+                    class="current-prompts__link"
+                    href={currentIssue.eventHref}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    <span class="current-prompts__day">{p.day}</span>
+                    <span class="current-prompts__date">{p.date}</span>
+                    <h3 class="current-prompts__title">{p.title}</h3>
+                    <p class="current-prompts__prompt">{p.prompt}</p>
+                    <span class="current-prompts__arrow" aria-hidden="true">→</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ol>
+
+          <div class="current-prompts__cta">
+            <a
+              class="button button--primary"
+              href={currentIssue.eventHref}
+              target="_blank"
+              rel="noopener"
+            >加入本月寫作 →</a>
+            <a class="button button--quiet" href={currentIssue.announcementHref} target="_blank" rel="noopener"
+              >讀本期主題公告 →</a
+            >
+          </div>
+        </div>
+      </section>
+
+      {/* §Section 3 (原 Section 2a): 社群溫度 — 9 句精華 quote
           來源：scripts/curate-community-quotes.mjs 從 531 篇精選文做文本評分挑出
           重跑：node scripts/curate-community-quotes.mjs --write */}
       <section
@@ -216,86 +261,6 @@ const marqueeAvatars = [
         </div>
       </section>
 
-      <section
-        id="museum-promo"
-        class="museum-promo-dark"
-        aria-labelledby="museum-promo-title"
-      >
-        <div
-          class="museum-promo-bg"
-          style={`background-image: url('${HERO_BANNER_SRC}');`}
-          aria-hidden="true"
-        ></div>
-        <div class="museum-promo-overlay" aria-hidden="true"></div>
-
-        <div class="museum-promo-inner">
-          <div class="museum-promo-content">
-            <p class="museum-promo-eyebrow">想看現在 · 想看過去</p>
-            <h2 id="museum-promo-title">
-              所有期數，都在<br/><span class="museum-promo-hl">七日書博物館</span>
-            </h2>
-            <p class="museum-promo-lead">
-              本月正在進行的題目、{allThemes.length} 期歷來主題、{totalUniqueAuthors.toLocaleString()} 位文友的足跡 ——
-              都收進博物館。每張主視覺都連回 Matters 那場活動。
-            </p>
-
-            <ul class="museum-promo-stats" aria-label="博物館內容統計">
-              <li>
-                <strong>{allThemes.length}</strong>
-                <span>期主題</span>
-              </li>
-              <li>
-                <strong>{totalUniqueAuthors.toLocaleString()}</strong>
-                <span>位文友</span>
-              </li>
-              <li>
-                <strong>{totalArticles.toLocaleString()}</strong>
-                <span>篇人生</span>
-              </li>
-              <li>
-                <strong>{totalUniqueAwardWinners}</strong>
-                <span>位獲憑證</span>
-              </li>
-            </ul>
-
-            <div class="museum-promo-actions">
-              <a class="button museum-promo-cta" href={archiveHref}>
-                <span>走進博物館</span>
-                <span class="museum-promo-cta-arrow" aria-hidden="true">→</span>
-              </a>
-              <a class="museum-promo-link" href={`${archiveHref}#current-issue`}>
-                看本月七題 →
-              </a>
-              <a class="museum-promo-link" href={`${archiveHref}#featured`}>
-                看歷年精選 →
-              </a>
-            </div>
-          </div>
-
-          <ul class="museum-promo-thumbs" aria-label="近期七日書主視覺預覽">
-            {
-              allThemes
-                .slice(-6)
-                .reverse()
-                .map((theme, i) => (
-                  <li class="museum-promo-thumb" style={`--i: ${i}`}>
-                    <a href={archiveHref} aria-label={`看 ${theme.name}`}>
-                      <img
-                        src={assetSrc(theme.announceCover)}
-                        alt=""
-                        loading="lazy"
-                      />
-                      <span class="museum-promo-thumb-label">
-                        {theme.monthLabel}
-                      </span>
-                    </a>
-                  </li>
-                ))
-            }
-          </ul>
-        </div>
-      </section>
-
       {/* CC ys §Section 4: 怎麼運作 — 機制 chip + 實例細節
           回應 ys 提案「每月一週 / 七天七道題目 / 集體一起完成」並補實例。 */}
       <section
@@ -333,155 +298,181 @@ const marqueeAvatars = [
               <h3>FreeWrite 精神</h3>
               <p>
                 自由書寫不批改自己；先讓字流出來、回頭再改。
-                七篇寫完獲得鏈上大滿貫徽章。
               </p>
             </li>
-          </ol>
-        </div>
-      </section>
-
-      <section
-        id="badge"
-        class="section section--paper"
-        aria-labelledby="badge-title"
-      >
-        <div class="section__inner">
-          <div class="badge-panel">
-            <div class="badge-panel__visual" aria-hidden="true">
-              <GrandBadge size={108} />
-            </div>
-            <div>
-              <p class="eyebrow">{audiencePage.grandBadgeCopy.kicker}</p>
-              <h2 id="badge-title">{audiencePage.grandBadgeCopy.title}</h2>
+            <li class="how-chip how-chip--badge">
+              <span class="how-chip__step">04</span>
+              <span class="how-chip__visual" aria-hidden="true">
+                <GrandBadge size={56} />
+              </span>
+              <h3>{audiencePage.grandBadgeCopy.title}</h3>
               <p>{audiencePage.grandBadgeCopy.body}</p>
-              <p class="note-line">
+              <p class="how-chip__link">
                 <a
                   href={shared.grandBadge.link.href}
                   target="_blank"
                   rel="noopener">{shared.grandBadge.link.label} →</a
                 >
               </p>
-            </div>
-          </div>
+            </li>
+          </ol>
         </div>
       </section>
 
-      {/* CC ys §Section 3: 題目庫
-          以期為單位，每期 details 預設收合（最新一期預設展開）。
-          每期顯示主題名 + announceSummary 一句，展開後列 7 (三日書 3) 道題目。
+      {/* §Section 6 (v2 改版): 題目庫
+          - 從新到舊（S25 在最上、預設展開）
+          - 每期標題加大字
+          - 每期 summary 旁加「參與寫作」button 連到該期 matters.town 活動頁
           資料：src/data/freewrite-prompts.ts (24 期 156 題，scrape 自 Matters 公告)
           重抓：node scripts/scrape-campaign-prompts.mjs --write */}
+      {/* series 編號 → matters.town event shortHash 對照（5-25 期；1-4 期早於 campaign 模組無 hash） */}
+      {(() => {
+        const SERIES_TO_EVENT = {
+          S5: "ia800figcq9y", S6: "ybs0lqsrpmhn", S7: "scx3f16y37v6", S8: "8t5liudbtpup",
+          S9: "eqsfuc3qph6u", S10: "x4rv6dwgk68o", S11: "f7rpyecg32mg", S12: "26uhbm3uh6rg",
+          S13: "efkk0l9hcg96", S14: "h2ya9xxjubd2", S15: "5zhf2bpty274", S16: "rt04oolqbexh",
+          S17: "owt3jxplay6z", S18: "3uskpxsbzmz5", S19: "ox9fmcz6zxxj", S20: "nqbeo3cdn585",
+          S21: "4v5mndkbz44v", S22: "q48dv6ve4g2m", S23: "aiafcgbu89p2", S24: "wem6xy6u7okv",
+        };
+        const issuesReversed = [...freewriteIssues].reverse();
+        return (
+          <section
+            id="prompts"
+            class="section section--soft"
+            aria-labelledby="prompts-title"
+          >
+            <div class="section__inner">
+              <header class="section__header">
+                <p class="eyebrow">題目庫</p>
+                <h2 id="prompts-title">{audiencePage.pastThemesHeading}</h2>
+                <p>
+                  {freewriteIssues.length} 期共 {freewriteIssues.reduce((s, i) => s + i.prompts.length, 0)} 道題目，從新到舊。點開期數看每天題目，按「參與寫作」直接到 Matters 活動頁。
+                </p>
+              </header>
+
+              <ol class="prompt-issue-list" data-prompt-list>
+                {issuesReversed.map((issue, idx) => {
+                  const themeMeta = allThemes.find((t) => t.series === issue.series);
+                  const oneLine = themeMeta?.announceSummary
+                    ? (themeMeta.announceSummary.length > 60
+                        ? themeMeta.announceSummary.slice(0, 60) + "…"
+                        : themeMeta.announceSummary)
+                    : "";
+                  const eventHash = SERIES_TO_EVENT[issue.series];
+                  const eventHref = eventHash
+                    ? `https://matters.town/e/${eventHash}`
+                    : issue.announceHref;
+                  return (
+                    <li class="prompt-issue">
+                      <details class="prompt-issue__details" open={idx === 0}>
+                        <summary class="prompt-issue__summary">
+                          <span class="prompt-issue__series">{issue.series}</span>
+                          <span class="prompt-issue__name">
+                            <strong>{issue.name.replace(/^七日書[｜：]/, "")}</strong>
+                            {oneLine && <em>{oneLine}</em>}
+                          </span>
+                          <span class="prompt-issue__month">{issue.monthLabel}</span>
+                          <a
+                            class="button button--soft prompt-issue__join"
+                            href={eventHref}
+                            target="_blank"
+                            rel="noopener"
+                            onclick="event.stopPropagation()"
+                          >參與寫作 →</a>
+                        </summary>
+                        <ol class="prompt-issue__days">
+                          {issue.prompts.map((p) => (
+                            <li class="prompt-day">
+                              <span class="prompt-day__label">{p.day}</span>
+                              <div class="prompt-day__body">
+                                <h4>{p.title}</h4>
+                                {p.prompt !== p.title && (
+                                  <p>
+                                    {p.prompt.length > 200
+                                      ? p.prompt.slice(0, 200) + "…"
+                                      : p.prompt}
+                                  </p>
+                                )}
+                              </div>
+                            </li>
+                          ))}
+                        </ol>
+                        <a
+                          class="prompt-issue__source"
+                          href={issue.announceHref}
+                          target="_blank"
+                          rel="noopener"
+                        >到 Matters 看完整公告 →</a>
+                      </details>
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
+          </section>
+        );
+      })()}
+
       <section
-        id="prompts"
-        class="section section--soft"
-        aria-labelledby="prompts-title"
+        id="museum-promo"
+        class="museum-promo-dark"
+        aria-labelledby="museum-promo-title"
       >
-        <div class="section__inner">
-          <header class="section__header">
-            <p class="eyebrow">題目庫</p>
-            <h2 id="prompts-title">{audiencePage.pastThemesHeading}</h2>
-            <p>
-              {freewriteIssues.length} 期共 {freewriteIssues.reduce((s, i) => s + i.prompts.length, 0)} 道題目。點開期數可以看每天的題目，也可以連到 Matters 看完整公告。
+        <div
+          class="museum-promo-bg"
+          style={`background-image: url('${HERO_BANNER_SRC}');`}
+          aria-hidden="true"
+        ></div>
+        <div class="museum-promo-overlay" aria-hidden="true"></div>
+
+        <div class="museum-promo-inner">
+          <div class="museum-promo-content">
+            <p class="museum-promo-eyebrow">給已參與的文友</p>
+            <h2 id="museum-promo-title">
+              <span class="museum-promo-hl">七日書博物館</span>
+            </h2>
+            <p class="museum-promo-lead">
+              如果你已經是七日書作者，進入博物館，找到自己的寫作展廳，製作專屬小書。
             </p>
-          </header>
 
-          <ol class="prompt-issue-list" data-prompt-list>
-            {
-              freewriteIssues.map((issue, idx) => {
-                const themeMeta = allThemes.find((t) => t.series === issue.series);
-                const oneLine = themeMeta?.announceSummary
-                  ? (themeMeta.announceSummary.length > 50
-                      ? themeMeta.announceSummary.slice(0, 50) + "…"
-                      : themeMeta.announceSummary)
-                  : "";
-                return (
-                  <li class="prompt-issue">
-                    <details class="prompt-issue__details" open={idx === 0}>
-                      <summary class="prompt-issue__summary">
-                        <span class="prompt-issue__series">{issue.series}</span>
-                        <span class="prompt-issue__name">
-                          <strong>{issue.name.replace(/^七日書[｜：]/, "")}</strong>
-                          {oneLine && <em>{oneLine}</em>}
-                        </span>
-                        <span class="prompt-issue__month">{issue.monthLabel}</span>
-                      </summary>
-                      <ol class="prompt-issue__days">
-                        {issue.prompts.map((p) => (
-                          <li class="prompt-day">
-                            <span class="prompt-day__label">{p.day}</span>
-                            <div class="prompt-day__body">
-                              <h4>{p.title}</h4>
-                              {p.prompt !== p.title && (
-                                <p>
-                                  {p.prompt.length > 180
-                                    ? p.prompt.slice(0, 180) + "…"
-                                    : p.prompt}
-                                </p>
-                              )}
-                            </div>
-                          </li>
-                        ))}
-                      </ol>
-                      <a
-                        class="prompt-issue__source"
-                        href={issue.announceHref}
-                        target="_blank"
-                        rel="noopener"
-                      >到 Matters 看完整公告 →</a>
-                    </details>
-                  </li>
-                );
-              })
-            }
-          </ol>
-
-          <div class="prompt-issue-list__cta">
-            <a class="button button--quiet" href={archiveHref}
-              >到博物館看歷年作品 →</a
-            >
+            <div class="museum-promo-actions">
+              <a class="button museum-promo-cta" href={archiveHref}>
+                <span>走進博物館</span>
+                <span class="museum-promo-cta-arrow" aria-hidden="true">→</span>
+              </a>
+              <a class="museum-promo-link" href={`${archiveHref}#featured`}>
+                看歷年精選 →
+              </a>
+            </div>
           </div>
-        </div>
-      </section>
 
-      <!-- 名家講座 已搬到 /museum 「歷年精選文章」下方 -->
-
-
-      {/* CC ys 第三階段：milestones 從卡片牆縮成一行水平時間軸（不重複兩次連結）
-          只留 date + title，點 title 直接到 Matters 公告。
-          舊 milestone 卡片帶 image / body 縮回博物館或外連時再展開。 */}
-      <section
-        id="milestones"
-        class="section section--soft"
-        aria-labelledby="milestones-title"
-      >
-        <div class="section__inner">
-          <header class="section__header">
-            <p class="eyebrow">{audiencePage.milestonesHeading}</p>
-            <h2 id="milestones-title">從第一期到 {totalArticles.toLocaleString()} 篇人生。</h2>
-            <p>
-              2024 春開始，每月一期。點任一節點到 Matters 看當期公告。
-            </p>
-          </header>
-
-          <ol class="milestone-row" aria-label="七日書里程節點">
+          <ul class="museum-promo-thumbs" aria-label="近期七日書主視覺預覽">
             {
-              milestones.map((m) => (
-                <li class="milestone-row__item">
-                  <a
-                    class="milestone-row__link"
-                    href={m.href}
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    <span class="milestone-row__date">{m.date}</span>
-                    <span class="milestone-row__title">{m.title}</span>
-                  </a>
-                </li>
-              ))
+              allThemes
+                .slice(-6)
+                .reverse()
+                .map((theme, i) => (
+                  <li class="museum-promo-thumb" style={`--i: ${i}`}>
+                    <a href={archiveHref} aria-label={`看 ${theme.name}`}>
+                      <img
+                        src={assetSrc(theme.announceCover)}
+                        alt=""
+                        loading="lazy"
+                      />
+                      <span class="museum-promo-thumb-label">
+                        {theme.monthLabel}
+                      </span>
+                    </a>
+                  </li>
+                ))
             }
-          </ol>
+          </ul>
         </div>
       </section>
+
+      <!-- v2 改版：移除 #milestones section（總篇數已在 #stats 顯示，避免重複）
+           名家講座已搬到 /museum 「歷年精選文章」下方 -->
+
 
       <section
         id="faq"
@@ -625,15 +616,8 @@ const marqueeAvatars = [
   </div>
 
   <script is:inline>
-    // CC ys #1 + #7: 活動週狀態偵測，動態切換 hero CTA 與 final CTA section
-    //
-    // 規則：
-    //   - 活動週 = 今天落在 currentIssue.period 範圍內（例如 "2026/5/4 - 2026/5/11"）
-    //   - 非活動週 = 否
-    //
-    // 影響元件：
-    //   - [data-hero-cta]：切換 label + href（活動週用 "加入本月寫作" / 非活動週用 "看看大家寫了什麼"）
-    //   - #next-up section：兩種 state，活動週顯示倒數天數 + CTA、非活動週顯示 email 訂閱表單
+    // 活動週狀態偵測：給 final CTA section 用（v2 改版後 hero CTA 不再切換）
+    // 規則：今天落在 currentIssue.period 範圍內（例如 "2026/5/4 - 2026/5/11"）
     const ctaSection = document.getElementById("next-up");
     const periodStr = ctaSection?.getAttribute("data-current-period") || "";
     const isWritingWeek = (() => {
@@ -643,29 +627,14 @@ const marqueeAvatars = [
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const parseDate = (s) => {
-        // 容錯解析 "2026/5/4" 或 "2026-05-04"
         const parts = s.trim().split(/[\/\-]/).map(Number);
         return new Date(parts[0], parts[1] - 1, parts[2]);
       };
       const start = parseDate(startStr);
       const end = parseDate(endStr);
-      end.setHours(23, 59, 59, 999); // 活動最後一天含整天
+      end.setHours(23, 59, 59, 999);
       return today >= start && today <= end;
     })();
-
-    // Hero CTA 切換
-    const heroCta = document.querySelector("[data-hero-cta]");
-    if (heroCta) {
-      if (isWritingWeek) {
-        heroCta.textContent = heroCta.getAttribute("data-label-writing") || heroCta.textContent;
-        heroCta.setAttribute("href", heroCta.getAttribute("data-href-writing") || "#");
-      } else {
-        heroCta.textContent = heroCta.getAttribute("data-label-browse") || heroCta.textContent;
-        heroCta.setAttribute("href", heroCta.getAttribute("data-href-browse") || "#");
-        heroCta.removeAttribute("target"); // 內部連結不開新分頁
-        heroCta.removeAttribute("rel");
-      }
-    }
 
     // Final CTA section 切換 + 算剩餘天數
     if (ctaSection) {

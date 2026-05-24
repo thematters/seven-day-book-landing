@@ -44,31 +44,42 @@ const assetSrc = (src?: string) => {
 // 24 期主題倒序：最新在前
 const archiveThemes = [...allThemes].reverse();
 
-// series → shortHash 對照（早期 1-4 期早於 Matters campaign 模組沒 hash）
-// 跟 scripts/import-awards.mjs / index.astro SERIES_TO_EVENT 對齊
-const SERIES_TO_HASH: Record<string, string> = {
-  S5: "ia800figcq9y", S6: "ybs0lqsrpmhn", S7: "scx3f16y37v6", S8: "8t5liudbtpup",
-  S9: "eqsfuc3qph6u", S10: "x4rv6dwgk68o", S11: "f7rpyecg32mg", S12: "26uhbm3uh6rg",
-  S13: "efkk0l9hcg96", S14: "h2ya9xxjubd2", S15: "5zhf2bpty274", S16: "rt04oolqbexh",
-  S17: "owt3jxplay6z", S18: "3uskpxsbzmz5", S19: "ox9fmcz6zxxj", S20: "nqbeo3cdn585",
-  S21: "4v5mndkbz44v", S22: "q48dv6ve4g2m", S23: "aiafcgbu89p2", S24: "wem6xy6u7okv",
+// 「寫作期年-月 → campaign」對照表 — 給 museum 個人查詢用，解 GraphQL
+// article.campaigns 漏抓某些早期 / 隱藏文章的問題。文章 createdAt 落在某期寫作月
+// 就強制歸類到該期。
+//
+// ⚠️ 來源：observablehq notebook events array (寫作期 time.start)
+// 不能用 themes.monthLabel（那是「報名月」，跟寫作期差 1 個月）
+// 也跟 themes.series 編號不同對應（themes 漏「山海塢三日書」obs id 6）
+//
+// Mapping 每行：寫作期 year-month → { hash, name, series, obsId }
+const freewriteCampaignsByMonth: Record<string, { hash: string; name: string; series: string }> = {
+  "2024-04": { hash: "S1", name: "七日書 #1 · 自由寫", series: "S1" }, // obs 1, no hash
+  "2024-06": { hash: "S2", name: "書寫家與故鄉", series: "S2" }, // obs 2, no hash
+  "2024-07": { hash: "S3", name: "愛與親密關係", series: "S3" }, // obs 3, no hash
+  "2024-08": { hash: "S4", name: "我的人生飯桌", series: "S4" }, // obs 4, no hash
+  "2024-09": { hash: "ia800figcq9y", name: "與自我對話：成長軌跡", series: "S5" }, // obs 5
+  "2024-10": { hash: "ybs0lqsrpmhn", name: "山海塢三日書", series: "S6-special" }, // obs 6 (themes 漏這期)
+  "2024-11": { hash: "scx3f16y37v6", name: "島嶼精神", series: "S6" }, // obs 7
+  "2024-12": { hash: "8t5liudbtpup", name: "物的體系", series: "S7" }, // obs 8
+  "2025-01": { hash: "eqsfuc3qph6u", name: "我的（不）完美人生", series: "S8" }, // obs 9
+  "2025-02": { hash: "x4rv6dwgk68o", name: "人間鬼故事", series: "S9" }, // obs 10
+  "2025-03": { hash: "f7rpyecg32mg", name: "我的家庭故事", series: "S10" }, // obs 11
+  "2025-04": { hash: "4nqnizsygmcn", name: "書寫地方", series: "S11" }, // obs 12
+  "2025-05": { hash: "26uhbm3uh6rg", name: "人生的靈魂提問（一週年）", series: "S12" }, // obs 13
+  "2025-06": { hash: "efkk0l9hcg96", name: "What If 人生有如果", series: "S13" }, // obs 14
+  "2025-07": { hash: "h2ya9xxjubd2", name: "長女症候群（三日書）", series: "S14" }, // obs 15
+  "2025-08": { hash: "5zhf2bpty274", name: "兩廳院藝術出走 · 關於人生", series: "S15" }, // obs 16
+  "2025-09": { hash: "rt04oolqbexh", name: "兩廳院藝術出走 · 標記回憶", series: "S16" }, // obs 17
+  "2025-10": { hash: "owt3jxplay6z", name: "曖昧時刻", series: "S17" }, // obs 18
+  "2025-11": { hash: "3uskpxsbzmz5", name: "重構生活", series: "S18" }, // obs 19
+  "2025-12": { hash: "ox9fmcz6zxxj", name: "說聲告別，走向新的自己", series: "S19" }, // obs 20
+  "2026-01": { hash: "nqbeo3cdn585", name: "衣櫥裡的自我", series: "S20" }, // obs 21
+  "2026-02": { hash: "4v5mndkbz44v", name: "數位雲端的我", series: "S21" }, // obs 22
+  "2026-03": { hash: "q48dv6ve4g2m", name: "我的人生帳本", series: "S22" }, // obs 23
+  "2026-04": { hash: "aiafcgbu89p2", name: "氣味博物館", series: "S23" }, // obs 24
+  "2026-05": { hash: "wem6xy6u7okv", name: "我的職場人格", series: "S24" }, // obs 25 (current)
 };
-
-// 給 museum 個人查詢的「年-月 → campaign」對照：解 GraphQL article.campaigns
-// 漏抓某些早期文章 / 隱藏文章的問題。文章 createdAt 落在某期的活動月份就強制歸類。
-// 月份規則：用 monthLabel ("2024 / 4") 抽 (year, month)
-// 1-4 期沒 shortHash，用 series 當 fallback key (e.g. "S1")
-const freewriteCampaignsByMonth: Record<string, { hash: string; name: string; series: string }> = {};
-for (const t of allThemes) {
-  const m = (t.monthLabel || "").match(/(\d{4})\s*\/\s*(\d{1,2})/);
-  if (!m) continue;
-  const key = `${m[1]}-${String(Number(m[2])).padStart(2, "0")}`;
-  const hash = SERIES_TO_HASH[t.series] || t.series; // fallback 用 series 當 key
-  // 不覆寫已存在 (S2 / S3 都是 2024/6，先到先贏 — 但實際上重疊月份的優先序見下方 fallback)
-  if (!freewriteCampaignsByMonth[key]) {
-    freewriteCampaignsByMonth[key] = { hash, name: t.name, series: t.series };
-  }
-}
 
 const promptStateLabel: Record<string, string> = {
   past: "已開放",

@@ -44,6 +44,32 @@ const assetSrc = (src?: string) => {
 // 24 期主題倒序：最新在前
 const archiveThemes = [...allThemes].reverse();
 
+// series → shortHash 對照（早期 1-4 期早於 Matters campaign 模組沒 hash）
+// 跟 scripts/import-awards.mjs / index.astro SERIES_TO_EVENT 對齊
+const SERIES_TO_HASH: Record<string, string> = {
+  S5: "ia800figcq9y", S6: "ybs0lqsrpmhn", S7: "scx3f16y37v6", S8: "8t5liudbtpup",
+  S9: "eqsfuc3qph6u", S10: "x4rv6dwgk68o", S11: "f7rpyecg32mg", S12: "26uhbm3uh6rg",
+  S13: "efkk0l9hcg96", S14: "h2ya9xxjubd2", S15: "5zhf2bpty274", S16: "rt04oolqbexh",
+  S17: "owt3jxplay6z", S18: "3uskpxsbzmz5", S19: "ox9fmcz6zxxj", S20: "nqbeo3cdn585",
+  S21: "4v5mndkbz44v", S22: "q48dv6ve4g2m", S23: "aiafcgbu89p2", S24: "wem6xy6u7okv",
+};
+
+// 給 museum 個人查詢的「年-月 → campaign」對照：解 GraphQL article.campaigns
+// 漏抓某些早期文章 / 隱藏文章的問題。文章 createdAt 落在某期的活動月份就強制歸類。
+// 月份規則：用 monthLabel ("2024 / 4") 抽 (year, month)
+// 1-4 期沒 shortHash，用 series 當 fallback key (e.g. "S1")
+const freewriteCampaignsByMonth: Record<string, { hash: string; name: string; series: string }> = {};
+for (const t of allThemes) {
+  const m = (t.monthLabel || "").match(/(\d{4})\s*\/\s*(\d{1,2})/);
+  if (!m) continue;
+  const key = `${m[1]}-${String(Number(m[2])).padStart(2, "0")}`;
+  const hash = SERIES_TO_HASH[t.series] || t.series; // fallback 用 series 當 key
+  // 不覆寫已存在 (S2 / S3 都是 2024/6，先到先贏 — 但實際上重疊月份的優先序見下方 fallback)
+  if (!freewriteCampaignsByMonth[key]) {
+    freewriteCampaignsByMonth[key] = { hash, name: t.name, series: t.series };
+  }
+}
+
 const promptStateLabel: Record<string, string> = {
   past: "已開放",
   today: "今日題目",
@@ -667,6 +693,15 @@ const promptIso = (mdStr: string) => {
     </div>
   </div>
 
+  {/* 把 server-side 算好的 freewriteCampaignsByMonth 注入給 client-side script 用：
+      用於修正 GraphQL article.campaigns 漏掉的早期文章（campaign 模組之前）/ 隱藏文章。
+      title 含七日書關鍵字 + createdAt 月份 match → 強制歸到該期 */}
+  <script
+    type="application/json"
+    id="freewrite-campaigns-by-month"
+    set:html={JSON.stringify(freewriteCampaignsByMonth)}
+  ></script>
+
   <script>
     // 注意：原本是 <script is:inline>，改成 <script> 以支援 import。
     // Astro 會自動 bundle 這個 script 為 ESM，內部 import 都會打進 bundle。
@@ -711,7 +746,15 @@ const promptIso = (mdStr: string) => {
     // Bug fix (2026-05): 原本只 fetch 第一批 100 篇，舊期七日書被截斷
     // 因此 JK_talk (20 期大滿貫 ≥ 140 篇) 只顯示最新 2 期 8 篇。
     const MATTERS_PAGE_SIZE = 100;
-    const MAX_PAGES = 10; // 安全上限 1000 篇
+    const MAX_PAGES = 20; // 安全上限 2000 篇 (原 1000，多寫的長期文友會超出)
+
+    // server-side 注入的「年-月 → campaign」對照表（修早期文章 / 隱藏文章 GraphQL 漏抓）
+    const FREEWRITE_CAMPAIGN_BY_MONTH = (() => {
+      try {
+        const el = document.getElementById("freewrite-campaigns-by-month");
+        return el ? JSON.parse(el.textContent || "{}") : {};
+      } catch { return {}; }
+    })();
 
     const fetchUserArticleList = async (handle, onProgress) => {
       // 階段 1：paginate 拿輕量 list（不含 markdown）
@@ -795,11 +838,17 @@ const promptIso = (mdStr: string) => {
         passportResult.innerHTML = `<p class="passport-loading" aria-busy="true">已找到 ${fetched} 篇${hasMore ? "（還在抓更舊的⋯）" : ""}</p>`;
       });
       // 哪些是七日書系列？只對這些補 markdown（節省）
-      const freewriteOnly = stage1.articles.filter((a) =>
-        (a.campaigns || []).some((c) =>
+      // 同 renderResult 邏輯：含 campaign tag 或 title 含 NEEDLE + 月份對應
+      const freewriteOnly = stage1.articles.filter((a) => {
+        const hasCampaign = (a.campaigns || []).some((c) =>
           FREEWRITE_NEEDLE.some((n) => (c.campaign?.name || "").includes(n)),
-        ),
-      );
+        );
+        if (hasCampaign) return true;
+        const hasTitle = FREEWRITE_NEEDLE.some((n) => (a.title || "").includes(n));
+        if (!hasTitle) return false;
+        const ym = a.createdAt ? a.createdAt.slice(0, 7) : null;
+        return ym && FREEWRITE_CAMPAIGN_BY_MONTH[ym];
+      });
       // 背景補 markdown — 不阻塞 renderResult 顯示
       currentEnrichment = enrichWithMarkdown(freewriteOnly, ({ done, total }) => {
         // 更新「製作小書」按鈕 label 顯示進度
@@ -826,22 +875,52 @@ const promptIso = (mdStr: string) => {
         '<figure class="book-article-fig">'
       );
     };
+    // 取 article 的 (year-month) → "YYYY-MM"
+    const yearMonth = (iso) => iso ? iso.slice(0, 7) : null;
+
     const groupByCampaign = (articles) => {
       const groups = new Map();
+      let attachedCount = 0; // 由 article.campaigns 直接認列
+      let titleFallbackCount = 0; // 由「title 含 NEEDLE + createdAt 月份對應」fallback 認列
+
       articles.forEach((a) => {
-        const c = (a.campaigns || []).find((c) =>
+        // Path A: article 本身有 campaign tag — 直接歸類
+        const tagged = (a.campaigns || []).find((c) =>
           FREEWRITE_NEEDLE.some((n) => (c.campaign?.name || "").includes(n)),
         )?.campaign;
-        if (!c) return;
-        if (!groups.has(c.shortHash))
-          groups.set(c.shortHash, { campaign: c, articles: [] });
-        groups.get(c.shortHash).articles.push(a);
+        if (tagged) {
+          if (!groups.has(tagged.shortHash))
+            groups.set(tagged.shortHash, { campaign: tagged, articles: [] });
+          groups.get(tagged.shortHash).articles.push(a);
+          attachedCount++;
+          return;
+        }
+
+        // Path B fallback: 沒 campaign tag 但 title 含七日書關鍵字
+        // (常見於早期 1-4 期 / campaign 模組之前的文章 / 隱藏文章)
+        const titleHit = FREEWRITE_NEEDLE.some((n) => (a.title || "").includes(n));
+        if (!titleHit) return;
+        const ym = yearMonth(a.createdAt);
+        const match = ym ? FREEWRITE_CAMPAIGN_BY_MONTH[ym] : null;
+        if (!match) return; // 月份對不到任何期，跳過
+        const fakeKey = match.hash; // 用 shortHash (5-25 期) 或 series 字串 (1-4 期 fallback)
+        if (!groups.has(fakeKey)) {
+          groups.set(fakeKey, {
+            campaign: { shortHash: match.hash, name: match.name },
+            articles: [],
+          });
+        }
+        groups.get(fakeKey).articles.push(a);
+        titleFallbackCount++;
       });
-      return [...groups.values()].sort((a, b) => {
+
+      const sorted = [...groups.values()].sort((a, b) => {
         const da = Math.max(...a.articles.map((x) => +new Date(x.createdAt)));
         const db = Math.max(...b.articles.map((x) => +new Date(x.createdAt)));
         return db - da;
       });
+      sorted._debug = { attachedCount, titleFallbackCount };
+      return sorted;
     };
 
     const formatMonthLabel = (iso) => {
@@ -937,13 +1016,22 @@ const promptIso = (mdStr: string) => {
         lastJourney = null;
         return;
       }
+      // 收七日書文章：campaign tag 或 title 含關鍵字（含早期 1-4 期 / 隱藏文章）
       const articles = (user.articles?.edges || [])
         .map((e) => e.node)
-        .filter((a) =>
-          (a.campaigns || []).some((c) =>
+        .filter((a) => {
+          const hasCampaign = (a.campaigns || []).some((c) =>
             FREEWRITE_NEEDLE.some((n) => (c.campaign?.name || "").includes(n)),
-          ),
-        );
+          );
+          const hasTitle = FREEWRITE_NEEDLE.some((n) =>
+            (a.title || "").includes(n),
+          );
+          // title-only article 再過濾：必須月份對到任何一期才算（避免不相關的「...自由寫」誤判）
+          if (hasCampaign) return true;
+          if (!hasTitle) return false;
+          const ym = a.createdAt ? a.createdAt.slice(0, 7) : null;
+          return ym && FREEWRITE_CAMPAIGN_BY_MONTH[ym];
+        });
 
       if (!articles.length) {
         passportResult.innerHTML = `
@@ -997,7 +1085,11 @@ const promptIso = (mdStr: string) => {
                 <a href="${profileUrl}" target="_blank" rel="noopener">@${escapeHtml(user.userName)} →</a>
               </p>
               <p class="passport-found__stats">
-                在 <strong>${groups.length}</strong> 期七日書活動裡，留下 <strong>${articles.length}</strong> 篇文章
+                在 <strong>${groups.length}</strong> 期七日書活動裡，留下 <strong>${groups.reduce((s, g) => s + g.articles.length, 0)}</strong> 篇文章${
+                  groups._debug?.titleFallbackCount
+                    ? `<small class="passport-found__stats-note">（${groups._debug.attachedCount} 篇有 campaign tag、${groups._debug.titleFallbackCount} 篇用標題月份對應）</small>`
+                    : ""
+                }
               </p>
             </div>
             <button
@@ -1876,7 +1968,18 @@ section.closing .quote {
     };
 
     const runSearch = async (handle) => {
-      const clean = (handle || "").replace(/^@/, "").replace(/^https?:\/\/[^/]+\/@?/, "").trim();
+      // 容錯接受：
+      //   - 純 handle: "jerryku2003"
+      //   - 帶 @: "@jerryku2003"
+      //   - matters URL: "https://matters.town/@jerryku2003" / "matters.town/@jerryku2003"
+      //   - matters article URL → 失敗（不是 user handle，留給 GraphQL 報錯）
+      const clean = (handle || "")
+        .trim()
+        .replace(/^https?:\/\//, "")        // 拿掉 protocol
+        .replace(/^(?:www\.)?matters\.town\//, "")  // 拿掉 matters.town/
+        .replace(/^@/, "")                  // 拿掉開頭 @
+        .replace(/[?#].*$/, "")             // 拿掉 query/hash
+        .trim();
       if (!clean) return;
       if (passportInput) passportInput.value = clean;
       renderLoading();

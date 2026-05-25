@@ -720,6 +720,21 @@
   display: none;
 }
 
+/* v3.x: 整張卡片包成 <a> 連到 matters event 頁，hover 微抬 + 變色 */
+.day-unlock-card__link {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+.day-unlock-card__link:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
 .day-unlock-card__top {
   display: flex;
   align-items: center;
@@ -1255,6 +1270,7 @@
   padding: 2px 8px;
   border-radius: 999px;
   background: var(--campaign-soft);
+  white-space: nowrap;
   color: var(--campaign-accent-dark);
   font-size: 11px;
   font-weight: 500;
@@ -1839,21 +1855,28 @@
   transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-/* 七欄 desktop 時 (≥ 1281px) 卡片很窄，把 prompt body 隱藏只留 day + title
- * 想看完整題目就點進去 matters 活動頁 */
+/* 七欄 desktop 時 (≥ 1281px) 卡片很窄但 prompt 是精華要保留
+ * 用 line-clamp 限 3 行 + 字級調小，避免破版 */
 @media (min-width: 1281px) {
   .current-prompts__link {
     padding: 14px 12px 12px;
-  }
-  .current-prompts__prompt {
-    display: none;
   }
   .current-prompts__date {
     font-size: 12px;
   }
   .current-prompts__title {
-    font-size: 15px;
-    margin: 6px 0 2px;
+    font-size: 14.5px;
+    margin: 6px 0 4px;
+    line-height: 1.4;
+  }
+  .current-prompts__prompt {
+    font-size: 12.5px;
+    line-height: 1.55;
+    /* 限 4 行，超出顯示 ellipsis */
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 }
 
@@ -2088,6 +2111,7 @@
   font-family: var(--font-display);
   font-size: 14px;
   font-weight: 700;
+  white-space: nowrap;
   color: var(--campaign-accent-dark);
   letter-spacing: 0.04em;
 }
@@ -2126,9 +2150,9 @@
   white-space: nowrap;
 }
 
-/* v3: 七天列表閱讀友善版 — 加大行距、單欄、Day label 改成內聯左上 */
+/* v3.x: 七天列表閱讀友善版 — Day label 內聯左上、用左邊框強調 + 更大行距 */
 .prompt-issue__days-wrap {
-  padding: 6px 28px 12px;
+  padding: 8px 28px 14px;
 }
 
 .prompt-issue__days {
@@ -2137,20 +2161,15 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 28px;
 }
 
 .prompt-day {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 16px 0 0;
-  border-top: 1px dashed var(--hairline);
-}
-
-.prompt-day:first-child {
-  border-top: none;
-  padding-top: 6px;
+  gap: 10px;
+  padding: 4px 0 0 16px;
+  border-left: 2px solid var(--campaign-soft);
 }
 
 .prompt-day__label {

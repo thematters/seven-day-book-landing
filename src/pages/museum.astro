@@ -86,6 +86,7 @@ const promptStateLabel: Record<string, string> = {
   past: "已開放",
   today: "今日題目",
   locked: "即將開放",
+  upcoming: "即將開放",
 };
 // 名家講座預設 show 6 位、按「展開更多」秀全部
 const LECTURES_INITIAL = 6;
@@ -346,15 +347,23 @@ const promptIso = (mdStr: string) => {
                   data-day-card
                   data-day-iso={promptIso(prompt.date)}
                 >
-                  <div class="day-unlock-card__top">
-                    <span>{prompt.date}</span>
-                    <span data-day-status>
-                      {promptStateLabel[prompt.state] ?? "題目"}
-                    </span>
-                  </div>
-                  <span class="day-unlock-card__day">{prompt.day}</span>
-                  <h3>{prompt.title}</h3>
-                  <p>{prompt.prompt}</p>
+                  <a
+                    class="day-unlock-card__link"
+                    href={currentIssue.eventHref}
+                    target="_blank"
+                    rel="noopener"
+                    aria-label={`${prompt.day} · ${prompt.title} — 到 Matters 活動頁`}
+                  >
+                    <div class="day-unlock-card__top">
+                      <span>{prompt.date}</span>
+                      <span data-day-status>
+                        {promptStateLabel[prompt.state] ?? "題目"}
+                      </span>
+                    </div>
+                    <span class="day-unlock-card__day">{prompt.day}</span>
+                    <h3>{prompt.title}</h3>
+                    <p>{prompt.prompt}</p>
+                  </a>
                 </li>
               ))
             }
@@ -1031,9 +1040,9 @@ const promptIso = (mdStr: string) => {
         return;
       }
       // 收七日書文章：campaign tag 或 title 含關鍵字（含早期 1-4 期 / 隱藏文章）
-      const articles = (user.articles?.edges || [])
-        .map((e) => e.node)
-        .filter((a) => {
+      // fetchUserArticleList 已 paginate 並把 edges.node 展平成 array,
+      // 所以這裡 user.articles 就是 plain array of nodes（無 .edges）
+      const articles = (user.articles || []).filter((a) => {
           const hasCampaign = (a.campaigns || []).some((c) =>
             FREEWRITE_NEEDLE.some((n) => (c.campaign?.name || "").includes(n)),
           );

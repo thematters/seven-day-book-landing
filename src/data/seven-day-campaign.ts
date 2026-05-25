@@ -613,8 +613,7 @@ export const audiencePage = {
   ],
   currentIssue,
   articlesHeading: "他們正在寫這些",
-  articlesNote:
-    "從最近一期作品開始讀起。可以拖移卡片、翻面看摘句，再點一次進去 Matters 看完整篇。",
+  articlesNote: "從最近一期作品開始讀起，點卡片進去 Matters 看完整篇。",
   grandBadgeCopy: {
     kicker: "大滿貫徽章",
     title: "七天寫滿，為自己留下一枚時間印記。",
@@ -636,9 +635,12 @@ export const partnerPage = {
   description: `七日書機構合作頁，整理 ${eventCount} 期歷史主題、16 位作家講座、累積 ${totalRegistrations.toLocaleString()} 人次報名與兩廳院藝術出走合作案例，提供文化機構與品牌洽談七日書共創。`,
   heroBanner: `${CDN}/campaignCover/94525f57-eb5e-4e4a-9b5c-88af2ccb097f.png/w=1376,h=5504,fit=scale-down,anim=false`,
   hero: {
-    eyebrow: "For partners",
-    headline: "把你的命題，交給上千個真實生活來回答。",
-    lead: "七日書把展演、出版、公共議題或品牌主張轉成七天可書寫的提問。參與者寫下的不是問卷答案，而是能被閱讀、策展、收藏與延伸的生命經驗。",
+    eyebrow: "歡迎成為我們的合作夥伴",
+    // 用 \n 在 partnership.astro 的 H1 拆成兩行；斷在「交給」後（不是行內 nowrap）
+    headlineLine1: "把你的命題，交給",
+    headlineLine2: "上千個真實生活來回答。",
+    headline: "把你的命題，交給上千個真實生活來回答。", // 保留給 description / og 用
+    lead: "七日書把展演、出版、公共議題或品牌主張轉換為可以連續書寫的提問。由參與者寫下能被閱讀、策展、收藏與延伸的生命經驗。",
     primaryLabel: "洽談合作",
     secondaryLabel: "加入寫作",
   },
@@ -669,7 +671,7 @@ export const partnerPage = {
   executionIntro: [
     {
       step: "01",
-      title: "主題共創",
+      title: "冠名主題共創",
       body: "從合作方真正想打開的問題出發，把議題拆成七道有人願意回到自身經驗裡回答的題目。",
     },
     {
@@ -694,10 +696,11 @@ export const partnerPage = {
       "活動規模：近 500 位文友參與，兩場講座皆有完整逐字稿",
       "延伸內容：郭強生、楊翠講座文字精華，可長期保存、引用、再傳播",
     ],
+    // 主圖 (caseStudy.image) 已用第 1 張；gallery slice(1) 拿後面當縮圖
+    // 之前後 2 張視覺重複，砍掉一張
     gallery: [
       `${CDN}/cover/402fc6a3-6ba5-4aeb-860c-aaaa1ccbc7bd.png/public`,
       `${CDN}/cover/372bc503-6ba7-414e-a4d2-a3e3adf8195d.jpeg/public`,
-      `${CDN}/cover/b16cc0d2-5d77-4796-9d0c-62bf3b3478e0.jpeg/public`,
     ],
     relatedArticles: [
       {
@@ -716,7 +719,7 @@ export const partnerPage = {
   },
   packages: [
     {
-      title: "主題共創",
+      title: "冠名共創",
       iconKind: "theme",
       body: "共同設計七道題目，讓你的議題被轉化成具體、可回應、可持續書寫的個人經驗。已執行案例包括家庭、地方、長女、職場等橫跨日常與公共議題的命題。",
     },

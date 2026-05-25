@@ -75,12 +75,14 @@ const marqueeAvatars = [
         </div>
         <div class="hero__copy">
           <p class="eyebrow">{partnerPage.hero.eyebrow}</p>
-          <h1 id="partner-hero-title">{partnerPage.hero.headline}</h1>
+          <h1 id="partner-hero-title">
+            {partnerPage.hero.headlineLine1}<br />{partnerPage.hero.headlineLine2}
+          </h1>
           <p class="hero__lead">{partnerPage.hero.lead}</p>
           <div class="hero__meta" aria-label="合作重點">
-            <span class="pill">主題共創</span>
-            <span class="pill">名家講座</span>
-            <span class="pill">書寫憑證</span>
+            <span class="pill">冠名支持</span>
+            <span class="pill">客製活動</span>
+            <span class="pill">贊助出題</span>
           </div>
           <div class="hero__actions">
             <a class="button button--primary" href={shared.contactHref}
@@ -99,9 +101,9 @@ const marqueeAvatars = [
         <div class="section__inner">
           <header class="section__header">
             <p class="eyebrow">累積參與</p>
-            <h2 id="impact-title">七日書已經累積出一個可合作的書寫社群。</h2>
+            <h2 id="impact-title">七日書已經累積成一個能量豐富的書寫社群。</h2>
             <p>
-              對合作方來說，重要的不只是流量，而是同一題目下持續出現的真實回應。
+              對合作夥伴而言，七日書重點除了流量，更在於同一命題下的真實回應。
             </p>
           </header>
 
@@ -200,7 +202,7 @@ const marqueeAvatars = [
                     )}
                   </div>
                   <div class="theme-row__date">
-                    <span class="theme-row__series">{theme.series}</span>
+                    <span class="theme-row__series">第 {theme.series.replace(/^S/, "")} 期</span>
                     <span>{theme.monthLabel}</span>
                   </div>
                 </a>
@@ -237,7 +239,7 @@ const marqueeAvatars = [
               <span class="nowrap-group">從題目設計，</span><span class="nowrap-group">到七天書寫，</span><span class="nowrap-group">再到可保存的成果。</span>
             </h2>
             <p>
-              它不只是一次徵文，而是一套有節奏、有陪伴感，也能沉澱內容資產的書寫機制。
+              七日書已從單次徵文，發展為一套有節奏、有陪伴感，並能持續沉澱內容資產的書寫機制。
             </p>
           </header>
 
@@ -265,14 +267,9 @@ const marqueeAvatars = [
             <p class="eyebrow">名家講座</p>
             <h2 id="lectures-title">講座讓題目從活動週延伸成內容資產。</h2>
             <p>
-              當講座被整理成文字，它就能繼續被搜尋、引用、轉寄，也能成為下一波討論的起點。
+              當講座被整理成文字，它就能繼續被搜尋、引用、轉寄，也能成為下一波討論的起點。從 2024 年至今，七日書共邀請 {lectures.length} 位講者陪文友書寫，其中 {lectures.filter((l) => l.hasTranscript).length} 場留下完整文字精華。
             </p>
           </header>
-
-          <p class="section__sublead">
-            從 2024 年至今，七日書共邀請 {lectures.length} 位講者陪文友書寫。其中
-            {lectures.filter((l) => l.hasTranscript).length} 場留下完整文字精華。
-          </p>
 
           <div class="lecture-grid lecture-grid--dense">
             {

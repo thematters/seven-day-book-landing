@@ -1,15 +1,22 @@
-name: Monthly auto-refresh (prompts + featured + quotes)
+name: Monthly auto-refresh (detect + prompts + quotes)
 
-# 每月 25 號台北 09:00 自動跑（七日書官方在每月 25 號公布新一期主題）
-# 重抓：
-#   - scripts/scrape-campaign-prompts.mjs  → 24+1 期 prompts
-#   - scripts/curate-community-quotes.mjs → 8 句精選社群 quote
-# （freewrite-themes.json / freewrite-featured.json 仍需手動更新或另寫 ETL）
+# 每月 25 號台北 09:00 跑（七日書官方在每月 25 號 0:00 公布新一期主題）
 #
-# 流程：跑兩個 script → 把改動開 PR
+# 完整流程（v3.8 改版）：
+#   1. detect-new-campaign.mjs：偵測 @freewrite 最新「七日書開始報名」公告，
+#      自動 append 新一期到 research/freewrite-themes.json
+#   2. scrape-campaign-prompts.mjs：解析新一期公告 markdown 抽 7 題進 freewrite-prompts.ts
+#   3. curate-community-quotes.mjs：從新精選文重新挑 9 句社群 quote
+#   4. 變動就開 PR
+#
+# Reviewer 在 PR 內還需要手動：
+#   - 把 src/pages/index.astro / museum.astro 內 SERIES_TO_EVENT +
+#     FREEWRITE_CAMPAIGN_BY_MONTH 加新一期 entry
+#   - src/data/seven-day-campaign.ts 的 currentIssue 全替換
+#   (這幾步留給人，避免亂改 currentIssue 的 prompt 文案)
+#
 # 注意：scripts 用的是 Matters public GraphQL，無需 secret
-#
-# 手動觸發：workflow_dispatch（如果 25 號漏跑或新一期上線想立刻刷新）
+# 手動觸發：workflow_dispatch（如果 25 號漏跑或想立刻刷新）
 
 on:
   schedule:
@@ -30,6 +37,9 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Detect new campaign & bootstrap themes.json
+        run: node scripts/detect-new-campaign.mjs --write
+
       - name: Refresh campaign prompts
         run: node scripts/scrape-campaign-prompts.mjs --write
 
@@ -39,7 +49,7 @@ jobs:
       - name: Check for changes
         id: diff
         run: |
-          if git diff --quiet src/data/freewrite-prompts.ts src/data/community-quotes.ts; then
+          if git diff --quiet research/freewrite-themes.json src/data/freewrite-prompts.ts src/data/community-quotes.ts; then
             echo "changed=false" >> $GITHUB_OUTPUT
           else
             echo "changed=true" >> $GITHUB_OUTPUT
@@ -52,24 +62,38 @@ jobs:
           branch: auto/monthly-refresh
           delete-branch: true
           base: main
-          title: "chore(content): 每月 25 號自動刷新 prompts + quotes"
+          title: "chore(content): 每月自動刷新 themes / prompts / quotes"
           commit-message: |
             chore(content): 每月 25 號自動刷新
 
-            從 Matters GraphQL 重抓最新一期公告內的七題 + 從新精選文做文本分析挑社群 quote。
-            Review 後 merge 即可 deploy。
+            從 @freewrite 最新公告偵測新一期、抓 7 題、重挑 9 句社群 quote。
+            Review 後 reviewer 還需手動 update SERIES_TO_EVENT / FREEWRITE_CAMPAIGN_BY_MONTH
+            / currentIssue 三處，再 merge 觸發 deploy。
           body: |
             ## 月度自動刷新
 
-            來源：
-            - `scripts/scrape-campaign-prompts.mjs` → `src/data/freewrite-prompts.ts`
-            - `scripts/curate-community-quotes.mjs` → `src/data/community-quotes.ts`
+            這次 workflow 改動的檔案：
+            - `research/freewrite-themes.json` — 由 detect-new-campaign.mjs append
+            - `src/data/freewrite-prompts.ts` — 由 scrape-campaign-prompts.mjs 重抓
+            - `src/data/community-quotes.ts` — 由 curate-community-quotes.mjs 重挑
 
-            **檢查重點：**
-            1. `freewrite-prompts.ts` 有沒有新增最新一期 (新月份)
-            2. `community-quotes.ts` 抽出的 8 句是否合理（少數可能還是有題目提示文味道，可微調 script 內 SCORE_WEIGHTS）
+            ## ⚠️ Reviewer 還要手動做的 (3 處改動)
 
-            ⚠️ 如果新一期還沒收錄到 `research/freewrite-themes.json` (announceHref)，這個 PR 不會包含新期。需要先手動把新期加進去。
+            合併 PR 之前請手動加新一期：
+
+            1. **`src/pages/index.astro`** 內 `SERIES_TO_EVENT`：
+               ```
+               S{N}: "{eventHash}",   // 從 detect script log 抄
+               ```
+
+            2. **`src/pages/museum.astro`** 內 `freewriteCampaignsByMonth`：
+               ```
+               "{writingMonth}": { hash: "...", name: "...", series: "S{N}" },
+               ```
+
+            3. **`src/data/seven-day-campaign.ts`** 內 `currentIssue`：
+               - title / period / eventHref / announcementHref / cover / summary
+               - prompts[] 從 `freewrite-prompts.ts` 新一期 copy 過去並可手動 polish
 
             🤖 由 `.github/workflows/refresh-monthly.yml` 排程觸發
           labels: |

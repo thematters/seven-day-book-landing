@@ -58,7 +58,10 @@ const marqueeAvatars = [
       </nav>
 
       <div class="sitebar__actions">
-        <a class="button button--primary" href={shared.contactHref}
+        <a
+          class="button button--primary"
+          data-contact-copy={shared.contactEmailPlain}
+          href={shared.contactHref}
           >{partnerPage.hero.primaryLabel}</a
         >
       </div>
@@ -85,7 +88,10 @@ const marqueeAvatars = [
             <span class="pill">贊助出題</span>
           </div>
           <div class="hero__actions">
-            <a class="button button--primary" href={shared.contactHref}
+            <a
+              class="button button--primary"
+              data-contact-copy={shared.contactEmailPlain}
+              href={shared.contactHref}
               >洽談合作</a
             >
             <a class="button button--soft" href={homeHref}>加入寫作</a>
@@ -451,7 +457,7 @@ const marqueeAvatars = [
             <h2 id="partner-cta-title">{partnerPage.cta.headline}</h2>
             <p>{partnerPage.cta.body}</p>
             <div class="cta-band__actions">
-              <a class="button button--primary" href={shared.contactHref}
+              <a class="button button--primary" data-contact-copy={shared.contactEmailPlain} href={shared.contactHref}
                 >{partnerPage.cta.primaryLabel}</a
               >
               <a class="button button--soft" href={homeHref}
@@ -472,6 +478,32 @@ const marqueeAvatars = [
   </div>
 
   <script is:inline>
+    // v3: 「洽談合作」mailto 點擊時同時複製 email 到剪貼簿 + 顯示 toast
+    // 避免使用者沒設預設信箱以為按鈕壞了
+    document.querySelectorAll("[data-contact-copy]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const email = btn.getAttribute("data-contact-copy") || "";
+        // 嘗試 copy；不影響 mailto 預設動作（沒設信箱也會被 OS 默默吃掉）
+        if (navigator.clipboard && email) {
+          navigator.clipboard.writeText(email).catch(() => {});
+        }
+        // 顯示 toast
+        let toast = document.getElementById("contact-toast");
+        if (!toast) {
+          toast = document.createElement("div");
+          toast.id = "contact-toast";
+          toast.className = "contact-toast";
+          document.body.appendChild(toast);
+        }
+        toast.textContent = `已複製 ${email} ✓ 如沒開啟信箱，請貼到 Gmail/Outlook 開信`;
+        toast.classList.add("contact-toast--visible");
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => {
+          toast.classList.remove("contact-toast--visible");
+        }, 4000);
+      });
+    });
+
     // 歷次主題：預設展示 3 期，點按鈕展開全部
     const expandBtn = document.querySelector("[data-theme-expand]");
     const collapseList = document.querySelector("[data-theme-collapse]");

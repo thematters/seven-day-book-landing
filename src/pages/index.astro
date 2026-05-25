@@ -280,9 +280,7 @@ const marqueeAvatars = [
               <span class="how-chip__step">01</span>
               <h3>每月底開放報名</h3>
               <p>
-                每月 25 號公布下一期主題，月底前到
-                <a href={shared.joinHref} target="_blank" rel="noopener">活動頁</a>報名。
-                報名後活動頁進度條會記錄你的七天寫作。
+                每月 25 號公布下一期主題，月底前到<a href={currentIssue.eventHref} target="_blank" rel="noopener">活動頁</a>報名。報名後活動頁進度條會記錄你的七天寫作。
               </p>
             </li>
             <li class="how-chip">
@@ -301,9 +299,11 @@ const marqueeAvatars = [
               </p>
             </li>
             <li class="how-chip how-chip--badge">
-              <span class="how-chip__step">04</span>
-              <span class="how-chip__visual" aria-hidden="true">
-                <GrandBadge size={56} />
+              <span class="how-chip__step-row">
+                <span class="how-chip__step">04</span>
+                <span class="how-chip__badge-mini" aria-hidden="true">
+                  <GrandBadge size={28} />
+                </span>
               </span>
               <h3>{audiencePage.grandBadgeCopy.title}</h3>
               <p>{audiencePage.grandBadgeCopy.body}</p>
@@ -327,12 +327,31 @@ const marqueeAvatars = [
           重抓：node scripts/scrape-campaign-prompts.mjs --write */}
       {/* series 編號 → matters.town event shortHash 對照（5-25 期；1-4 期早於 campaign 模組無 hash） */}
       {(() => {
+        // themes.json series → matters.town event hash 對照
+        // 注意：themes 漏「山海塢三日書」這期 (obs id 6)，所以 themes S6 = obs id 7
+        // 從 S6 之後全 off-by-one。Source of truth：scripts/import-awards.mjs / museum.astro
         const SERIES_TO_EVENT = {
-          S5: "ia800figcq9y", S6: "ybs0lqsrpmhn", S7: "scx3f16y37v6", S8: "8t5liudbtpup",
-          S9: "eqsfuc3qph6u", S10: "x4rv6dwgk68o", S11: "f7rpyecg32mg", S12: "26uhbm3uh6rg",
-          S13: "efkk0l9hcg96", S14: "h2ya9xxjubd2", S15: "5zhf2bpty274", S16: "rt04oolqbexh",
-          S17: "owt3jxplay6z", S18: "3uskpxsbzmz5", S19: "ox9fmcz6zxxj", S20: "nqbeo3cdn585",
-          S21: "4v5mndkbz44v", S22: "q48dv6ve4g2m", S23: "aiafcgbu89p2", S24: "wem6xy6u7okv",
+          S5: "ia800figcq9y",   // obs 5 成長軌跡
+          S6: "scx3f16y37v6",   // obs 7 島嶼精神
+          S7: "8t5liudbtpup",   // obs 8 物的體系
+          S8: "eqsfuc3qph6u",   // obs 9 我的（不）完美人生
+          S9: "x4rv6dwgk68o",   // obs 10 人間鬼故事
+          S10: "f7rpyecg32mg",  // obs 11 我的家庭故事
+          S11: "4nqnizsygmcn",  // obs 12 書寫地方
+          S12: "26uhbm3uh6rg",  // obs 13 人生的靈魂提問
+          S13: "efkk0l9hcg96",  // obs 14 What If
+          S14: "h2ya9xxjubd2",  // obs 15 長女症候群
+          S15: "5zhf2bpty274",  // obs 16 兩廳院 8 月
+          S16: "rt04oolqbexh",  // obs 17 兩廳院 9 月
+          S17: "owt3jxplay6z",  // obs 18 曖昧時刻
+          S18: "3uskpxsbzmz5",  // obs 19 重構生活
+          S19: "ox9fmcz6zxxj",  // obs 20 說聲告別
+          S20: "nqbeo3cdn585",  // obs 21 衣櫥裡的自我
+          S21: "4v5mndkbz44v",  // obs 22 數位雲端的我
+          S22: "q48dv6ve4g2m",  // obs 23 我的人生帳本
+          S23: "aiafcgbu89p2",  // obs 24 氣味博物館
+          S24: "wem6xy6u7okv",  // obs 25 我的職場人格
+          S25: "nxy5zqcjs7lt",  // obs 26 無用之用 (current)
         };
         const issuesReversed = [...freewriteIssues].reverse();
         return (
@@ -350,7 +369,10 @@ const marqueeAvatars = [
                 </p>
               </header>
 
-              <ol class="prompt-issue-list" data-prompt-list>
+              {/* v3: 預設展開最新一期、但只顯示前 5 個 entry；
+                  其餘 hidden + 「查看更多」button 展開
+                  prompt 內七天改成單欄 + 加大行距，閱讀友善 */}
+              <ol class="prompt-issue-list" data-prompt-list data-initial="5">
                 {issuesReversed.map((issue, idx) => {
                   const themeMeta = allThemes.find((t) => t.series === issue.series);
                   const oneLine = themeMeta?.announceSummary
@@ -363,10 +385,14 @@ const marqueeAvatars = [
                     ? `https://matters.town/e/${eventHash}`
                     : issue.announceHref;
                   return (
-                    <li class="prompt-issue">
+                    <li
+                      class="prompt-issue"
+                      data-prompt-item={idx}
+                      hidden={idx >= 5}
+                    >
                       <details class="prompt-issue__details" open={idx === 0}>
                         <summary class="prompt-issue__summary">
-                          <span class="prompt-issue__series">{issue.series}</span>
+                          <span class="prompt-issue__series">第 {issue.series.replace(/^S/, "")} 期</span>
                           <span class="prompt-issue__name">
                             <strong>{issue.name.replace(/^七日書[｜：]/, "")}</strong>
                             {oneLine && <em>{oneLine}</em>}
@@ -380,34 +406,45 @@ const marqueeAvatars = [
                             onclick="event.stopPropagation()"
                           >參與寫作 →</a>
                         </summary>
-                        <ol class="prompt-issue__days">
-                          {issue.prompts.map((p) => (
-                            <li class="prompt-day">
-                              <span class="prompt-day__label">{p.day}</span>
-                              <div class="prompt-day__body">
-                                <h4>{p.title}</h4>
-                                {p.prompt !== p.title && (
-                                  <p>
-                                    {p.prompt.length > 200
-                                      ? p.prompt.slice(0, 200) + "…"
-                                      : p.prompt}
-                                  </p>
-                                )}
-                              </div>
-                            </li>
-                          ))}
-                        </ol>
-                        <a
-                          class="prompt-issue__source"
-                          href={issue.announceHref}
-                          target="_blank"
-                          rel="noopener"
-                        >到 Matters 看完整公告 →</a>
+                        <div class="prompt-issue__days-wrap">
+                          <ol class="prompt-issue__days">
+                            {issue.prompts.map((p) => (
+                              <li class="prompt-day">
+                                <span class="prompt-day__label">{p.day}</span>
+                                <div class="prompt-day__body">
+                                  <h4>{p.title}</h4>
+                                  {p.prompt !== p.title && <p>{p.prompt}</p>}
+                                </div>
+                              </li>
+                            ))}
+                          </ol>
+                          <a
+                            class="prompt-issue__source"
+                            href={issue.announceHref}
+                            target="_blank"
+                            rel="noopener"
+                          >到 Matters 看完整公告 →</a>
+                        </div>
                       </details>
                     </li>
                   );
                 })}
               </ol>
+
+              {issuesReversed.length > 5 && (
+                <div class="prompt-issue-list__more">
+                  <button
+                    class="button button--quiet"
+                    type="button"
+                    data-prompt-expand
+                    aria-expanded="false"
+                  >
+                    <span data-prompt-expand-label
+                      >查看更多（還有 {issuesReversed.length - 5} 期）↓</span
+                    >
+                  </button>
+                </div>
+              )}
             </div>
           </section>
         );
@@ -653,6 +690,17 @@ const marqueeAvatars = [
         if (daysEl) daysEl.textContent = String(daysLeft);
       }
       // else: 維持預設（reminder 顯示、writing 隱藏）
+    }
+
+    // §Section 6 prompt list 「查看更多」展開
+    const promptExpandBtn = document.querySelector("[data-prompt-expand]");
+    if (promptExpandBtn) {
+      promptExpandBtn.addEventListener("click", () => {
+        document.querySelectorAll("[data-prompt-item][hidden]").forEach((el) => {
+          el.removeAttribute("hidden");
+        });
+        promptExpandBtn.parentElement.remove();
+      });
     }
 
     // CTA section inline reminder form (非活動週 email 訂閱)

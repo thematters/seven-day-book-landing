@@ -327,10 +327,20 @@ export const allThemes = [
     series: "S24",
     monthLabel: "2026 / 4",
     name: "我的職場人格",
-    phase: "進行中",
+    phase: "完結",
     announceCover: `${CDN}/embed/d1b2e4db-2e37-4c63-9c8d-25fb013f991a.png/public`,
     announceHref: "https://matters.town/a/kp08wnkn1p0o",
     announceSummary: "在成為老闆，又或是某人的下屬、主管或同事之前，我們首先是那個擁有體溫、渴望理解與被理解的的自己。職場發展至今，已是一場關於自我品牌、價值交換的馬拉松。不論你在哪個崗位，每一次職涯選徑，其實都對應著你底層的人格渴望。在這條路上，我們為了在社會上有一席位，刻意經營過怎樣的面具，又或有著怎樣的韌性？勞動節將至，「七日書」邀請你，一起書寫你的職場人格。",
+    wrapHref: "https://matters.town/a/ecdqu3v5bx2t",
+  },
+  {
+    series: "S25",
+    monthLabel: "2026 / 6",
+    name: "無用之用",
+    phase: "進行中",
+    announceCover: `${CDN}/embed/fe19aca7-512b-499e-bb6e-b8a8f5b91655.png/public`,
+    announceHref: "https://matters.town/a/ez7cdnkfapy2",
+    announceSummary: "我們時常被教導只有在「產出」時才具有價值，而「無用之用」正是一場溫柔的叛逆。當我們願意為了一件看起來沒有目的或價值的事情流連忘返、為了一個無法變現的愛好投入時間，其實是在奪回自主權。本次自由寫以「無用之用」為題，以七日連續書寫的形式，放慢腳步重新看待那些被視為「無用」的時光與物事。",
   },
 ];
 
@@ -339,35 +349,37 @@ export const pastThemes = allThemes.slice(0, -1).reverse();
 // historicalThemes 為向後相容別名，與 allThemes 倒序排列（最新在前）
 export const historicalThemes = [...allThemes].reverse();
 
-const CURRENT_COVER = `${CDN}/campaignCover/b0246b96-bb14-4c82-af86-62fffbd9b14b.png/public`;
+const CURRENT_COVER = `${CDN}/embed/fe19aca7-512b-499e-bb6e-b8a8f5b91655.png/public`;
 
 export const currentIssue = {
-  title: "我的職場人格",
+  title: "無用之用",
   status: "進行中",
-  period: "2026/5/4 - 2026/5/11",
-  participants: "72",
-  eventHref: "https://matters.town/e/wem6xy6u7okv",
-  announcementHref: "https://matters.town/a/kp08wnkn1p0o",
+  period: "2026/6/1 - 2026/6/8",
+  participants: "—",
+  eventHref: "https://matters.town/e/nxy5zqcjs7lt",
+  announcementHref: "https://matters.town/a/ez7cdnkfapy2",
   cover: CURRENT_COVER,
   heroCover: CURRENT_COVER,
   originalCover: CURRENT_COVER,
   summary:
-    "這一期，我們把視線從職稱移開，寫那個會疲累、會逞強、會渴望被理解，也仍然想在工作裡保有自己的人。",
+    "我們時常被教導只有在「產出」時才具有價值。本期七日書邀請你放慢腳步，為一件看起來沒有目的或價值的事情流連忘返，重新看待那些被視為「無用」的時光與物事。",
+  // state 由 page 上 inline script 根據 today vs prompt.date 動態算（past/today/locked）
+  // 這裡 hardcode "upcoming" 表示「報名期，寫作還沒開始」
   prompts: [
-    { day: "Day 1", date: "5/4", state: "past", title: "職業路徑",
-      prompt: "回望你一路走來的工作選擇：那些轉彎、停留、被推著往前的時刻，怎麼把你帶到今天？" },
-    { day: "Day 2", date: "5/5", state: "past", title: "不像自己的時刻",
-      prompt: "想起一個你在工作裡「演得不像自己」的時刻。那個你是怎麼出現的？又替你擋下了什麼？" },
-    { day: "Day 3", date: "5/6", state: "past", title: "身心痕跡",
-      prompt: "工作曾在你的身體或心裡留下什麼痕跡？可能是一種疲憊、一個姿勢，也可能是很久才懂的警訊。" },
-    { day: "Day 4", date: "5/7", state: "past", title: "經營人設",
-      prompt: "你是否曾經有意識地經營某個職場面向？那個人設幫過你什麼，又讓你失去什麼？" },
-    { day: "Day 5", date: "5/8", state: "today", title: "困難時刻",
-      prompt: "寫下某個很難熬的工作時刻。現在回看，它照出了你哪一種原本沒發現的能力或脆弱？" },
-    { day: "Day 6", date: "5/9", state: "locked", title: "甘願犧牲",
-      prompt: "有沒有哪一次，你明知道會辛苦，仍然選擇多承擔一點？那份甘願背後，是什麼在支撐你？" },
-    { day: "Day 7", date: "5/10", state: "locked", title: "工作也可以這樣",
-      prompt: "寫一個讓你重新想像工作的時刻：原來工作也可以這樣安排、這樣相處，甚至這樣活。" },
+    { day: "Day 1", date: "6/1", state: "upcoming", title: "顯眼位置的擺設",
+      prompt: "寫一個沒有實用功能，擺設價值高於使用價值，你卻放在顯眼位置的東西。它有著怎樣專屬的意義？" },
+    { day: "Day 2", date: "6/2", state: "upcoming", title: "你的空白歲月",
+      prompt: "一段不刻意追求目標、自己也曾覺得是「無用」的時光，卻在當中獲得一些東西，養成了你。" },
+    { day: "Day 3", date: "6/3", state: "upcoming", title: "保留的舊憑證",
+      prompt: "寫一個已經不能再使用，但你依然保留的憑證——演唱會門票、過期會員卡、學生證。這張紙代表了你怎樣的人生？" },
+    { day: "Day 4", date: "6/4", state: "upcoming", title: "反覆想起的地方",
+      prompt: "一處你曾造訪、未必會記住的空間，後來卻反覆在腦海裡想起，藏著只有你明白的心事。" },
+    { day: "Day 5", date: "6/5", state: "upcoming", title: "無用的興趣",
+      prompt: "一個你擁有、卻在社會上賺不了多少錢的興趣或技能。你為什麼覺得它「有用」、甚或養活了你的靈魂？" },
+    { day: "Day 6", date: "6/6", state: "upcoming", title: "陪伴你的句子",
+      prompt: "一句文字——詩或詞，當初讀到不以為意，後來卻不時想起、反覆使用、安放自我的。" },
+    { day: "Day 7", date: "6/7", state: "upcoming", title: "順從內心的路",
+      prompt: "你甘願放棄世俗眼中實質有利的選擇，堅持一條看起來不可知、卻順從內心的路。" },
   ],
 };
 
@@ -375,7 +387,11 @@ export const shared = {
   joinHref: currentIssue.eventHref,
   partnersHref: "partnership/",
   archiveHref: "museum/",
+  // mailto 仍保留作為 href fallback（直接 fire 開預設信箱）；同時
+  // 在 partnership.astro 加 inline JS 點擊時也複製 email 到剪貼簿並顯示
+  // toast，避免使用者沒設預設信箱以為按鈕壞了
   contactHref: `mailto:${contactEmail}?subject=${encodeURIComponent("七日書合作洽談")}`,
+  contactEmailPlain: contactEmail, // 給 toast / copy 用
   avatarWall: legacy.avatarWall,
   grandBadge: legacy.passport,
 };

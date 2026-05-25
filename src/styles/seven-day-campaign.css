@@ -1790,14 +1790,29 @@
   color: var(--campaign-accent-dark);
 }
 
-/* ─── §Section 2 本月主題 + 7 題（v2 改版）─────────────────────── */
+/* ─── §Section 2 本月主題 + 7 題（v3 改版）─────────────────────── */
+/* desktop ≥ 1040px: 一列 7 欄；中型螢幕 4-3 / 2-2 自動排；mobile 1 欄 */
 .current-prompts {
   list-style: none;
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 1280px) {
+  .current-prompts {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 560px) {
+  .current-prompts {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }
 
 .current-prompts__item {
@@ -1814,7 +1829,7 @@
     "arrow arrow";
   gap: 4px 12px;
   align-items: baseline;
-  padding: 18px 20px 16px;
+  padding: 16px 16px 14px;
   height: 100%;
   background: var(--paper);
   border: 1px solid var(--hairline);
@@ -1822,6 +1837,24 @@
   text-decoration: none;
   color: var(--ink);
   transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* 七欄 desktop 時 (≥ 1281px) 卡片很窄，把 prompt body 隱藏只留 day + title
+ * 想看完整題目就點進去 matters 活動頁 */
+@media (min-width: 1281px) {
+  .current-prompts__link {
+    padding: 14px 12px 12px;
+  }
+  .current-prompts__prompt {
+    display: none;
+  }
+  .current-prompts__date {
+    font-size: 12px;
+  }
+  .current-prompts__title {
+    font-size: 15px;
+    margin: 6px 0 2px;
+  }
 }
 
 .current-prompts__link:hover {
@@ -2093,54 +2126,66 @@
   white-space: nowrap;
 }
 
+/* v3: 七天列表閱讀友善版 — 加大行距、單欄、Day label 改成內聯左上 */
+.prompt-issue__days-wrap {
+  padding: 6px 28px 12px;
+}
+
 .prompt-issue__days {
   list-style: none;
-  padding: 18px 20px 8px;
+  padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 22px;
 }
 
 .prompt-day {
-  display: grid;
-  grid-template-columns: 60px 1fr;
-  gap: 14px;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 0 0;
+  border-top: 1px dashed var(--hairline);
+}
+
+.prompt-day:first-child {
+  border-top: none;
+  padding-top: 6px;
 }
 
 .prompt-day__label {
-  padding: 4px 10px;
+  display: inline-block;
+  padding: 4px 12px;
   background: var(--campaign-soft);
   color: var(--campaign-accent-dark);
   border-radius: 999px;
   font-family: var(--font-display);
   font-size: 12px;
   font-weight: 700;
-  text-align: center;
+  letter-spacing: 0.04em;
   white-space: nowrap;
   width: fit-content;
 }
 
 .prompt-day__body h4 {
-  margin: 2px 0 6px;
+  margin: 0 0 8px;
   font-family: var(--font-display);
-  font-size: 16px; /* v2: 14.5 → 16 */
+  font-size: 17px; /* v3: 16 → 17 */
   font-weight: 700;
   color: var(--ink);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .prompt-day__body p {
   margin: 0;
-  font-size: 14.5px; /* v2: 13.5 → 14.5 */
-  line-height: 1.75;
+  font-size: 15px; /* v3: 14.5 → 15 */
+  line-height: 1.85;
   color: var(--ink-muted);
 }
 
 .prompt-issue__source {
   display: inline-block;
-  margin: 8px 20px 18px;
+  margin: 20px 0 8px;
   padding: 6px 0;
   color: var(--campaign-accent-dark);
   font-size: 13.5px;
@@ -2154,6 +2199,11 @@
 
 .prompt-issue-list__cta {
   margin-top: 32px;
+  text-align: center;
+}
+
+.prompt-issue-list__more {
+  margin-top: 18px;
   text-align: center;
 }
 
@@ -2264,10 +2314,18 @@
   text-underline-offset: 2px;
 }
 
-/* 第 4 chip 為大滿貫徽章，含 SVG visual */
-.how-chip--badge .how-chip__visual {
-  display: block;
-  margin: 2px 0 6px;
+/* 第 4 chip 為大滿貫徽章：徽章 SVG 小一點、跟 step 號並排（不再單獨佔大塊上方）*/
+.how-chip__step-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.how-chip__badge-mini {
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
 }
 
 .how-chip__link {
@@ -2340,9 +2398,37 @@
   color: var(--ink-muted);
   text-align: center;
 }
-.cta-reminder-form__status[data-kind="success"] { color: #2e8540; font-weight: 500; }
-.cta-reminder-form__status[data-kind="error"]   { color: #d04545; }
-.cta-reminder-form__status[data-kind="loading"] { color: var(--campaign-accent-dark); }
+/* CTA section 是深色背景 (section--cta)，所以 success / loading 用白色高對比 */
+.cta-reminder-form__status[data-kind="success"] { color: #fff; font-weight: 500; }
+.cta-reminder-form__status[data-kind="error"]   { color: #ffb4b4; }
+.cta-reminder-form__status[data-kind="loading"] { color: rgba(255, 255, 255, 0.8); }
+
+/* ─── 「洽談合作」toast：點 mailto 同時複製 email 到剪貼簿 + 提示 ───── */
+.contact-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  padding: 12px 20px;
+  background: rgba(20, 20, 20, 0.92);
+  color: #fff;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 9999;
+  max-width: calc(100vw - 32px);
+  text-align: center;
+}
+
+.contact-toast--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
 
 /* ─── Page footer ────────────────────────────────────────────── */
 .page-footer {

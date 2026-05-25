@@ -770,10 +770,12 @@ const promptIso = (mdStr: string) => {
 
     const fetchUserArticleList = async (handle, onProgress) => {
       // 階段 1：paginate 拿輕量 list（不含 markdown）
-      const query = `query($userName: String!, $first: Int!, $after: String) {
+      // Matters GraphQL 2026 schema update：articles.first 改為 first_Int_min_0
+      // 不再接 generic Int!，所以 first 改 inline value（不用 variable）
+      const query = `query($userName: String!, $after: String) {
         user(input: { userName: $userName }) {
           userName displayName avatar
-          articles(input: { first: $first, after: $after }) {
+          articles(input: { first: ${MATTERS_PAGE_SIZE}, after: $after }) {
             pageInfo { hasNextPage endCursor }
             edges {
               node {
@@ -791,7 +793,7 @@ const promptIso = (mdStr: string) => {
         const res = await fetch(MATTERS_GQL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query, variables: { userName: handle, first: MATTERS_PAGE_SIZE, after } }),
+          body: JSON.stringify({ query, variables: { userName: handle, after } }),
         });
         const json = await res.json();
         if (json.errors) throw new Error(json.errors[0]?.message || "GraphQL error");

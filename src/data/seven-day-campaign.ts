@@ -640,7 +640,7 @@ export const audiencePage = {
   milestonesHeading: "自由寫的這幾年",
   faqHeading: "關於七日書",
   cta: {
-    headline: "下一個七天，一起寫。",
+    headline: "希望你會喜歡，下一個七天，一起回來自由寫。",
     body: "不必先想好要成為怎樣的作者。留下 email，下一期題目開放時，我們提醒你一起開始。",
     button: "獲得活動提醒郵件",
   },

@@ -103,11 +103,12 @@ const CAMPAIGN_META_QUERY = `
   }
 `;
 
+// Matters GraphQL 2026 update: first 改為 first_Int_min_0 不再接 Int!；改 inline
 const CAMPAIGN_ARTICLES_QUERY = `
-  query($shortHash: String!, $first: Int!, $after: String) {
+  query($shortHash: String!, $after: String) {
     campaign(input: { shortHash: $shortHash }) {
       ... on WritingChallenge {
-        articles(input: { first: $first, after: $after }) {
+        articles(input: { first: 100, after: $after }) {
           totalCount
           pageInfo { hasNextPage endCursor }
           edges {
@@ -133,11 +134,10 @@ async function fetchCampaignData(campaign) {
   const stageIds = meta.campaign.stages.map((s) => s.id);
   const articles = [];
   let after = null;
-  const PAGE_SIZE = 100;
+  // PAGE_SIZE 已 inline 在 CAMPAIGN_ARTICLES_QUERY (=100)，這裡不再傳 variable
   while (true) {
     const data = await graphql(CAMPAIGN_ARTICLES_QUERY, {
       shortHash: campaign.shortHash,
-      first: PAGE_SIZE,
       after,
     });
     const conn = data.campaign?.articles;

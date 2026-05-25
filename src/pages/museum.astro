@@ -236,8 +236,11 @@ const promptIso = (mdStr: string) => {
                       )}
                       <span class="marathoner-card__name">{m.displayName}</span>
                       <span class="marathoner-card__handle">@{m.userName}</span>
-                      <span class="marathoner-card__count">
-                        {m.totalArticles} <span>篇</span>
+                      <span
+                        class="marathoner-card__count"
+                        title={`至少 ${m.totalArticles} 篇（獲獎期內每期 7/3 篇估算下限；實際在七日書系列投了更多，含書後感）`}
+                      >
+                        ≥{m.totalArticles} <span>篇</span>
                       </span>
                       <span class="marathoner-card__sub">
                         {m.campaignsParticipated} 期參與
@@ -903,9 +906,6 @@ const promptIso = (mdStr: string) => {
 
     const groupByCampaign = (articles) => {
       const groups = new Map();
-      let attachedCount = 0; // 由 article.campaigns 直接認列
-      let titleFallbackCount = 0; // 由「title 含 NEEDLE + createdAt 月份對應」fallback 認列
-
       articles.forEach((a) => {
         // Path A: article 本身有 campaign tag — 直接歸類
         const tagged = (a.campaigns || []).find((c) =>
@@ -915,18 +915,16 @@ const promptIso = (mdStr: string) => {
           if (!groups.has(tagged.shortHash))
             groups.set(tagged.shortHash, { campaign: tagged, articles: [] });
           groups.get(tagged.shortHash).articles.push(a);
-          attachedCount++;
           return;
         }
-
         // Path B fallback: 沒 campaign tag 但 title 含七日書關鍵字
-        // (常見於早期 1-4 期 / campaign 模組之前的文章 / 隱藏文章)
+        // (早期 1-4 期 / campaign 模組之前的文章 / 隱藏文章)
         const titleHit = FREEWRITE_NEEDLE.some((n) => (a.title || "").includes(n));
         if (!titleHit) return;
         const ym = yearMonth(a.createdAt);
         const match = ym ? FREEWRITE_CAMPAIGN_BY_MONTH[ym] : null;
-        if (!match) return; // 月份對不到任何期，跳過
-        const fakeKey = match.hash; // 用 shortHash (5-25 期) 或 series 字串 (1-4 期 fallback)
+        if (!match) return;
+        const fakeKey = match.hash;
         if (!groups.has(fakeKey)) {
           groups.set(fakeKey, {
             campaign: { shortHash: match.hash, name: match.name },
@@ -934,16 +932,13 @@ const promptIso = (mdStr: string) => {
           });
         }
         groups.get(fakeKey).articles.push(a);
-        titleFallbackCount++;
       });
 
-      const sorted = [...groups.values()].sort((a, b) => {
+      return [...groups.values()].sort((a, b) => {
         const da = Math.max(...a.articles.map((x) => +new Date(x.createdAt)));
         const db = Math.max(...b.articles.map((x) => +new Date(x.createdAt)));
         return db - da;
       });
-      sorted._debug = { attachedCount, titleFallbackCount };
-      return sorted;
     };
 
     const formatMonthLabel = (iso) => {
@@ -1108,11 +1103,7 @@ const promptIso = (mdStr: string) => {
                 <a href="${profileUrl}" target="_blank" rel="noopener">@${escapeHtml(user.userName)} →</a>
               </p>
               <p class="passport-found__stats">
-                在 <strong>${groups.length}</strong> 期七日書活動裡，留下 <strong>${groups.reduce((s, g) => s + g.articles.length, 0)}</strong> 篇文章${
-                  groups._debug?.titleFallbackCount
-                    ? `<small class="passport-found__stats-note">（${groups._debug.attachedCount} 篇有 campaign tag、${groups._debug.titleFallbackCount} 篇用標題月份對應）</small>`
-                    : ""
-                }
+                在 <strong>${groups.length}</strong> 期七日書活動裡，留下 <strong>${groups.reduce((s, g) => s + g.articles.length, 0)}</strong> 篇文章
               </p>
             </div>
             <button

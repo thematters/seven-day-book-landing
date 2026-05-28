@@ -46,6 +46,9 @@ const OUT = path.join(REPO_ROOT, "src/data/freewrite-marathoners.ts");
 const ENDPOINT = "https://server.matters.town/graphql";
 
 const EXCLUDED_AWARD_IDS = new Set(["6"]);
+const TOTAL_REGISTRATIONS = 3835;
+const TOTAL_UNIQUE_AUTHORS = 2012;
+const TOTAL_ARTICLES = 8325;
 
 const CAMPAIGN_HASH = {
   5: "ia800figcq9y",
@@ -270,11 +273,11 @@ async function main() {
 
   const ts = (v) => JSON.stringify(v);
   const today = new Date().toISOString().slice(0, 10);
-  const officialCampaignIds = new Set([
+  const eligibleCampaignIds = new Set([
     ...gsRows.flatMap((r) => r["大滿貫"]),
     ...paRows.flatMap((r) => r["參加獎"]),
   ]);
-  const eventCount = officialCampaignIds.size;
+  const eventCount = eligibleCampaignIds.size;
 
   const perCampaignLines = [...perCampaign.keys()]
     .sort((a, b) => Number(a) - Number(b))
@@ -290,7 +293,7 @@ async function main() {
     `//   - 參加獎: https://observablehq.com/d/1435251db8b44ad2`,
     `// notebook 直連 Matters prod replica DB，比 public GraphQL 完整。`,
     `// 重新匯出兩個 JSON 後 → node scripts/import-awards.mjs --write`,
-    `// 排除非官方活動：三日書：寫出渴望的理想之地 (ybs0lqsrpmhn)。`,
+    `// 排除非結算活動：三日書：寫出渴望的理想之地 (ybs0lqsrpmhn)。`,
     ``,
     `export interface Marathoner {`,
     `  userName: string;`,
@@ -312,6 +315,11 @@ async function main() {
     `export const totalUniqueParticipationWinners = ${totalUniqueParticipationWinners};`,
     `export const totalUniqueAwardWinners = ${totalUniqueAwardWinners}; // 大滿貫 ∪ 參加獎`,
     `export const eventCount = ${eventCount};`,
+    ``,
+    `/** 整站總量數字（已排除非結算活動；獨立作者沿用 DB direct 去重值） */`,
+    `export const totalRegistrations = ${TOTAL_REGISTRATIONS};`,
+    `export const totalUniqueAuthors = ${TOTAL_UNIQUE_AUTHORS};`,
+    `export const totalArticles = ${TOTAL_ARTICLES};`,
     ``,
     `/** 各期大滿貫 / 參加獎 人數對照 */`,
     `export const perCampaignAwards = [`,

@@ -44,7 +44,7 @@ const assetSrc = (src?: string) => {
 // 24 期主題倒序：最新在前
 const archiveThemes = [...allThemes].reverse();
 
-const officialCampaignHashes = [
+const eligibleCampaignHashes = [
   "5sdzhvyf3imb", // 七日書：我的人生飯桌
   "ia800figcq9y", // 成長七日書
   "scx3f16y37v6", // 島嶼精神
@@ -710,11 +710,11 @@ const promptIso = (mdStr: string) => {
     </div>
   </div>
 
-  {/* 把官方活動 allowlist 與非官方活動排除清單注入給 client-side script 用。 */}
+  {/* 把可結算活動 allowlist 與非結算活動排除清單注入給 client-side script 用。 */}
   <script
     type="application/json"
-    id="official-campaign-hashes"
-    set:html={JSON.stringify(officialCampaignHashes)}
+    id="eligible-campaign-hashes"
+    set:html={JSON.stringify(eligibleCampaignHashes)}
   ></script>
   <script
     type="application/json"
@@ -747,17 +747,17 @@ const promptIso = (mdStr: string) => {
 
     const MATTERS_GQL = "https://server.matters.town/graphql";
     const MATTERS_BASE = "https://matters.town";
-    const OFFICIAL_CAMPAIGN_HASHES = new Set(
-      JSON.parse(document.getElementById("official-campaign-hashes")?.textContent || "[]"),
+    const ELIGIBLE_CAMPAIGN_HASHES = new Set(
+      JSON.parse(document.getElementById("eligible-campaign-hashes")?.textContent || "[]"),
     );
     const EXCLUDED_CAMPAIGN_HASHES = new Set(
       JSON.parse(document.getElementById("excluded-campaign-hashes")?.textContent || "[]"),
     );
-    const isOfficialFreewriteCampaign = (campaign) => {
+    const isEligibleFreewriteCampaign = (campaign) => {
       const shortHash = campaign?.shortHash || "";
       return (
         Boolean(shortHash) &&
-        OFFICIAL_CAMPAIGN_HASHES.has(shortHash) &&
+        ELIGIBLE_CAMPAIGN_HASHES.has(shortHash) &&
         !EXCLUDED_CAMPAIGN_HASHES.has(shortHash)
       );
     };
@@ -864,10 +864,10 @@ const promptIso = (mdStr: string) => {
       const stage1 = await fetchUserArticleList(handle, ({ fetched, hasMore }) => {
         passportResult.innerHTML = `<p class="passport-loading" aria-busy="true">已找到 ${fetched} 篇${hasMore ? "（還在抓更舊的⋯）" : ""}</p>`;
       });
-      // 哪些是官方七日書系列？只對這些補 markdown（節省）
-      // 必須由文章本身連到有效活動，避免自行寫作或非官方活動被收進小書。
+      // 哪些是可結算七日書系列？只對這些補 markdown（節省）
+      // 必須由文章本身連到有效活動，避免自行寫作或非結算活動被收進小書。
       const freewriteOnly = stage1.articles.filter((a) => {
-        return (a.campaigns || []).some((c) => isOfficialFreewriteCampaign(c.campaign));
+        return (a.campaigns || []).some((c) => isEligibleFreewriteCampaign(c.campaign));
       });
       // 背景補 markdown — 不阻塞 renderResult 顯示
       currentEnrichment = enrichWithMarkdown(freewriteOnly, ({ done, total }) => {
@@ -899,7 +899,7 @@ const promptIso = (mdStr: string) => {
       const groups = new Map();
       articles.forEach((a) => {
         const tagged = (a.campaigns || []).find((c) =>
-          isOfficialFreewriteCampaign(c.campaign),
+          isEligibleFreewriteCampaign(c.campaign),
         )?.campaign;
         if (!tagged) return;
         if (!groups.has(tagged.shortHash))
@@ -1007,12 +1007,12 @@ const promptIso = (mdStr: string) => {
         lastJourney = null;
         return;
       }
-      // 收官方七日書文章：必須是活動頁收錄的文章。
+      // 收可結算七日書文章：必須是活動頁收錄的文章。
       // fetchUserArticleList 已 paginate 並把 edges.node 展平成 array,
       // 所以這裡 user.articles 就是 plain array of nodes（無 .edges）
       const articles = (user.articles || []).filter((a) => {
         return (a.campaigns || []).some((c) =>
-          isOfficialFreewriteCampaign(c.campaign),
+          isEligibleFreewriteCampaign(c.campaign),
         );
       });
 

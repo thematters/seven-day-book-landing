@@ -4,7 +4,7 @@
 //   - 參加獎: https://observablehq.com/d/1435251db8b44ad2
 // notebook 直連 Matters prod replica DB，比 public GraphQL 完整。
 // 重新匯出兩個 JSON 後 → node scripts/import-awards.mjs --write
-// 排除非官方活動：三日書：寫出渴望的理想之地 (ybs0lqsrpmhn)。
+// 排除非結算活動：三日書：寫出渴望的理想之地 (ybs0lqsrpmhn)。
 
 export interface Marathoner {
   userName: string;
@@ -26,6 +26,11 @@ export const totalParticipationAwards = 402;
 export const totalUniqueParticipationWinners = 325;
 export const totalUniqueAwardWinners = 658; // 大滿貫 ∪ 參加獎
 export const eventCount = 24;
+
+/** 整站總量數字（已排除非結算活動；獨立作者沿用 DB direct 去重值） */
+export const totalRegistrations = 3835;
+export const totalUniqueAuthors = 2012;
+export const totalArticles = 8325;
 
 /** 各期大滿貫 / 參加獎 人數對照 */
 export const perCampaignAwards = [

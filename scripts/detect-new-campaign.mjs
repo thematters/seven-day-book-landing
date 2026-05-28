@@ -228,7 +228,7 @@ async function main() {
     `再下一步（手動）：在 src/pages/index.astro 跟 src/pages/museum.astro 把:`,
   );
   console.log(`  - SERIES_TO_EVENT 加 ${newSeries}: "${eventHash}"`);
-  console.log(`  - officialCampaignHashes 加 "${eventHash}"`);
+  console.log(`  - eligibleCampaignHashes 加 "${eventHash}"`);
   console.log(`  - currentIssue 全替換（title / period / prompts）`);
 }
 

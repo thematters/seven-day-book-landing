@@ -86,9 +86,9 @@ jobs:
                S{N}: "{eventHash}",   // 從 detect script log 抄
                ```
 
-            2. **`src/pages/museum.astro`** 內 `freewriteCampaignsByMonth`：
+            2. **`src/pages/museum.astro`** 內 `eligibleCampaignHashes`：
                ```
-               "{writingMonth}": { hash: "...", name: "...", series: "S{N}" },
+               "{eventHash}",
                ```
 
             3. **`src/data/seven-day-campaign.ts`** 內 `currentIssue`：

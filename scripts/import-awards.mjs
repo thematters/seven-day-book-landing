@@ -34,21 +34,55 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, "..");
 
-const GS_PATH = path.join(REPO_ROOT, "research/freewrite-grand-slams-observablehq.json");
-const PA_PATH = path.join(REPO_ROOT, "research/freewrite-participation-awards-observablehq.json");
+const GS_PATH = path.join(
+  REPO_ROOT,
+  "research/freewrite-grand-slams-observablehq.json",
+);
+const PA_PATH = path.join(
+  REPO_ROOT,
+  "research/freewrite-participation-awards-observablehq.json",
+);
 const OUT = path.join(REPO_ROOT, "src/data/freewrite-marathoners.ts");
 const ENDPOINT = "https://server.matters.town/graphql";
 
+const EXCLUDED_AWARD_IDS = new Set(["6"]);
+
 const CAMPAIGN_HASH = {
-  5: "ia800figcq9y", 6: "ybs0lqsrpmhn", 7: "scx3f16y37v6", 8: "8t5liudbtpup",
-  9: "eqsfuc3qph6u", 10: "x4rv6dwgk68o", 11: "f7rpyecg32mg", 12: "4nqnizsygmcn",
-  13: "26uhbm3uh6rg", 14: "efkk0l9hcg96", 15: "h2ya9xxjubd2", 16: "5zhf2bpty274",
-  17: "rt04oolqbexh", 18: "owt3jxplay6z", 19: "3uskpxsbzmz5", 20: "ox9fmcz6zxxj",
-  21: "nqbeo3cdn585", 22: "4v5mndkbz44v", 23: "q48dv6ve4g2m", 24: "aiafcgbu89p2",
+  5: "ia800figcq9y",
+  6: "ybs0lqsrpmhn",
+  7: "scx3f16y37v6",
+  8: "8t5liudbtpup",
+  9: "eqsfuc3qph6u",
+  10: "x4rv6dwgk68o",
+  11: "f7rpyecg32mg",
+  12: "4nqnizsygmcn",
+  13: "26uhbm3uh6rg",
+  14: "efkk0l9hcg96",
+  15: "h2ya9xxjubd2",
+  16: "5zhf2bpty274",
+  17: "rt04oolqbexh",
+  18: "owt3jxplay6z",
+  19: "3uskpxsbzmz5",
+  20: "ox9fmcz6zxxj",
+  21: "nqbeo3cdn585",
+  22: "4v5mndkbz44v",
+  23: "q48dv6ve4g2m",
+  24: "aiafcgbu89p2",
   25: "wem6xy6u7okv",
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+const filterAwardCampaigns = (campaigns = []) =>
+  campaigns.filter((cid) => !EXCLUDED_AWARD_IDS.has(String(cid)));
+
+const normalizeAwardRows = (rows, awardKey, countKey) =>
+  rows
+    .map((row) => {
+      const campaigns = filterAwardCampaigns(row[awardKey] || []);
+      return { ...row, [awardKey]: campaigns, [countKey]: campaigns.length };
+    })
+    .filter((row) => row[awardKey].length > 0);
 
 async function graphql(query, variables = {}, retries = 3) {
   for (let attempt = 1; attempt <= retries; attempt++) {
@@ -59,7 +93,8 @@ async function graphql(query, variables = {}, retries = 3) {
         body: JSON.stringify({ query, variables }),
       });
       const json = await res.json();
-      if (json.errors) throw new Error(json.errors.map((e) => e.message).join("; "));
+      if (json.errors)
+        throw new Error(json.errors.map((e) => e.message).join("; "));
       return json.data;
     } catch (err) {
       if (attempt === retries) throw err;
@@ -83,12 +118,17 @@ async function main() {
   const args = new Set(process.argv.slice(2));
   const shouldWrite = args.has("--write");
 
-  const gsRows = JSON.parse(fs.readFileSync(GS_PATH, "utf-8"));
-  const paRows = JSON.parse(fs.readFileSync(PA_PATH, "utf-8"));
+  const rawGsRows = JSON.parse(fs.readFileSync(GS_PATH, "utf-8"));
+  const rawPaRows = JSON.parse(fs.readFileSync(PA_PATH, "utf-8"));
+  const gsRows = normalizeAwardRows(rawGsRows, "大滿貫", "大滿貫次數");
+  const paRows = normalizeAwardRows(rawPaRows, "參加獎", "參加獎次數");
 
   console.log(`\n=== Import Awards ===\n`);
   console.log(`  Grand slams (大滿貫)        : ${gsRows.length} 用戶`);
   console.log(`  Participation (參加獎)      : ${paRows.length} 用戶`);
+  console.log(
+    `  Excluded award campaign ids : ${[...EXCLUDED_AWARD_IDS].join(", ")}`,
+  );
 
   // 合併到單一 user map
   const users = new Map(); // userName → { grandSlams, paAwards, gsCampaigns, paCampaigns }
@@ -124,41 +164,59 @@ async function main() {
   // Totals
   const totalGrandSlams = gsRows.reduce((s, r) => s + r["大滿貫次數"], 0);
   const totalUniqueGrandSlamWinners = gsRows.length;
-  const totalParticipationAwards = paRows.reduce((s, r) => s + r["參加獎次數"], 0);
+  const totalParticipationAwards = paRows.reduce(
+    (s, r) => s + r["參加獎次數"],
+    0,
+  );
   const totalUniqueParticipationWinners = paRows.length;
   const totalUniqueAwardWinners = users.size; // 聯集
-  const bothCount = gsRows.filter((r) => paRows.some((p) => p["Matters ID"] === r["Matters ID"])).length;
+  const bothCount = gsRows.filter((r) =>
+    paRows.some((p) => p["Matters ID"] === r["Matters ID"]),
+  ).length;
 
   console.log(`\n=== 統計（observablehq ground truth）===`);
-  console.log(`  大滿貫: ${totalGrandSlams} 次 / ${totalUniqueGrandSlamWinners} 位`);
-  console.log(`  參加獎: ${totalParticipationAwards} 次 / ${totalUniqueParticipationWinners} 位`);
+  console.log(
+    `  大滿貫: ${totalGrandSlams} 次 / ${totalUniqueGrandSlamWinners} 位`,
+  );
+  console.log(
+    `  參加獎: ${totalParticipationAwards} 次 / ${totalUniqueParticipationWinners} 位`,
+  );
   console.log(`  獨立得獎者（聯集）: ${totalUniqueAwardWinners} 位`);
   console.log(`    其中兼具兩種獎     : ${bothCount} 位`);
-  console.log(`    只有大滿貫         : ${totalUniqueGrandSlamWinners - bothCount} 位`);
-  console.log(`    只有參加獎         : ${totalUniqueParticipationWinners - bothCount} 位`);
+  console.log(
+    `    只有大滿貫         : ${totalUniqueGrandSlamWinners - bothCount} 位`,
+  );
+  console.log(
+    `    只有參加獎         : ${totalUniqueParticipationWinners - bothCount} 位`,
+  );
 
   // 每期分布
   const perCampaign = new Map(); // cid → { gs, pa }
-  for (const r of gsRows) for (const cid of r["大滿貫"]) {
-    if (!perCampaign.has(cid)) perCampaign.set(cid, { gs: 0, pa: 0 });
-    perCampaign.get(cid).gs++;
-  }
-  for (const r of paRows) for (const cid of r["參加獎"]) {
-    if (!perCampaign.has(cid)) perCampaign.set(cid, { gs: 0, pa: 0 });
-    perCampaign.get(cid).pa++;
-  }
+  for (const r of gsRows)
+    for (const cid of r["大滿貫"]) {
+      if (!perCampaign.has(cid)) perCampaign.set(cid, { gs: 0, pa: 0 });
+      perCampaign.get(cid).gs++;
+    }
+  for (const r of paRows)
+    for (const cid of r["參加獎"]) {
+      if (!perCampaign.has(cid)) perCampaign.set(cid, { gs: 0, pa: 0 });
+      perCampaign.get(cid).pa++;
+    }
 
   // Top 50 marathoners by 大滿貫次數 → 補 avatar
   const top = [...users.values()]
     .filter((u) => u.grandSlams > 0)
-    .sort((a, b) =>
-      b.grandSlams - a.grandSlams ||
-      b.paAwards - a.paAwards ||
-      a.userName.localeCompare(b.userName),
+    .sort(
+      (a, b) =>
+        b.grandSlams - a.grandSlams ||
+        b.paAwards - a.paAwards ||
+        a.userName.localeCompare(b.userName),
     )
     .slice(0, 50);
 
-  console.log(`\nFetching avatars for top ${top.length} from Matters GraphQL...`);
+  console.log(
+    `\nFetching avatars for top ${top.length} from Matters GraphQL...`,
+  );
   const enriched = [];
   for (const [i, u] of top.entries()) {
     let avatar = null;
@@ -170,10 +228,16 @@ async function main() {
         displayName = g.displayName || displayName;
       }
     } catch {}
-    // totalArticles 估算下限：大滿貫 7 篇 (三日書 3 篇) + 參加獎 4 篇 (三日書 1-2 篇)
-    const SPECIAL_3DAY = new Set([6, 14, 15, 16, 17]);
-    const minFromGs = u.gsCampaigns.reduce((s, c) => s + (SPECIAL_3DAY.has(Number(c)) ? 3 : 7), 0);
-    const minFromPa = u.paCampaigns.reduce((s, c) => s + (SPECIAL_3DAY.has(Number(c)) ? 2 : 4), 0);
+    // totalArticles 估算下限：大滿貫 7 篇 (三日書 3 篇) + 參加獎 4 篇 (三日書 2 篇)
+    const SPECIAL_3DAY = new Set([15, 16, 17]);
+    const minFromGs = u.gsCampaigns.reduce(
+      (s, c) => s + (SPECIAL_3DAY.has(Number(c)) ? 3 : 7),
+      0,
+    );
+    const minFromPa = u.paCampaigns.reduce(
+      (s, c) => s + (SPECIAL_3DAY.has(Number(c)) ? 2 : 4),
+      0,
+    );
     enriched.push({
       ...u,
       displayName,
@@ -194,7 +258,9 @@ async function main() {
 
   console.log(`\n=== Top 10 (by 大滿貫次數) ===`);
   for (const [i, m] of enriched.slice(0, 10).entries()) {
-    console.log(`  ${String(i + 1).padStart(2)}. ${m.displayName.padEnd(20, "　")} 大 ${String(m.grandSlams).padStart(2)} · 參 ${String(m.paAwards).padStart(2)}`);
+    console.log(
+      `  ${String(i + 1).padStart(2)}. ${m.displayName.padEnd(20, "　")} 大 ${String(m.grandSlams).padStart(2)} · 參 ${String(m.paAwards).padStart(2)}`,
+    );
   }
 
   if (!shouldWrite) {
@@ -204,6 +270,12 @@ async function main() {
 
   const ts = (v) => JSON.stringify(v);
   const today = new Date().toISOString().slice(0, 10);
+  const officialCampaignIds = new Set([
+    ...gsRows.flatMap((r) => r["大滿貫"]),
+    ...paRows.flatMap((r) => r["參加獎"]),
+  ]);
+  const eventCount = officialCampaignIds.size;
+
   const perCampaignLines = [...perCampaign.keys()]
     .sort((a, b) => Number(a) - Number(b))
     .map((cid) => {
@@ -218,6 +290,7 @@ async function main() {
     `//   - 參加獎: https://observablehq.com/d/1435251db8b44ad2`,
     `// notebook 直連 Matters prod replica DB，比 public GraphQL 完整。`,
     `// 重新匯出兩個 JSON 後 → node scripts/import-awards.mjs --write`,
+    `// 排除非官方活動：三日書：寫出渴望的理想之地 (ybs0lqsrpmhn)。`,
     ``,
     `export interface Marathoner {`,
     `  userName: string;`,
@@ -238,7 +311,7 @@ async function main() {
     `export const totalParticipationAwards = ${totalParticipationAwards};`,
     `export const totalUniqueParticipationWinners = ${totalUniqueParticipationWinners};`,
     `export const totalUniqueAwardWinners = ${totalUniqueAwardWinners}; // 大滿貫 ∪ 參加獎`,
-    `export const eventCount = 25;`,
+    `export const eventCount = ${eventCount};`,
     ``,
     `/** 各期大滿貫 / 參加獎 人數對照 */`,
     `export const perCampaignAwards = [`,

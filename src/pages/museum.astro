@@ -44,43 +44,36 @@ const assetSrc = (src?: string) => {
 // 24 期主題倒序：最新在前
 const archiveThemes = [...allThemes].reverse();
 
-// 「寫作期年-月 → campaign」對照表 — 給 museum 個人查詢用，解 GraphQL
-// article.campaigns 漏抓某些早期 / 隱藏文章的問題。文章 createdAt 落在某期寫作月
-// 就強制歸類到該期。
-//
-// ⚠️ 來源：observablehq notebook events array (寫作期 time.start)
-// 不能用 themes.monthLabel（那是「報名月」，跟寫作期差 1 個月）
-// 也跟 themes.series 編號不同對應（themes 漏「山海塢三日書」obs id 6）
-//
-// Mapping 每行：寫作期 year-month → { hash, name, series, obsId }
-const freewriteCampaignsByMonth: Record<string, { hash: string; name: string; series: string }> = {
-  "2024-04": { hash: "S1", name: "七日書 #1 · 自由寫", series: "S1" }, // obs 1, no hash
-  "2024-06": { hash: "S2", name: "書寫家與故鄉", series: "S2" }, // obs 2, no hash
-  "2024-07": { hash: "S3", name: "愛與親密關係", series: "S3" }, // obs 3, no hash
-  "2024-08": { hash: "S4", name: "我的人生飯桌", series: "S4" }, // obs 4, no hash
-  "2024-09": { hash: "ia800figcq9y", name: "與自我對話：成長軌跡", series: "S5" }, // obs 5
-  "2024-10": { hash: "ybs0lqsrpmhn", name: "山海塢三日書", series: "S6-special" }, // obs 6 (themes 漏這期)
-  "2024-11": { hash: "scx3f16y37v6", name: "島嶼精神", series: "S6" }, // obs 7
-  "2024-12": { hash: "8t5liudbtpup", name: "物的體系", series: "S7" }, // obs 8
-  "2025-01": { hash: "eqsfuc3qph6u", name: "我的（不）完美人生", series: "S8" }, // obs 9
-  "2025-02": { hash: "x4rv6dwgk68o", name: "人間鬼故事", series: "S9" }, // obs 10
-  "2025-03": { hash: "f7rpyecg32mg", name: "我的家庭故事", series: "S10" }, // obs 11
-  "2025-04": { hash: "4nqnizsygmcn", name: "書寫地方", series: "S11" }, // obs 12
-  "2025-05": { hash: "26uhbm3uh6rg", name: "人生的靈魂提問（一週年）", series: "S12" }, // obs 13
-  "2025-06": { hash: "efkk0l9hcg96", name: "What If 人生有如果", series: "S13" }, // obs 14
-  "2025-07": { hash: "h2ya9xxjubd2", name: "長女症候群（三日書）", series: "S14" }, // obs 15
-  "2025-08": { hash: "5zhf2bpty274", name: "兩廳院藝術出走 · 關於人生", series: "S15" }, // obs 16
-  "2025-09": { hash: "rt04oolqbexh", name: "兩廳院藝術出走 · 標記回憶", series: "S16" }, // obs 17
-  "2025-10": { hash: "owt3jxplay6z", name: "曖昧時刻", series: "S17" }, // obs 18
-  "2025-11": { hash: "3uskpxsbzmz5", name: "重構生活", series: "S18" }, // obs 19
-  "2025-12": { hash: "ox9fmcz6zxxj", name: "說聲告別，走向新的自己", series: "S19" }, // obs 20
-  "2026-01": { hash: "nqbeo3cdn585", name: "衣櫥裡的自我", series: "S20" }, // obs 21
-  "2026-02": { hash: "4v5mndkbz44v", name: "數位雲端的我", series: "S21" }, // obs 22
-  "2026-03": { hash: "q48dv6ve4g2m", name: "我的人生帳本", series: "S22" }, // obs 23
-  "2026-04": { hash: "aiafcgbu89p2", name: "氣味博物館", series: "S23" }, // obs 24
-  "2026-05": { hash: "wem6xy6u7okv", name: "我的職場人格", series: "S24" }, // obs 25
-  "2026-06": { hash: "nxy5zqcjs7lt", name: "無用之用", series: "S25" }, // obs 26 (current)
-};
+const officialCampaignHashes = [
+  "5sdzhvyf3imb", // 七日書：我的人生飯桌
+  "ia800figcq9y", // 成長七日書
+  "scx3f16y37v6", // 島嶼精神
+  "8t5liudbtpup", // 物的體系
+  "eqsfuc3qph6u", // 我的（不）完美人生
+  "x4rv6dwgk68o", // 人間鬼故事
+  "f7rpyecg32mg", // 我的家庭故事
+  "4nqnizsygmcn", // 書寫地方
+  "26uhbm3uh6rg", // 寫作，給人生的靈魂提問
+  "efkk0l9hcg96", // What If 人生有如果
+  "h2ya9xxjubd2", // 燃燒自我的故事
+  "5zhf2bpty274", // 兩廳院三日書 8 月
+  "rt04oolqbexh", // 兩廳院三日書 9 月
+  "owt3jxplay6z", // 曖昧時刻
+  "3uskpxsbzmz5", // 重構生活
+  "ox9fmcz6zxxj", // 說聲告別
+  "nqbeo3cdn585", // 衣櫥裡的自我
+  "4v5mndkbz44v", // 數位雲端的我
+  "q48dv6ve4g2m", // 我的人生帳本
+  "aiafcgbu89p2", // 氣味博物館
+  "wem6xy6u7okv", // 我的職場人格
+  "nxy5zqcjs7lt", // 無用之用
+];
+
+const excludedCampaignHashes = [
+  "2hb97w8rdn7k", // 七日書：生與死的二重奏
+  "kn7h01eku617", // 七日書：生命裡的煩惱二三事
+  "ybs0lqsrpmhn", // 三日書：寫出渴望的理想之地
+];
 
 const promptStateLabel: Record<string, string> = {
   past: "已開放",
@@ -717,13 +710,16 @@ const promptIso = (mdStr: string) => {
     </div>
   </div>
 
-  {/* 把 server-side 算好的 freewriteCampaignsByMonth 注入給 client-side script 用：
-      用於修正 GraphQL article.campaigns 漏掉的早期文章（campaign 模組之前）/ 隱藏文章。
-      title 含七日書關鍵字 + createdAt 月份 match → 強制歸到該期 */}
+  {/* 把官方活動 allowlist 與非官方活動排除清單注入給 client-side script 用。 */}
   <script
     type="application/json"
-    id="freewrite-campaigns-by-month"
-    set:html={JSON.stringify(freewriteCampaignsByMonth)}
+    id="official-campaign-hashes"
+    set:html={JSON.stringify(officialCampaignHashes)}
+  ></script>
+  <script
+    type="application/json"
+    id="excluded-campaign-hashes"
+    set:html={JSON.stringify(excludedCampaignHashes)}
   ></script>
 
   <script>
@@ -751,7 +747,20 @@ const promptIso = (mdStr: string) => {
 
     const MATTERS_GQL = "https://server.matters.town/graphql";
     const MATTERS_BASE = "https://matters.town";
-    const FREEWRITE_NEEDLE = ["七日書", "三日書", "自由寫", "情書", "兩廳院"];
+    const OFFICIAL_CAMPAIGN_HASHES = new Set(
+      JSON.parse(document.getElementById("official-campaign-hashes")?.textContent || "[]"),
+    );
+    const EXCLUDED_CAMPAIGN_HASHES = new Set(
+      JSON.parse(document.getElementById("excluded-campaign-hashes")?.textContent || "[]"),
+    );
+    const isOfficialFreewriteCampaign = (campaign) => {
+      const shortHash = campaign?.shortHash || "";
+      return (
+        Boolean(shortHash) &&
+        OFFICIAL_CAMPAIGN_HASHES.has(shortHash) &&
+        !EXCLUDED_CAMPAIGN_HASHES.has(shortHash)
+      );
+    };
 
     // 全域暫存最後一次查詢結果，按下「製作小書」時用
     let lastJourney = null;
@@ -771,14 +780,6 @@ const promptIso = (mdStr: string) => {
     // 因此 JK_talk (20 期大滿貫 ≥ 140 篇) 只顯示最新 2 期 8 篇。
     const MATTERS_PAGE_SIZE = 100;
     const MAX_PAGES = 20; // 安全上限 2000 篇 (原 1000，多寫的長期文友會超出)
-
-    // server-side 注入的「年-月 → campaign」對照表（修早期文章 / 隱藏文章 GraphQL 漏抓）
-    const FREEWRITE_CAMPAIGN_BY_MONTH = (() => {
-      try {
-        const el = document.getElementById("freewrite-campaigns-by-month");
-        return el ? JSON.parse(el.textContent || "{}") : {};
-      } catch { return {}; }
-    })();
 
     const fetchUserArticleList = async (handle, onProgress) => {
       // 階段 1：paginate 拿輕量 list（不含 markdown）
@@ -863,17 +864,10 @@ const promptIso = (mdStr: string) => {
       const stage1 = await fetchUserArticleList(handle, ({ fetched, hasMore }) => {
         passportResult.innerHTML = `<p class="passport-loading" aria-busy="true">已找到 ${fetched} 篇${hasMore ? "（還在抓更舊的⋯）" : ""}</p>`;
       });
-      // 哪些是七日書系列？只對這些補 markdown（節省）
-      // 同 renderResult 邏輯：含 campaign tag 或 title 含 NEEDLE + 月份對應
+      // 哪些是官方七日書系列？只對這些補 markdown（節省）
+      // 必須由文章本身連到有效活動，避免自行寫作或非官方活動被收進小書。
       const freewriteOnly = stage1.articles.filter((a) => {
-        const hasCampaign = (a.campaigns || []).some((c) =>
-          FREEWRITE_NEEDLE.some((n) => (c.campaign?.name || "").includes(n)),
-        );
-        if (hasCampaign) return true;
-        const hasTitle = FREEWRITE_NEEDLE.some((n) => (a.title || "").includes(n));
-        if (!hasTitle) return false;
-        const ym = a.createdAt ? a.createdAt.slice(0, 7) : null;
-        return ym && FREEWRITE_CAMPAIGN_BY_MONTH[ym];
+        return (a.campaigns || []).some((c) => isOfficialFreewriteCampaign(c.campaign));
       });
       // 背景補 markdown — 不阻塞 renderResult 顯示
       currentEnrichment = enrichWithMarkdown(freewriteOnly, ({ done, total }) => {
@@ -901,37 +895,16 @@ const promptIso = (mdStr: string) => {
         '<figure class="book-article-fig">'
       );
     };
-    // 取 article 的 (year-month) → "YYYY-MM"
-    const yearMonth = (iso) => iso ? iso.slice(0, 7) : null;
-
     const groupByCampaign = (articles) => {
       const groups = new Map();
       articles.forEach((a) => {
-        // Path A: article 本身有 campaign tag — 直接歸類
         const tagged = (a.campaigns || []).find((c) =>
-          FREEWRITE_NEEDLE.some((n) => (c.campaign?.name || "").includes(n)),
+          isOfficialFreewriteCampaign(c.campaign),
         )?.campaign;
-        if (tagged) {
-          if (!groups.has(tagged.shortHash))
-            groups.set(tagged.shortHash, { campaign: tagged, articles: [] });
-          groups.get(tagged.shortHash).articles.push(a);
-          return;
-        }
-        // Path B fallback: 沒 campaign tag 但 title 含七日書關鍵字
-        // (早期 1-4 期 / campaign 模組之前的文章 / 隱藏文章)
-        const titleHit = FREEWRITE_NEEDLE.some((n) => (a.title || "").includes(n));
-        if (!titleHit) return;
-        const ym = yearMonth(a.createdAt);
-        const match = ym ? FREEWRITE_CAMPAIGN_BY_MONTH[ym] : null;
-        if (!match) return;
-        const fakeKey = match.hash;
-        if (!groups.has(fakeKey)) {
-          groups.set(fakeKey, {
-            campaign: { shortHash: match.hash, name: match.name },
-            articles: [],
-          });
-        }
-        groups.get(fakeKey).articles.push(a);
+        if (!tagged) return;
+        if (!groups.has(tagged.shortHash))
+          groups.set(tagged.shortHash, { campaign: tagged, articles: [] });
+        groups.get(tagged.shortHash).articles.push(a);
       });
 
       return [...groups.values()].sort((a, b) => {
@@ -1034,22 +1007,14 @@ const promptIso = (mdStr: string) => {
         lastJourney = null;
         return;
       }
-      // 收七日書文章：campaign tag 或 title 含關鍵字（含早期 1-4 期 / 隱藏文章）
+      // 收官方七日書文章：必須是活動頁收錄的文章。
       // fetchUserArticleList 已 paginate 並把 edges.node 展平成 array,
       // 所以這裡 user.articles 就是 plain array of nodes（無 .edges）
       const articles = (user.articles || []).filter((a) => {
-          const hasCampaign = (a.campaigns || []).some((c) =>
-            FREEWRITE_NEEDLE.some((n) => (c.campaign?.name || "").includes(n)),
-          );
-          const hasTitle = FREEWRITE_NEEDLE.some((n) =>
-            (a.title || "").includes(n),
-          );
-          // title-only article 再過濾：必須月份對到任何一期才算（避免不相關的「...自由寫」誤判）
-          if (hasCampaign) return true;
-          if (!hasTitle) return false;
-          const ym = a.createdAt ? a.createdAt.slice(0, 7) : null;
-          return ym && FREEWRITE_CAMPAIGN_BY_MONTH[ym];
-        });
+        return (a.campaigns || []).some((c) =>
+          isOfficialFreewriteCampaign(c.campaign),
+        );
+      });
 
       if (!articles.length) {
         passportResult.innerHTML = `

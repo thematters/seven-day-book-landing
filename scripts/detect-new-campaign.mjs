@@ -37,7 +37,8 @@ async function graphql(query, variables = {}) {
     body: JSON.stringify({ query, variables }),
   });
   const json = await res.json();
-  if (json.errors) throw new Error(json.errors.map((e) => e.message).join("; "));
+  if (json.errors)
+    throw new Error(json.errors.map((e) => e.message).join("; "));
   return json.data;
 }
 
@@ -120,14 +121,18 @@ async function main() {
   console.log(`Fetched ${articles.length} latest @freewrite articles`);
 
   // 找標題含「七日書開始報名」的最新一篇
-  const regBookings = articles.filter((a) => /七日書(開始)?報名|自由寫.*?開始/.test(a.title || ""));
+  const regBookings = articles.filter((a) =>
+    /七日書(開始)?報名|自由寫.*?開始/.test(a.title || ""),
+  );
   if (!regBookings.length) {
     console.log("ℹ 沒找到「七日書開始報名」標題，可能新一期還沒公告");
     process.exit(0);
   }
   const latest = regBookings[0];
   console.log(`Latest registration article: ${latest.title}`);
-  console.log(`  shortHash: ${latest.shortHash} / createdAt: ${latest.createdAt}`);
+  console.log(
+    `  shortHash: ${latest.shortHash} / createdAt: ${latest.createdAt}`,
+  );
 
   // 抽 campaign event hash
   const eventHash = extractCampaignHash(latest.contents?.markdown);
@@ -151,9 +156,13 @@ async function main() {
   // 讀現有 themes
   const themes = JSON.parse(fs.readFileSync(THEMES_PATH, "utf-8"));
   // 已存在？
-  const exists = themes.find((t) => t.announceHref === `https://matters.town/a/${latest.shortHash}`);
+  const exists = themes.find(
+    (t) => t.announceHref === `https://matters.town/a/${latest.shortHash}`,
+  );
   if (exists) {
-    console.log(`\n✓ 期 ${exists.series} (${exists.name}) 已在 themes.json 內，無需新增`);
+    console.log(
+      `\n✓ 期 ${exists.series} (${exists.name}) 已在 themes.json 內，無需新增`,
+    );
     process.exit(0);
   }
 
@@ -189,7 +198,7 @@ async function main() {
 
   console.log(`\n=== 新一期 ${newSeries} entry ===`);
   console.log(JSON.stringify(newEntry, null, 2));
-  // 寫作期 start 是 UTC，要 +8 小時取台北月份；對 museum FREEWRITE_CAMPAIGN_BY_MONTH 用
+  // 寫作期 start 是 UTC，要 +8 小時取台北月份，方便人工核對新一期資料
   const writingTaipei = writingStart
     ? new Date(new Date(writingStart).getTime() + 8 * 3600 * 1000)
     : null;
@@ -198,7 +207,7 @@ async function main() {
     : "?";
 
   console.log(`\nevent hash (for SERIES_TO_EVENT): ${eventHash}`);
-  console.log(`writing month (台北時區, for FREEWRITE_CAMPAIGN_BY_MONTH key): ${writingMonthTaipei}`);
+  console.log(`writing month (台北時區): ${writingMonthTaipei}`);
 
   if (!shouldWrite) {
     console.log("\n(dry-run — 加 --write 把 entry 寫進 themes.json)");
@@ -206,12 +215,20 @@ async function main() {
   }
 
   themes.push(newEntry);
-  fs.writeFileSync(THEMES_PATH, JSON.stringify(themes, null, 2) + "\n", "utf-8");
+  fs.writeFileSync(
+    THEMES_PATH,
+    JSON.stringify(themes, null, 2) + "\n",
+    "utf-8",
+  );
   console.log(`\n✓ 已 append S${nextN} 進 themes.json`);
-  console.log(`\n下一步：跑 \`node scripts/scrape-campaign-prompts.mjs --write\` 抓 7 題`);
-  console.log(`再下一步（手動）：在 src/pages/index.astro 跟 src/pages/museum.astro 把:`);
+  console.log(
+    `\n下一步：跑 \`node scripts/scrape-campaign-prompts.mjs --write\` 抓 7 題`,
+  );
+  console.log(
+    `再下一步（手動）：在 src/pages/index.astro 跟 src/pages/museum.astro 把:`,
+  );
   console.log(`  - SERIES_TO_EVENT 加 ${newSeries}: "${eventHash}"`);
-  console.log(`  - FREEWRITE_CAMPAIGN_BY_MONTH 加 "${writingMonthTaipei}" entry`);
+  console.log(`  - officialCampaignHashes 加 "${eventHash}"`);
   console.log(`  - currentIssue 全替換（title / period / prompts）`);
 }
 

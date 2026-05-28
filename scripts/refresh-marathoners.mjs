@@ -41,6 +41,12 @@ const ENDPOINT = "https://server.matters.town/graphql";
  *
  * 新一期上線時，只要加入新的 entry，重跑即可自動納入計算。
  */
+const EXCLUDED_CAMPAIGN_HASHES = new Set([
+  "2hb97w8rdn7k", // 七日書：生與死的二重奏
+  "kn7h01eku617", // 七日書：生命裡的煩惱二三事
+  "ybs0lqsrpmhn", // 三日書：寫出渴望的理想之地
+]);
+
 const CAMPAIGNS = [
   { id: 25, shortHash: "wem6xy6u7okv", label: "我的職場人格" },
   { id: 24, shortHash: "aiafcgbu89p2", label: "氣味博物館" },
@@ -50,8 +56,18 @@ const CAMPAIGNS = [
   { id: 20, shortHash: "ox9fmcz6zxxj", label: "說聲告別" },
   { id: 19, shortHash: "3uskpxsbzmz5", label: "重構生活" },
   { id: 18, shortHash: "owt3jxplay6z", label: "曖昧時刻" },
-  { id: 17, shortHash: "rt04oolqbexh", label: "兩廳院三日書 9 月", special: true },
-  { id: 16, shortHash: "5zhf2bpty274", label: "兩廳院三日書 8 月", special: true },
+  {
+    id: 17,
+    shortHash: "rt04oolqbexh",
+    label: "兩廳院三日書 9 月",
+    special: true,
+  },
+  {
+    id: 16,
+    shortHash: "5zhf2bpty274",
+    label: "兩廳院三日書 8 月",
+    special: true,
+  },
   { id: 15, shortHash: "h2ya9xxjubd2", label: "燃燒自我的故事", special: true },
   { id: 14, shortHash: "efkk0l9hcg96", label: "What If 人生有如果" },
   { id: 13, shortHash: "26uhbm3uh6rg", label: "寫作，給人生的靈魂提問" },
@@ -61,10 +77,9 @@ const CAMPAIGNS = [
   { id: 9, shortHash: "eqsfuc3qph6u", label: "我的（不）完美人生" },
   { id: 8, shortHash: "8t5liudbtpup", label: "物的體系" },
   { id: 7, shortHash: "scx3f16y37v6", label: "島嶼精神" },
-  { id: 6, shortHash: "ybs0lqsrpmhn", label: "山海塢三日書", special: true },
   { id: 5, shortHash: "ia800figcq9y", label: "成長七日書" },
   // 1–4 期沒有 campaign hash，跳過（早於 Matters campaign 模組）
-];
+].filter((campaign) => !EXCLUDED_CAMPAIGN_HASHES.has(campaign.shortHash));
 
 const PARTICIPATION_MIN_STAGES = 4; // 參加獎門檻：投過 N 天以上
 
@@ -80,7 +95,9 @@ async function graphql(query, variables = {}, retries = 3) {
       });
       const json = await res.json();
       if (json.errors) {
-        throw new Error(`GraphQL: ${json.errors.map((e) => e.message).join("; ")}`);
+        throw new Error(
+          `GraphQL: ${json.errors.map((e) => e.message).join("; ")}`,
+        );
       }
       return json.data;
     } catch (err) {
@@ -126,9 +143,13 @@ const CAMPAIGN_ARTICLES_QUERY = `
 
 /** 撈一期 campaign 的 stage 列表 + 所有 article（paginate） */
 async function fetchCampaignData(campaign) {
-  const meta = await graphql(CAMPAIGN_META_QUERY, { shortHash: campaign.shortHash });
+  const meta = await graphql(CAMPAIGN_META_QUERY, {
+    shortHash: campaign.shortHash,
+  });
   if (!meta.campaign) {
-    console.warn(`  ⚠ ${campaign.shortHash} (${campaign.label}) returned null campaign`);
+    console.warn(
+      `  ⚠ ${campaign.shortHash} (${campaign.label}) returned null campaign`,
+    );
     return null;
   }
   const stageIds = meta.campaign.stages.map((s) => s.id);
@@ -184,7 +205,10 @@ async function main() {
   const shouldWrite = args.has("--write");
 
   console.log(`\n=== Refresh Marathoners — ${new Date().toISOString()} ===\n`);
-  console.log(`Campaigns to process: ${CAMPAIGNS.length}\n`);
+  console.log(`Campaigns to process: ${CAMPAIGNS.length}`);
+  console.log(
+    `Excluded campaign hashes: ${[...EXCLUDED_CAMPAIGN_HASHES].join(", ")}\n`,
+  );
 
   // userName → { ..., grandSlams: number, grandSlamCampaigns: shortHash[], totalArticles: number, campaigns: shortHash[] }
   const allAuthors = new Map();
@@ -193,7 +217,9 @@ async function main() {
   const perCampaign = [];
 
   for (const camp of CAMPAIGNS) {
-    process.stdout.write(`  [#${String(camp.id).padStart(2, " ")}] ${camp.label.padEnd(20)}`);
+    process.stdout.write(
+      `  [#${String(camp.id).padStart(2, " ")}] ${camp.label.padEnd(20)}`,
+    );
     const data = await fetchCampaignData(camp);
     if (!data) {
       console.log("  (skipped — no data)");
@@ -250,7 +276,9 @@ async function main() {
       grandSlams,
       participation,
     });
-    console.log(`  ${String(data.articles.length).padStart(4)} 篇 / ${String(tally.size).padStart(3)} 作者 / ${String(grandSlams).padStart(3)} 大滿貫 / ${String(participation).padStart(3)} 參加獎`);
+    console.log(
+      `  ${String(data.articles.length).padStart(4)} 篇 / ${String(tally.size).padStart(3)} 作者 / ${String(grandSlams).padStart(3)} 大滿貫 / ${String(participation).padStart(3)} 參加獎`,
+    );
   }
 
   // 統計總覽
@@ -258,7 +286,9 @@ async function main() {
   console.log(`  總大滿貫次數     : ${totalGrandSlams}`);
   console.log(`  總參加獎次數     : ${totalParticipationAwards}`);
   console.log(`  獨立作者         : ${allAuthors.size}`);
-  console.log(`  曾拿過 ≥1 次大滿貫: ${[...allAuthors.values()].filter((a) => a.grandSlams > 0).length}`);
+  console.log(
+    `  曾拿過 ≥1 次大滿貫: ${[...allAuthors.values()].filter((a) => a.grandSlams > 0).length}`,
+  );
 
   // Top-50 marathoners（按 grandSlams desc, totalArticles desc）
   const marathoners = [...allAuthors.values()]
@@ -271,7 +301,10 @@ async function main() {
       grandSlams: a.grandSlams,
       grandSlamCampaigns: a.grandSlamCampaigns.sort(),
     }))
-    .sort((x, y) => y.grandSlams - x.grandSlams || y.totalArticles - x.totalArticles)
+    .sort(
+      (x, y) =>
+        y.grandSlams - x.grandSlams || y.totalArticles - x.totalArticles,
+    )
     .slice(0, 50);
 
   console.log(`\n=== Top 10 ===`);
@@ -317,7 +350,9 @@ async function main() {
     fs.writeFileSync(outPath, lines.join("\n"), "utf-8");
     console.log(`\n✓ 寫入 ${path.relative(REPO_ROOT, outPath)}`);
   } else {
-    console.log(`\n(dry-run — 不寫檔；加 --write 可寫入 src/data/freewrite-marathoners.ts)`);
+    console.log(
+      `\n(dry-run — 不寫檔；加 --write 可寫入 src/data/freewrite-marathoners.ts)`,
+    );
   }
 }
 

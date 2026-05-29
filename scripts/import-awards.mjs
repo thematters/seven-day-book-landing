@@ -46,6 +46,9 @@ const OUT = path.join(REPO_ROOT, "src/data/freewrite-marathoners.ts");
 const ENDPOINT = "https://server.matters.town/graphql";
 
 const EXCLUDED_AWARD_IDS = new Set(["6"]);
+// 參加獎專用排除：第1期（參加獎制度尚未開始）+ 三日書（當年只頒大滿貫、未頒參加獎）。
+//   1 = 空間地方、15 = 被過度期待(三日書)、16 = 兩廳院八月(三日書)、17 = 兩廳院九月(三日書)
+const PA_EXCLUDED_IDS = new Set(["1", "15", "16", "17"]);
 const TOTAL_REGISTRATIONS = 3835;
 const TOTAL_UNIQUE_AUTHORS = 2012;
 const TOTAL_ARTICLES = 8325;
@@ -76,13 +79,17 @@ const CAMPAIGN_HASH = {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-const filterAwardCampaigns = (campaigns = []) =>
-  campaigns.filter((cid) => !EXCLUDED_AWARD_IDS.has(String(cid)));
+const filterAwardCampaigns = (campaigns = [], extraExcluded = null) =>
+  campaigns.filter(
+    (cid) =>
+      !EXCLUDED_AWARD_IDS.has(String(cid)) &&
+      !(extraExcluded && extraExcluded.has(String(cid))),
+  );
 
-const normalizeAwardRows = (rows, awardKey, countKey) =>
+const normalizeAwardRows = (rows, awardKey, countKey, extraExcluded = null) =>
   rows
     .map((row) => {
-      const campaigns = filterAwardCampaigns(row[awardKey] || []);
+      const campaigns = filterAwardCampaigns(row[awardKey] || [], extraExcluded);
       return { ...row, [awardKey]: campaigns, [countKey]: campaigns.length };
     })
     .filter((row) => row[awardKey].length > 0);
@@ -124,7 +131,7 @@ async function main() {
   const rawGsRows = JSON.parse(fs.readFileSync(GS_PATH, "utf-8"));
   const rawPaRows = JSON.parse(fs.readFileSync(PA_PATH, "utf-8"));
   const gsRows = normalizeAwardRows(rawGsRows, "大滿貫", "大滿貫次數");
-  const paRows = normalizeAwardRows(rawPaRows, "參加獎", "參加獎次數");
+  const paRows = normalizeAwardRows(rawPaRows, "參加獎", "參加獎次數", PA_EXCLUDED_IDS);
 
   console.log(`\n=== Import Awards ===\n`);
   console.log(`  Grand slams (大滿貫)        : ${gsRows.length} 用戶`);

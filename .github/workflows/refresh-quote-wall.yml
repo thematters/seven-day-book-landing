@@ -1,0 +1,42 @@
+name: Refresh quote wall (daily)
+
+# 金句是使用者持續產生的（不像每月主題），所以每天刷新一次。
+# 重抓 scripts/fetch-quote-wall.mjs → src/data/quote-wall.ts → 有改動就開 PR。
+# 注意：用的是 Matters public GraphQL，無需 secret。
+# 手動觸發：workflow_dispatch。
+
+on:
+  schedule:
+    - cron: "0 17 * * *" # 每天 UTC 17:00（台北隔日 01:00，離峰）
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Fetch quote wall
+        run: node scripts/fetch-quote-wall.mjs --write
+
+      - name: Create PR if changed
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore: refresh quote wall data"
+          title: "chore: refresh quote wall data"
+          body: "自動刷新金句牆資料（fetch-quote-wall.mjs）。"
+          branch: auto/refresh-quote-wall
+          delete-branch: true
+          base: main
+          add-paths: src/data/quote-wall.ts
+          labels: |
+            automated
+            content

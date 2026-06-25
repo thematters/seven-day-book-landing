@@ -6,7 +6,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import MattersWordmark from "../../components/MattersWordmark.astro";
 import SevenDayBookLogo from "../../components/SevenDayBookLogo.astro";
 import { quoteWall, quoteWallCount } from "../../data/quote-wall";
-import { communityQuotes } from "../../data/community-quotes";
+import { featuredArticles } from "../../data/freewrite-featured";
 import { withBase } from "../../utils/paths";
 import { memoWallCurrent } from "../../data/memo-wall-current";
 
@@ -68,21 +68,33 @@ const campaignHref = (c: { hash: string; href?: string }) =>
 const articleUrl = (hash: string) =>
   hash ? `https://matters.town/a/${hash}` : "#";
 
-// quote-wall.ts 目前空的（金句牆 2026/7 才上線）。先用 community-quotes.ts 的現成
-// 金句當『範例資料』把牆撐起來。⚠️ 上線前要拿掉 SAMPLE，只吃 quoteWall。
-const SAMPLE_COUNT = 50; // 預覽用：把現有範例句循環成 50 張，純看牆的密度
+// quote-wall.ts 目前空的（金句牆 2026/7 才上線）。先用「歷年精選文章」的 summary 當範例金句：
+// 用 campaignHash 對到屆數、挑長度像金句的（14–46 字）、去重不循環。⚠️ 上線前拿掉這段、只吃 quoteWall。
+const hashToName = new Map(
+  CAMPAIGNS.filter((c) => c.hash).map((c) => [c.hash, c.name]),
+);
 const usingSample = quoteWallCount === 0;
 const rawSource = usingSample
-  ? Array.from({ length: SAMPLE_COUNT }, (_, i) => {
-      const q = communityQuotes[i % communityQuotes.length];
-      return {
-        id: `s-${i}`,
-        content: q.text,
-        author: q.author,
-        campaignName: q.campaignLabel,
-        articleHash: q.articleHash,
-      };
-    })
+  ? (() => {
+      const seen = new Set<string>();
+      return featuredArticles
+        .filter((a) => {
+          if (!hashToName.has(a.campaignHash)) return false;
+          const s = a.summary || "";
+          if (s.length < 14 || s.length > 46 || seen.has(s)) return false;
+          // 排除像「題目／提示」而非金句的句子
+          if (/^七日書|Day ?\d|^第[一二三四五六七]天|^本期|寫一[個篇]|分享一[個篇]/.test(s)) return false;
+          seen.add(s);
+          return true;
+        })
+        .map((a, i) => ({
+          id: `s-${i}`,
+          content: a.summary,
+          author: a.author.displayName,
+          campaignName: hashToName.get(a.campaignHash)!,
+          articleHash: a.shortHash,
+        }));
+    })()
   : quoteWall.map((q) => ({
       id: q.id,
       content: q.content,

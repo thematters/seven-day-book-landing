@@ -337,10 +337,24 @@ export const allThemes = [
     series: "S25",
     monthLabel: "2026 / 6",
     name: "無用之用",
-    phase: "進行中",
+    phase: "完結",
     announceCover: `${CDN}/embed/fe19aca7-512b-499e-bb6e-b8a8f5b91655.png/public`,
     announceHref: "https://matters.town/a/ez7cdnkfapy2",
     announceSummary: "我們時常被教導只有在「產出」時才具有價值，而「無用之用」正是一場溫柔的叛逆。當我們願意為了一件看起來沒有目的或價值的事情流連忘返、為了一個無法變現的愛好投入時間，其實是在奪回自主權。本次自由寫以「無用之用」為題，以七日連續書寫的形式，放慢腳步重新看待那些被視為「無用」的時光與物事。",
+    wrapCover: `${CDN}/cover/6c58ba0f-9e47-424c-8d09-65fa42229aaa.png/public`,
+    wrapHref: "https://matters.town/a/0m0ln1gkrrs2",
+    wrapSummary: "「無用之用」七日書經已結束，今次總共有 102 位文友參與，並歡迎其中第一次參與的 30 位作者。在這七天中，大家分享了許多動人的故事：看起來「不合時宜」的興趣、可能是「無用」但滿有收獲的時光、一直收藏著看來「沒用」卻對人生「有用」的小物。這些無用與有用之間的故事，讓我們走了一趟滿滿的旅程。",
+    participants: 102,
+    newcomers: 30,
+  },
+  {
+    series: "S26",
+    monthLabel: "2026 / 7",
+    name: "集體記憶",
+    phase: "進行中",
+    announceCover: `${CDN}/embed/3cfa2e85-e7a6-4579-af3f-cf2e5db0817c.png/public`,
+    announceHref: "https://matters.town/a/xxha4s8cvlm5",
+    announceSummary: "集體記憶，是我們如何帶著過往，活在當下。它不只是歷史課本上的大事件，更是那些我們共同經歷過的日常：一起守候的某個畫面、曾經流行過的物件、那個你至今仍會專程前往的場所。這些大眾共有的片段，無論是溫暖的民間情懷，還是夾雜著複雜情緒的群體往事，皆化為我們理解當下生活的基礎。本期七日書，邀請你寫下你的集體記憶。",
   },
 ];
 
@@ -349,37 +363,37 @@ export const pastThemes = allThemes.slice(0, -1).reverse();
 // historicalThemes 為向後相容別名，與 allThemes 倒序排列（最新在前）
 export const historicalThemes = [...allThemes].reverse();
 
-const CURRENT_COVER = `${CDN}/embed/fe19aca7-512b-499e-bb6e-b8a8f5b91655.png/public`;
+const CURRENT_COVER = `${CDN}/embed/3cfa2e85-e7a6-4579-af3f-cf2e5db0817c.png/public`;
 
 export const currentIssue = {
-  title: "無用之用",
+  title: "集體記憶",
   status: "進行中",
-  period: "2026/6/1 - 2026/6/8",
+  period: "2026/7/6 - 2026/7/13",
   participants: "—",
-  eventHref: "https://matters.town/e/nxy5zqcjs7lt",
-  announcementHref: "https://matters.town/a/ez7cdnkfapy2",
+  eventHref: "https://matters.town/e/a6weg482vsxe",
+  announcementHref: "https://matters.town/a/xxha4s8cvlm5",
   cover: CURRENT_COVER,
   heroCover: CURRENT_COVER,
   originalCover: CURRENT_COVER,
   summary:
-    "我們時常被教導只有在「產出」時才具有價值。本期七日書邀請你放慢腳步，為一件看起來沒有目的或價值的事情流連忘返，重新看待那些被視為「無用」的時光與物事。",
+    "集體記憶不只是歷史課本上的大事件，更是我們共同經歷的日常——一起守候的畫面、曾經流行的物件、至今仍會專程前往的場所。本期七日書，邀請你撿起大眾共有的時代片段，寫下與時代浪潮、文化交融的故事。",
   // state 由 page 上 inline script 根據 today vs prompt.date 動態算（past/today/locked）
   // 這裡 hardcode "upcoming" 表示「報名期，寫作還沒開始」
   prompts: [
-    { day: "Day 1", date: "6/1", state: "upcoming", title: "顯眼位置的擺設",
-      prompt: "寫一個沒有實用功能，擺設價值高於使用價值，你卻放在顯眼位置的東西。它有著怎樣專屬的意義？" },
-    { day: "Day 2", date: "6/2", state: "upcoming", title: "你的空白歲月",
-      prompt: "一段不刻意追求目標、自己也曾覺得是「無用」的時光，卻在當中獲得一些東西，養成了你。" },
-    { day: "Day 3", date: "6/3", state: "upcoming", title: "保留的舊憑證",
-      prompt: "寫一個已經不能再使用，但你依然保留的憑證——演唱會門票、過期會員卡、學生證。這張紙代表了你怎樣的人生？" },
-    { day: "Day 4", date: "6/4", state: "upcoming", title: "反覆想起的地方",
-      prompt: "一處你曾造訪、未必會記住的空間，後來卻反覆在腦海裡想起，藏著只有你明白的心事。" },
-    { day: "Day 5", date: "6/5", state: "upcoming", title: "無用的興趣",
-      prompt: "一個你擁有、卻在社會上賺不了多少錢的興趣或技能。你為什麼覺得它「有用」、甚或養活了你的靈魂？" },
-    { day: "Day 6", date: "6/6", state: "upcoming", title: "陪伴你的句子",
-      prompt: "一句文字——詩或詞，當初讀到不以為意，後來卻不時想起、反覆使用、安放自我的。" },
-    { day: "Day 7", date: "6/7", state: "upcoming", title: "順從內心的路",
-      prompt: "你甘願放棄世俗眼中實質有利的選擇，堅持一條看起來不可知、卻順從內心的路。" },
+    { day: "Day 1", date: "7/6", state: "upcoming", title: "青春時代的風行物",
+      prompt: "分享一件青春時代在同輩間風行的物件——球鞋、背包、貼紙簿、潮流玩物。那時你們圍著它發生了什麼故事？這個集體符號，如何牽扯出當時的人際相處？" },
+    { day: "Day 2", date: "7/7", state: "upcoming", title: "一起觀看的場景",
+      prompt: "回想一個畫面、一聲前奏或一段旋律，它能讓你瞬間聯想到曾經「一起觀看或參與」的集體場景。在那個同步經歷的當下，彼此身處同一頻率，它為你帶來怎樣的集體經驗？" },
+    { day: "Day 3", date: "7/8", state: "upcoming", title: "專程前往的場所",
+      prompt: "分享一個你現在其實「已經不需要去」，卻因為連接著某種群體記憶而專程前往的場所。它如何見證了你與某個群體的關係？在它於當下生活漸漸褪色之際，藏著你哪種無法割捨的情懷？" },
+    { day: "Day 4", date: "7/9", state: "upcoming", title: "曾依賴的通訊方式",
+      prompt: "分享一種你曾經依賴的通訊方式或數碼軟體——部落格、MSN，或任何工具。以前的聯絡需要漫長的等待與猜測，那種等待回音的「空白」，相比當下的即時通訊，讓你對人與人的「連結」與「節奏」有著怎樣的理解？" },
+    { day: "Day 5", date: "7/10", state: "upcoming", title: "席捲而來的異國潮流",
+      prompt: "談談你經歷過、塑造了你的某個席捲而來的異國文化或生活潮流——日劇、美式速食、韓流，或某種 well-being 觀念。這種由另一個國家帶來的異國氛圍，如何啟蒙了你對外面世界的想像與感官？" },
+    { day: "Day 6", date: "7/11", state: "upcoming", title: "親歷的歷史事件",
+      prompt: "回想一件你在螢幕前目睹、或親身見證過的重大社會歷史事件。在那之後，城市的肌理與氛圍都不同了。這份共同記憶，如何重塑了你對「家園」或「群體」的感情，甚或改變了你此後的價值觀？" },
+    { day: "Day 7", date: "7/12", state: "upcoming", title: "揮之不去的集體記憶",
+      prompt: "分享一個你「不要想有」、存有張力和距離感，卻始終揮之不去的集體記憶。集體記憶可以是由上至下的，這個令你格格不入甚至抗拒的往事，是一個怎樣的記憶？它為你帶來了怎樣的拉扯？" },
   ],
 };
 

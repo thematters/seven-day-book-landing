@@ -1,26 +1,37 @@
-name: Monthly auto-refresh (detect + prompts + quotes)
+name: Monthly auto-refresh (detect + prompts + museum sync)
 
-# 每月 25 號台北 09:00 跑（七日書官方在每月 25 號 0:00 公布新一期主題）
+# 每月 UTC 28 號 17:00 跑 ＝ 台北 29 號凌晨 01:00。
 #
-# 完整流程（v3.8 改版）：
-#   1. detect-new-campaign.mjs：偵測 @freewrite 最新「七日書開始報名」公告，
-#      自動 append 新一期到 research/freewrite-themes.json
-#   2. scrape-campaign-prompts.mjs：解析新一期公告 markdown 抽 7 題進 freewrite-prompts.ts
-#   3. curate-community-quotes.mjs：從新精選文重新挑 9 句社群 quote
-#   4. 變動就開 PR
+# 為什麼這個時間（原本台北 25 號 09:00）：
+#   - 七日書官方公告新一期的日子已往後漂，「集體記憶」是 2026-06-28 16:02 UTC
+#     ＝台北 6/29 00:02 才上線；台北 25–28 號的 cron 會整個錯過。
+#   - 排在「台北 29 號凌晨」就趕得上官方常拖到台北 29 號才發的公告。
+#   - 但 cron 的「日」吃 UTC：寫成 UTC 28 號 → 連 2 月（只有 28 天）都會觸發；
+#     若直接寫台北 29 號（UTC 28 號 16:00 以後仍是 28，OK；但若寫 cron day=29 則 2 月不跑）。
+#     故取 `0 17 28 * *`：UTC 日永遠是 28（每月都有）、台北時刻是 29 號 01:00（趕得上公告）。
+#   - 上一期完結報告約寫作期結束後 ~9 天出，台北 29 號也早就有了。
 #
-# Reviewer 在 PR 內還需要手動：
-#   - 把 src/pages/index.astro / museum.astro 內 SERIES_TO_EVENT +
-#     FREEWRITE_CAMPAIGN_BY_MONTH 加新一期 entry
-#   - src/data/seven-day-campaign.ts 的 currentIssue 全替換
-#   (這幾步留給人，避免亂改 currentIssue 的 prompt 文案)
+# 完整流程（v4 改版 — 把過去人手做的三塊全自動化，仍開 PR 給人 review，不 auto-merge）：
+#   1. detect-new-campaign.mjs   → 偵測新一期，append research/freewrite-themes.json
+#   2. scrape-campaign-prompts.mjs→ 解析新一期 7 題進 src/data/freewrite-prompts.ts
+#   3. curate-community-quotes.mjs→ 從新精選文重挑 9 句社群 quote
+#   4. sync-museum.mjs            → 三塊一次補齊：
+#        ① 最新一期：allThemes append + currentIssue 全替換 + SERIES_TO_EVENT + eligibleHashes
+#        ② 上一期完結：對應 theme 翻「完結」+ 補 wrap 連結 / 參與 / 新人
+#        ③ 上一期大滿貫：依官方完結報告 @ 名單補 observablehq JSON + 重跑 import-awards
+#      （防禦式：anchor 不唯一就跳過該編輯 + 記 warning，絕不產生壞檔）
+#   5. npm run build 驗證 → 變動就開 PR（PR body 帶 sync 摘要 + build 狀態）
 #
-# 注意：scripts 用的是 Matters public GraphQL，無需 secret
-# 手動觸發：workflow_dispatch（如果 25 號漏跑或想立刻刷新）
+# Reviewer 在 PR 內只剩兩件人工：
+#   - currentIssue.prompts 的 7 題「短標 title」與文案微潤（自動帶的是公告原句）
+#   - 對照官方完結報告，核對 sync 抓到的大滿貫 / 參加獎位數無誤
+#
+# scripts 全用 Matters public GraphQL，無需 secret。
+# 手動觸發：workflow_dispatch（28 號漏跑、2 月想補跑、或想立刻刷新時）
 
 on:
   schedule:
-    - cron: "0 1 25 * *" # 每月 25 日 UTC 01:00 (台北 09:00)
+    - cron: "0 17 28 * *" # UTC 28 日 17:00 ＝ 台北 29 日 01:00（UTC 日恆為 28 → 含 2 月）
   workflow_dispatch:
 
 permissions:
@@ -46,13 +57,45 @@ jobs:
       - name: Refresh community quotes
         run: node scripts/curate-community-quotes.mjs --write
 
+      - name: Sync museum (new issue + previous completion + grand slams)
+        id: sync
+        run: |
+          set -o pipefail
+          node scripts/sync-museum.mjs --write 2>&1 | tee /tmp/sync.log
+          {
+            echo 'summary<<SYNC_EOF'
+            sed -n '/=== 會做 \/ 已做 ===/,$p' /tmp/sync.log
+            echo 'SYNC_EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Install deps & verify build
+        id: build
+        run: |
+          npm ci
+          if npm run build; then
+            echo "status=✅ pass" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=❌ FAIL — 請人工檢查（可能某個 anchor 跳過後留下 TODO）" >> "$GITHUB_OUTPUT"
+          fi
+        continue-on-error: true
+
       - name: Check for changes
         id: diff
         run: |
-          if git diff --quiet research/freewrite-themes.json src/data/freewrite-prompts.ts src/data/community-quotes.ts; then
-            echo "changed=false" >> $GITHUB_OUTPUT
+          if git diff --quiet \
+            research/freewrite-themes.json \
+            research/freewrite-grand-slams-observablehq.json \
+            research/freewrite-participation-awards-observablehq.json \
+            scripts/import-awards.mjs \
+            src/data/freewrite-prompts.ts \
+            src/data/community-quotes.ts \
+            src/data/freewrite-marathoners.ts \
+            src/data/seven-day-campaign.ts \
+            src/pages/index.astro \
+            src/pages/museum.astro; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create Pull Request
@@ -62,40 +105,41 @@ jobs:
           branch: auto/monthly-refresh
           delete-branch: true
           base: main
-          title: "chore(content): 每月自動刷新 themes / prompts / quotes"
+          title: "chore(content): 每月自動刷新博物館（新一期 + 上一期完結 + 大滿貫）"
           commit-message: |
-            chore(content): 每月 25 號自動刷新
+            chore(content): 每月 28 號自動刷新博物館
 
-            從 @freewrite 最新公告偵測新一期、抓 7 題、重挑 9 句社群 quote。
-            Review 後 reviewer 還需手動 update SERIES_TO_EVENT / FREEWRITE_CAMPAIGN_BY_MONTH
-            / currentIssue 三處，再 merge 觸發 deploy。
+            detect 新一期 + scrape 7 題 + quote；sync-museum 補上一期完結連結與
+            大滿貫累計（依官方完結報告 @ 名單）。Reviewer 過目 currentIssue 文案
+            與大滿貫位數後即可 merge 觸發 deploy。
           body: |
-            ## 月度自動刷新
+            ## 月度自動刷新（v4：三塊全自動）
 
-            這次 workflow 改動的檔案：
-            - `research/freewrite-themes.json` — 由 detect-new-campaign.mjs append
-            - `src/data/freewrite-prompts.ts` — 由 scrape-campaign-prompts.mjs 重抓
-            - `src/data/community-quotes.ts` — 由 curate-community-quotes.mjs 重挑
+            **build 驗證：${{ steps.build.outputs.status }}**
 
-            ## ⚠️ Reviewer 還要手動做的 (3 處改動)
+            這次自動完成的：
 
-            合併 PR 之前請手動加新一期：
+            ```
+            ${{ steps.sync.outputs.summary }}
+            ```
 
-            1. **`src/pages/index.astro`** 內 `SERIES_TO_EVENT`：
-               ```
-               S{N}: "{eventHash}",   // 從 detect script log 抄
-               ```
+            另由前置步驟更新：`freewrite-themes.json`（detect）、`freewrite-prompts.ts`（scrape）、`community-quotes.ts`（curate）。
 
-            2. **`src/pages/museum.astro`** 內 `eligibleCampaignHashes`：
-               ```
-               "{eventHash}",
-               ```
+            ## ✅ Reviewer 只剩兩件人工
 
-            3. **`src/data/seven-day-campaign.ts`** 內 `currentIssue`：
-               - title / period / eventHref / announcementHref / cover / summary
-               - prompts[] 從 `freewrite-prompts.ts` 新一期 copy 過去並可手動 polish
+            1. **currentIssue 的 7 題文案微潤**：`src/data/seven-day-campaign.ts` 的 `currentIssue.prompts` —
+               自動帶的是公告原句、`title` 是首句截斷，照慣例可改成短標 + 潤飾。
+            2. **核對大滿貫 / 參加獎位數**：對照本期官方「完結｜大滿貫、參加獎名單」原文，
+               確認 sync 抓到的位數一致（完結報告偶有「寫 X 位但只 @ 列 X-1 位」的人為誤差，
+               以可辨識的 @ 名單為準）。
 
-            🤖 由 `.github/workflows/refresh-monthly.yml` 排程觸發
+            ## ⚠️ 資料來源備註
+            - 上一期大滿貫是以**官方完結報告**為 per-period 來源（非 observablehq notebook）。
+              下次有人從 notebook 重新匯出兩份 JSON 跑 `import-awards.mjs` 時會以 DB-direct 覆蓋。
+            - 整站總量（`totalRegistrations` / `totalUniqueAuthors` / `totalArticles`）非本流程更新，
+              仍需 notebook 重匯。
+
+            🤖 由 `.github/workflows/refresh-monthly.yml` 排程觸發（每月 28 號）
           labels: |
             automated
             content

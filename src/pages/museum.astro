@@ -41,7 +41,7 @@ const assetSrc = (src?: string) => {
   return src.startsWith("http") ? src : withBase(src);
 };
 
-// 24 期主題倒序：最新在前
+// 各期主題倒序：最新在前
 const archiveThemes = [...allThemes].reverse();
 
 const eligibleCampaignHashes = [
@@ -67,6 +67,7 @@ const eligibleCampaignHashes = [
   "aiafcgbu89p2", // 氣味博物館
   "wem6xy6u7okv", // 我的職場人格
   "nxy5zqcjs7lt", // 無用之用
+  "a6weg482vsxe", // 集體記憶
 ];
 
 const excludedCampaignHashes = [
@@ -95,7 +96,7 @@ const promptIso = (mdStr: string) => {
 
 <BaseLayout
   title="七日書博物館"
-  description="七日書博物館：從 2024 春到現在，24 期主題的圖片彙整 — 把每一期書寫的痕跡留下來。"
+  description={`七日書博物館：從 2024 春到現在，${archiveThemes.length} 期主題的圖片彙整 — 把每一期書寫的痕跡留下來。`}
 >
   <div class="campaign-page campaign-page--dark" data-page="archive">
     <header class="sitebar sitebar--dark">

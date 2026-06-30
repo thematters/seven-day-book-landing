@@ -75,6 +75,7 @@ const CAMPAIGN_HASH = {
   23: "q48dv6ve4g2m",
   24: "aiafcgbu89p2",
   25: "wem6xy6u7okv",
+  26: "nxy5zqcjs7lt",
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

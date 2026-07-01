@@ -1,15 +1,13 @@
 ---
 // 金句牆 —— 內嵌博物館主頁的深色版 section 組件（/museum/#memo-wall）。
+// 下拉改為「依主題面向瀏覽」：只列 6 個大面向，某期活動的金句自動歸到所屬面向。
 // 資料來源：quote-wall.ts（GitHub Action 抓真金句）；目前用歷年精選文章 summary 當範例。
 import { quoteWall, quoteWallCount } from "../data/quote-wall";
 import { featuredArticles } from "../data/freewrite-featured";
-import { withBase } from "../utils/paths";
 import { memoWallCurrent } from "../data/memo-wall-current";
+import { FACETS, themeToFacet } from "../data/memo-wall-facets";
 
-const museumHref = withBase("museum/");
-const currentIssueHref = `${museumHref}#current-issue`;
-
-// 可上金句牆的歷期，新 → 舊。hash = 活動頁；href = 公告頁（最早 3 期）；month = 寫作月份。
+// 可上金句牆的往期，新 → 舊。hash = 活動頁；href = 公告頁（最早 3 期）；month = 寫作月份。
 const CAMPAIGNS: { name: string; hash: string; href?: string; month: string }[] = [
   { name: "無用之用", hash: "nxy5zqcjs7lt", month: "2026 年 6 月" },
   { name: "我的職場人格", hash: "wem6xy6u7okv", month: "2026 年 5 月" },
@@ -41,14 +39,12 @@ const orderOf = new Map(CAMPAIGNS.map((c, i) => [c.name, i]));
 const currentName = memoWallCurrent.title;
 const currentEvent = memoWallCurrent.eventHref;
 const currentMonth = memoWallCurrent.month;
-const CURRENT_KEY = "__current__";
 const campaignKey = (label: string) => {
   const hit = CAMPAIGNS.find((c) => label.includes(c.name) || c.name.includes(label));
   return hit ? hit.name : label;
 };
-const campaignHref = (c: { hash: string; href?: string }) =>
-  c.href ? c.href : c.hash ? `https://matters.town/e/${c.hash}` : currentIssueHref;
 const articleUrl = (hash: string) => (hash ? `https://matters.town/a/${hash}` : "#");
+const facetOf = (key: string) => themeToFacet[key] ?? "";
 
 // 範例金句：歷年精選文章 summary，用 campaignHash 對屆數、挑 14–46 字、去重、排題目句。
 const hashToName = new Map(CAMPAIGNS.filter((c) => c.hash).map((c) => [c.hash, c.name]));
@@ -85,12 +81,14 @@ const wallQuotes = rawSource
   .map((q) => ({ ...q, key: campaignKey(q.campaignName) }))
   .sort((a, b) => (orderOf.get(a.key) ?? 99) - (orderOf.get(b.key) ?? 99));
 
-const yearOf = (m: string) => m.match(/(\d{4})/)?.[1] ?? "";
-const pastForSelect = CAMPAIGNS.filter((c) => c.name !== currentName);
-const campaignsByYear = [...new Set(pastForSelect.map((c) => yearOf(c.month)))]
-  .sort()
-  .reverse()
-  .map((year) => ({ year, items: pastForSelect.filter((c) => yearOf(c.month) === year) }));
+// 每個面向收錄哪些往期主題（本期除外）—— 給選面向時的說明文字用
+const facetThemes: Record<string, string[]> = {};
+for (const c of CAMPAIGNS) {
+  if (c.name === currentName) continue;
+  const f = themeToFacet[c.name];
+  if (!f) continue;
+  (facetThemes[f] ??= []).push(c.name);
+}
 ---
 
 <section class="mw" id="memo-wall" aria-labelledby="mw-title">
@@ -104,32 +102,33 @@ const campaignsByYear = [...new Set(pastForSelect.map((c) => yearOf(c.month)))]
     </header>
 
     <div class="mw-controls">
-      <div class="mw-filters" id="mw-filters" role="group" aria-label="篩選金句">
-        <button class="mw-filter is-on" data-campaign="" type="button">全部</button>
-        <button
-          class="mw-filter mw-filter--now"
-          data-campaign={CURRENT_KEY}
-          data-event={currentEvent}
-          type="button">✦ {currentName}・本期</button>
-        <select class="mw-select" id="mw-select" aria-label="瀏覽過往主題">
-          <option value="">瀏覽過往主題⋯</option>
-          {
-            campaignsByYear.map((g) => (
-              <optgroup label={`${g.year} 年`}>
-                {g.items.map((c) => (
-                  <option
-                    value={c.name}
-                    data-event={campaignHref(c)}
-                    data-month={c.month}
-                    data-announce={!c.hash && c.href ? "true" : "false"}
-                  >
-                    {c.name}
-                  </option>
-                ))}
-              </optgroup>
-            ))
-          }
-        </select>
+      <div class="mw-filters" id="mw-filters">
+        <button class="mw-filter is-on" data-facet="" type="button">全部</button>
+        <div class="mw-facet" id="mw-facet">
+          <button
+            class="mw-facet__btn"
+            id="mw-facet-btn"
+            type="button"
+            aria-haspopup="listbox"
+            aria-expanded="false">
+            <span id="mw-facet-label">依主題面向瀏覽</span>
+            <svg class="mw-facet__caret" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </button>
+          <ul class="mw-facet__menu" id="mw-facet-menu" role="listbox" aria-label="主題面向" hidden>
+            {
+              FACETS.map((f) => (
+                <li>
+                  <button class="mw-facet__opt" role="option" type="button" data-facet={f.key}>
+                    <span class="mw-facet__dot" style={`background:${f.dot}`} aria-hidden="true" />
+                    {f.label}
+                  </button>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
       </div>
       <button id="mw-shuffle" class="mw-refresh" type="button">
         <svg class="mw-refresh__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
@@ -144,20 +143,15 @@ const campaignsByYear = [...new Set(pastForSelect.map((c) => yearOf(c.month)))]
       </button>
     </div>
 
-    <div class="mw-rail" id="mw-rail" hidden>
-      <span class="mw-rail__title" id="mw-rail-title"></span>
-      <span class="mw-rail__count" id="mw-rail-count"></span>
-      <a class="mw-btn" id="mw-rail-btn" href="#" target="_blank" rel="noopener"
-        >閱讀當期七日書所有文章 →</a
-      >
-    </div>
+    <p class="mw-facetnote" id="mw-facetnote" hidden></p>
+    <script id="mw-facet-data" type="application/json" is:inline set:html={JSON.stringify(facetThemes)} />
 
     <p class="mw-empty" id="mw-empty" hidden>
-      這一期還沒有人貼金句 —— 之後讀到喜歡的句子，按「選金句」就會出現在這裡。
+      這個面向還沒有金句 —— 之後文友選了喜歡的句子，就會出現在這裡。
     </p>
 
     <ul class="mw-wall" id="mw-wall">
-      <li class="mw-memo mw-memo--pinned" data-pinned data-campaign={CURRENT_KEY}>
+      <li class="mw-memo mw-memo--pinned" data-pinned>
         <div class="mw-card mw-card--pinned">
           <span class="mw-pin" aria-hidden="true">📌</span>
           <p class="mw-pinned__eyebrow">{currentMonth}・本期主題</p>
@@ -170,7 +164,7 @@ const campaignsByYear = [...new Set(pastForSelect.map((c) => yearOf(c.month)))]
       </li>
       {
         wallQuotes.map((q, i) => (
-          <li class="mw-memo" data-variant={i % 6} data-campaign={q.key}>
+          <li class="mw-memo" data-variant={i % 6} data-facet={facetOf(q.key)}>
             <a class="mw-card" href={articleUrl(q.articleHash)} target="_blank" rel="noreferrer">
               <blockquote class="mw-quote">{q.content}</blockquote>
               <figcaption class="mw-cardmeta">
@@ -232,10 +226,10 @@ const campaignsByYear = [...new Set(pastForSelect.map((c) => yearOf(c.month)))]
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
+    align-items: center;
     flex: 1;
   }
-  .mw-filter,
-  .mw-select {
+  .mw-filter {
     padding: 0.42rem 1rem;
     font-size: 0.9rem;
     cursor: pointer;
@@ -245,8 +239,7 @@ const campaignsByYear = [...new Set(pastForSelect.map((c) => yearOf(c.month)))]
     border-radius: 999px;
     transition: border-color 0.12s ease, background 0.12s ease;
   }
-  .mw-filter:hover,
-  .mw-select:hover {
+  .mw-filter:hover {
     border-color: rgb(255 255 255 / 55%);
   }
   .mw-filter.is-on {
@@ -255,23 +248,78 @@ const campaignsByYear = [...new Set(pastForSelect.map((c) => yearOf(c.month)))]
     background: #eaf4f7;
     border-color: #eaf4f7;
   }
-  .mw-filter--now {
-    color: #ffd23f;
-    background: rgb(255 210 63 / 12%);
-    border-color: rgb(255 210 63 / 45%);
-    font-weight: 700;
+
+  /* 自訂下拉：依主題面向瀏覽 */
+  .mw-facet {
+    position: relative;
   }
-  .mw-filter--now.is-on {
-    color: #2a2622;
-    background: #ffd23f;
-    border-color: #ffd23f;
+  .mw-facet__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.42rem 0.85rem 0.42rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: #dbe4ea;
+    background: rgb(255 255 255 / 6%);
+    border: 1px solid rgb(255 255 255 / 22%);
+    border-radius: 999px;
+    transition: border-color 0.12s ease;
   }
-  .mw-select {
-    max-width: 16rem;
+  .mw-facet__btn:hover,
+  .mw-facet__btn[aria-expanded="true"] {
+    border-color: rgb(255 255 255 / 55%);
   }
-  .mw-select option {
-    color: #16202e;
+  .mw-facet__caret {
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
   }
+  .mw-facet__btn[aria-expanded="true"] .mw-facet__caret {
+    transform: rotate(180deg);
+  }
+  .mw-facet__menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 20;
+    min-width: 210px;
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    background: #202d3e;
+    border: 1px solid rgb(255 255 255 / 16%);
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgb(0 0 0 / 40%);
+  }
+  .mw-facet__menu[hidden] {
+    display: none;
+  }
+  .mw-facet__opt {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 0.55rem 0.65rem;
+    font-size: 0.92rem;
+    text-align: left;
+    color: #dbe4ea;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .mw-facet__opt:hover,
+  .mw-facet__opt.is-on {
+    background: rgb(255 255 255 / 8%);
+    color: #f6f9fb;
+  }
+  .mw-facet__dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
   .mw-refresh {
     display: inline-flex;
     align-items: center;
@@ -287,9 +335,6 @@ const campaignsByYear = [...new Set(pastForSelect.map((c) => yearOf(c.month)))]
     border-radius: 8px;
     white-space: nowrap;
   }
-  .mw-refresh[hidden] {
-    display: none;
-  }
   .mw-refresh:hover {
     background: #fff;
   }
@@ -299,43 +344,21 @@ const campaignsByYear = [...new Set(pastForSelect.map((c) => yearOf(c.month)))]
     flex-shrink: 0;
   }
 
-  /* 選某期時浮出的一行 */
-  .mw-rail {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.4rem 0.8rem;
-    margin: 0.25rem 0 1.5rem;
-    padding: 0.5rem 0.1rem 0.75rem;
+  /* 選面向時浮出的說明列 */
+  .mw-facetnote {
+    margin: 0 0 1.4rem;
+    padding: 0 0 0.9rem;
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: rgb(233 244 247 / 62%);
     border-bottom: 1px solid rgb(255 255 255 / 14%);
   }
-  .mw-rail[hidden] {
+  .mw-facetnote[hidden] {
     display: none;
   }
-  .mw-rail__title {
-    font-family: var(--font-display, sans-serif);
-    font-size: 1.1rem;
-    font-weight: 800;
+  .mw-facetnote b {
     color: #f2f6f8;
-  }
-  .mw-rail__count {
-    font-size: 0.78rem;
-    color: rgb(233 244 247 / 60%);
-  }
-  .mw-btn {
-    margin-left: auto;
-    padding: 0.4rem 0.9rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-decoration: none;
-    color: #eaf4f7;
-    background: rgb(255 255 255 / 6%);
-    border: 1px solid rgb(255 255 255 / 22%);
-    border-radius: 999px;
-    white-space: nowrap;
-  }
-  .mw-btn:hover {
-    border-color: rgb(255 255 255 / 55%);
+    font-weight: 700;
   }
   .mw-empty {
     margin: 0 0 1.25rem;
@@ -468,23 +491,35 @@ const campaignsByYear = [...new Set(pastForSelect.map((c) => yearOf(c.month)))]
 </style>
 
 <script>
-  const WINDOW = 12; // 內嵌 section：一次顯示 12 張，「再看幾則」換一批
-  const CURRENT_KEY = "__current__";
+  const WINDOW = 12; // 一次顯示 12 張，「再看幾則」換一批
   const wall = document.getElementById("mw-wall");
   const shuffleBtn = document.getElementById("mw-shuffle");
   const filters = document.getElementById("mw-filters");
-  const rail = document.getElementById("mw-rail");
-  const railTitle = document.getElementById("mw-rail-title");
-  const railCount = document.getElementById("mw-rail-count");
-  const railBtn = document.getElementById("mw-rail-btn") as HTMLAnchorElement | null;
+  const facetWrap = document.getElementById("mw-facet");
+  const facetBtn = document.getElementById("mw-facet-btn");
+  const facetMenu = document.getElementById("mw-facet-menu");
+  const facetLabel = document.getElementById("mw-facet-label");
+  const facetNote = document.getElementById("mw-facetnote");
   const wallEmpty = document.getElementById("mw-empty");
-  const select = document.getElementById("mw-select") as HTMLSelectElement | null;
+  const allChip = filters?.querySelector('.mw-filter[data-facet=""]');
+
+  const FACET_LABELS: Record<string, string> = {};
+  facetMenu?.querySelectorAll(".mw-facet__opt").forEach((o) => {
+    const el = o as HTMLElement;
+    FACET_LABELS[el.dataset.facet || ""] = (el.textContent || "").trim();
+  });
+  let FACET_THEMES: Record<string, string[]> = {};
+  try {
+    FACET_THEMES = JSON.parse(document.getElementById("mw-facet-data")?.textContent || "{}");
+  } catch (e) {
+    FACET_THEMES = {};
+  }
 
   const pinnedEl = (wall?.querySelector(".mw-memo--pinned") as HTMLElement | null) ?? null;
   const allQuotes = wall
     ? (Array.from(wall.querySelectorAll(".mw-memo:not(.mw-memo--pinned)")) as HTMLElement[])
     : [];
-  let currentCampaign = "";
+  let currentFacet = "";
 
   function shuffled(arr: HTMLElement[]): HTMLElement[] {
     const a = arr.slice();
@@ -497,75 +532,73 @@ const campaignsByYear = [...new Set(pastForSelect.map((c) => yearOf(c.month)))]
 
   function render() {
     if (!wall) return;
-    const isPast = currentCampaign !== "" && currentCampaign !== CURRENT_KEY;
-    let shown: HTMLElement[];
-    if (currentCampaign === "") {
-      shown = shuffled(allQuotes).slice(0, WINDOW);
-    } else if (currentCampaign === CURRENT_KEY) {
-      shown = [];
-    } else {
-      shown = shuffled(allQuotes.filter((m) => m.dataset.campaign === currentCampaign));
-    }
+    const pool =
+      currentFacet === ""
+        ? allQuotes
+        : allQuotes.filter((m) => m.dataset.facet === currentFacet);
+    const shown = shuffled(pool).slice(0, WINDOW);
     const showSet = new Set(shown);
     allQuotes.forEach((m) => {
       m.style.display = showSet.has(m) ? "" : "none";
     });
-    const showPinned = currentCampaign === "" || currentCampaign === CURRENT_KEY;
+    const showPinned = currentFacet === "";
     if (pinnedEl) pinnedEl.style.display = showPinned ? "" : "none";
     const order: HTMLElement[] = [];
     if (pinnedEl && showPinned) order.push(pinnedEl);
     order.push(...shown);
     order.forEach((el) => wall.appendChild(el));
-    if (wallEmpty) wallEmpty.hidden = !(isPast && shown.length === 0);
-    if (shuffleBtn) shuffleBtn.hidden = currentCampaign !== "";
+    if (wallEmpty) wallEmpty.hidden = !(currentFacet !== "" && shown.length === 0);
   }
 
-  function updateRail(name: string, ev: string, month: string, isAnnounce: boolean) {
-    if (!rail) return;
-    const isPast = name !== "" && name !== CURRENT_KEY;
-    if (isPast && railBtn) {
-      if (railTitle) railTitle.textContent = name;
-      if (railCount) railCount.textContent = month ? `活動日期：${month}` : "";
-      railBtn.textContent = isAnnounce ? "閱讀當期公告 →" : "閱讀當期七日書所有文章 →";
-      railBtn.href = ev || "#";
-      rail.hidden = false;
-    } else {
-      rail.hidden = true;
-    }
-  }
-
-  function selectCampaign(name: string, ev: string, month: string, isAnnounce: boolean) {
-    currentCampaign = name;
-    render();
-    updateRail(name, ev, month, isAnnounce);
-  }
-
-  shuffleBtn?.addEventListener("click", render);
-
-  const allChip = filters?.querySelector('.mw-filter[data-campaign=""]');
-  filters?.addEventListener("click", (e) => {
-    const btn = (e.target as HTMLElement).closest(".mw-filter") as HTMLElement | null;
-    if (!btn) return;
-    filters.querySelectorAll(".mw-filter").forEach((b) => b.classList.remove("is-on"));
-    btn.classList.add("is-on");
-    if (select) select.value = "";
-    selectCampaign(btn.dataset.campaign || "", btn.dataset.event || "", "", false);
-  });
-
-  select?.addEventListener("change", () => {
-    filters?.querySelectorAll(".mw-filter").forEach((b) => b.classList.remove("is-on"));
-    if (!select.value) {
-      allChip?.classList.add("is-on");
-      selectCampaign("", "", "", false);
+  function setFacetNote() {
+    if (!facetNote) return;
+    if (currentFacet === "") {
+      facetNote.hidden = true;
       return;
     }
-    const opt = select.options[select.selectedIndex];
-    selectCampaign(
-      select.value,
-      opt.dataset.event || "",
-      opt.dataset.month || "",
-      opt.dataset.announce === "true",
+    const themes = FACET_THEMES[currentFacet] || [];
+    facetNote.innerHTML = `<b>${FACET_LABELS[currentFacet]}</b>　收錄 ${themes.join("・")}`;
+    facetNote.hidden = false;
+  }
+
+  function openMenu() {
+    facetMenu?.removeAttribute("hidden");
+    facetBtn?.setAttribute("aria-expanded", "true");
+  }
+  function closeMenu() {
+    facetMenu?.setAttribute("hidden", "");
+    facetBtn?.setAttribute("aria-expanded", "false");
+  }
+
+  function selectFacet(facet: string) {
+    currentFacet = facet;
+    if (facetLabel) facetLabel.textContent = facet ? FACET_LABELS[facet] : "依主題面向瀏覽";
+    facetMenu?.querySelectorAll(".mw-facet__opt").forEach((o) =>
+      o.classList.toggle("is-on", (o as HTMLElement).dataset.facet === facet),
     );
+    allChip?.classList.toggle("is-on", facet === "");
+    render();
+    setFacetNote();
+    closeMenu();
+  }
+
+  facetBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (facetMenu?.hasAttribute("hidden")) openMenu();
+    else closeMenu();
+  });
+  facetMenu?.addEventListener("click", (e) => {
+    const opt = (e.target as HTMLElement).closest(".mw-facet__opt") as HTMLElement | null;
+    if (!opt) return;
+    selectFacet(opt.dataset.facet || "");
+  });
+  allChip?.addEventListener("click", () => selectFacet(""));
+  shuffleBtn?.addEventListener("click", render);
+  document.addEventListener("click", (e) => {
+    if (facetWrap && !facetWrap.contains(e.target as Node)) closeMenu();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeMenu();
   });
 
   render();

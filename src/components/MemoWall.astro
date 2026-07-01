@@ -1,0 +1,572 @@
+---
+// 金句牆 —— 內嵌博物館主頁的深色版 section 組件（/museum/#memo-wall）。
+// 資料來源：quote-wall.ts（GitHub Action 抓真金句）；目前用歷年精選文章 summary 當範例。
+import { quoteWall, quoteWallCount } from "../data/quote-wall";
+import { featuredArticles } from "../data/freewrite-featured";
+import { withBase } from "../utils/paths";
+import { memoWallCurrent } from "../data/memo-wall-current";
+
+const museumHref = withBase("museum/");
+const currentIssueHref = `${museumHref}#current-issue`;
+
+// 可上金句牆的歷期，新 → 舊。hash = 活動頁；href = 公告頁（最早 3 期）；month = 寫作月份。
+const CAMPAIGNS: { name: string; hash: string; href?: string; month: string }[] = [
+  { name: "無用之用", hash: "nxy5zqcjs7lt", month: "2026 年 6 月" },
+  { name: "我的職場人格", hash: "wem6xy6u7okv", month: "2026 年 5 月" },
+  { name: "氣味博物館", hash: "aiafcgbu89p2", month: "2026 年 4 月" },
+  { name: "我的人生帳本", hash: "q48dv6ve4g2m", month: "2026 年 3 月" },
+  { name: "數位雲端的我", hash: "4v5mndkbz44v", month: "2026 年 2 月" },
+  { name: "衣櫥裡的自我", hash: "nqbeo3cdn585", month: "2026 年 1 月" },
+  { name: "說聲告別，走向新的自己", hash: "ox9fmcz6zxxj", month: "2025 年 12 月" },
+  { name: "重構生活", hash: "3uskpxsbzmz5", month: "2025 年 11 月" },
+  { name: "曖昧時刻", hash: "owt3jxplay6z", month: "2025 年 10 月" },
+  { name: "標記回憶的位置與意義", hash: "rt04oolqbexh", month: "2025 年 9 月" },
+  { name: "關於人生，我想說的是", hash: "5zhf2bpty274", month: "2025 年 8 月" },
+  { name: "長女症候群，燃燒自我的故事", hash: "h2ya9xxjubd2", month: "2025 年 7 月" },
+  { name: "What if 人生有如果", hash: "efkk0l9hcg96", month: "2025 年 6 月" },
+  { name: "書寫人生的靈魂提問", hash: "26uhbm3uh6rg", month: "2025 年 5 月" },
+  { name: "書寫地方", hash: "4nqnizsygmcn", month: "2025 年 4 月" },
+  { name: "我的家庭故事", hash: "f7rpyecg32mg", month: "2025 年 3 月" },
+  { name: "人間鬼故事", hash: "x4rv6dwgk68o", month: "2025 年 2 月" },
+  { name: "我的（不）完美人生", hash: "eqsfuc3qph6u", month: "2025 年 1 月" },
+  { name: "物的體系，我的物件錄", hash: "8t5liudbtpup", month: "2024 年 12 月" },
+  { name: "島嶼精神，另類人生", hash: "scx3f16y37v6", month: "2024 年 11 月" },
+  { name: "我的成長軌跡", hash: "ia800figcq9y", month: "2024 年 9 月" },
+  { name: "我的人生飯桌", hash: "5sdzhvyf3imb", month: "2024 年 8 月" },
+  { name: "愛與親密關係", hash: "", href: "https://matters.town/a/kbv6vz8uhxb8", month: "2024 年 7 月" },
+  { name: "家與故鄉", hash: "", href: "https://matters.town/a/u3qna0i5t2m5", month: "2024 年 6 月" },
+  { name: "空間與地方", hash: "", href: "https://matters.town/a/e6tu274xo8q1", month: "2024 年 4 月" },
+];
+const orderOf = new Map(CAMPAIGNS.map((c, i) => [c.name, i]));
+const currentName = memoWallCurrent.title;
+const currentEvent = memoWallCurrent.eventHref;
+const currentMonth = memoWallCurrent.month;
+const CURRENT_KEY = "__current__";
+const campaignKey = (label: string) => {
+  const hit = CAMPAIGNS.find((c) => label.includes(c.name) || c.name.includes(label));
+  return hit ? hit.name : label;
+};
+const campaignHref = (c: { hash: string; href?: string }) =>
+  c.href ? c.href : c.hash ? `https://matters.town/e/${c.hash}` : currentIssueHref;
+const articleUrl = (hash: string) => (hash ? `https://matters.town/a/${hash}` : "#");
+
+// 範例金句：歷年精選文章 summary，用 campaignHash 對屆數、挑 14–46 字、去重、排題目句。
+const hashToName = new Map(CAMPAIGNS.filter((c) => c.hash).map((c) => [c.hash, c.name]));
+const usingSample = quoteWallCount === 0;
+const rawSource = usingSample
+  ? (() => {
+      const seen = new Set<string>();
+      return featuredArticles
+        .filter((a) => {
+          if (!hashToName.has(a.campaignHash)) return false;
+          const s = a.summary || "";
+          if (s.length < 14 || s.length > 46 || seen.has(s)) return false;
+          if (/^七日書|Day ?\d|^第[一二三四五六七]天|^本期|寫一[個篇]|分享一[個篇]/.test(s)) return false;
+          seen.add(s);
+          return true;
+        })
+        .map((a, i) => ({
+          id: `s-${i}`,
+          content: a.summary,
+          author: a.author.displayName,
+          campaignName: hashToName.get(a.campaignHash)!,
+          articleHash: a.shortHash,
+        }));
+    })()
+  : quoteWall.map((q) => ({
+      id: q.id,
+      content: q.content,
+      author: q.author,
+      campaignName: q.campaignName,
+      articleHash: q.articleHash,
+    }));
+
+const wallQuotes = rawSource
+  .map((q) => ({ ...q, key: campaignKey(q.campaignName) }))
+  .sort((a, b) => (orderOf.get(a.key) ?? 99) - (orderOf.get(b.key) ?? 99));
+
+const yearOf = (m: string) => m.match(/(\d{4})/)?.[1] ?? "";
+const pastForSelect = CAMPAIGNS.filter((c) => c.name !== currentName);
+const campaignsByYear = [...new Set(pastForSelect.map((c) => yearOf(c.month)))]
+  .sort()
+  .reverse()
+  .map((year) => ({ year, items: pastForSelect.filter((c) => yearOf(c.month) === year) }));
+---
+
+<section class="mw" id="memo-wall" aria-labelledby="mw-title">
+  <div class="mw__inner">
+    <header class="mw__head">
+      <p class="mw__eyebrow">文友親手摘下的金句</p>
+      <h2 id="mw-title">金句牆</h2>
+      <p class="mw__lead">
+        讀到喜歡的句子，按「選金句」就貼上這面牆 —— 跨屆典藏文友摘下的話。
+      </p>
+    </header>
+
+    <div class="mw-controls">
+      <div class="mw-filters" id="mw-filters" role="group" aria-label="篩選金句">
+        <button class="mw-filter is-on" data-campaign="" type="button">全部</button>
+        <button
+          class="mw-filter mw-filter--now"
+          data-campaign={CURRENT_KEY}
+          data-event={currentEvent}
+          type="button">✦ {currentName}・本期</button>
+        <select class="mw-select" id="mw-select" aria-label="瀏覽過往主題">
+          <option value="">瀏覽過往主題⋯</option>
+          {
+            campaignsByYear.map((g) => (
+              <optgroup label={`${g.year} 年`}>
+                {g.items.map((c) => (
+                  <option
+                    value={c.name}
+                    data-event={campaignHref(c)}
+                    data-month={c.month}
+                    data-announce={!c.hash && c.href ? "true" : "false"}
+                  >
+                    {c.name}
+                  </option>
+                ))}
+              </optgroup>
+            ))
+          }
+        </select>
+      </div>
+      <button id="mw-shuffle" class="mw-refresh" type="button">
+        <svg class="mw-refresh__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+          <path
+            d="M5 9.66667C6.52174 7.44493 8.13478 5 12 5C15.8652 5 19 8.13478 19 12C19 15.8652 15.8652 19 12 19C10.0852 19 8.34969 18.2307 7.08572 16.9844C6.47482 16.382 5.97407 15.6682 5.61648 14.876M5 9.66667V5.77778M5 9.66667H8.88889"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+        再看幾則
+      </button>
+    </div>
+
+    <div class="mw-rail" id="mw-rail" hidden>
+      <span class="mw-rail__title" id="mw-rail-title"></span>
+      <span class="mw-rail__count" id="mw-rail-count"></span>
+      <a class="mw-btn" id="mw-rail-btn" href="#" target="_blank" rel="noopener"
+        >閱讀當期七日書所有文章 →</a
+      >
+    </div>
+
+    <p class="mw-empty" id="mw-empty" hidden>
+      這一期還沒有人貼金句 —— 之後讀到喜歡的句子，按「選金句」就會出現在這裡。
+    </p>
+
+    <ul class="mw-wall" id="mw-wall">
+      <li class="mw-memo mw-memo--pinned" data-pinned data-campaign={CURRENT_KEY}>
+        <div class="mw-card mw-card--pinned">
+          <span class="mw-pin" aria-hidden="true">📌</span>
+          <p class="mw-pinned__eyebrow">{currentMonth}・本期主題</p>
+          <p class="mw-pinned__title">{currentName}</p>
+          <p class="mw-pinned__desc">
+            本期正在進行 —— 讀到喜歡的句子，按「選金句」就能貼上這面牆。
+          </p>
+          <a class="mw-pinned__cta" href={currentEvent}>參與本期寫作 →</a>
+        </div>
+      </li>
+      {
+        wallQuotes.map((q, i) => (
+          <li class="mw-memo" data-variant={i % 6} data-campaign={q.key}>
+            <a class="mw-card" href={articleUrl(q.articleHash)} target="_blank" rel="noreferrer">
+              <blockquote class="mw-quote">{q.content}</blockquote>
+              <figcaption class="mw-cardmeta">
+                <span class="mw-author">— {q.author}</span>
+                <span class="mw-original" aria-hidden="true">原文 ↗</span>
+              </figcaption>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* 深色 section（融入博物館深底）；便利貼保留淡彩、浮在深牆上 */
+  .mw {
+    padding: clamp(2.5rem, 6vw, 4.5rem) 0;
+  }
+  .mw__inner {
+    max-width: 78rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 2.5rem);
+  }
+  .mw__head {
+    margin-bottom: 1.75rem;
+  }
+  .mw__eyebrow {
+    margin: 0 0 0.4rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.18em;
+    color: #ffd23f;
+  }
+  .mw__head h2 {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-display, sans-serif);
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: #f2f6f8;
+  }
+  .mw__lead {
+    margin: 0;
+    max-width: 40rem;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: rgb(233 244 247 / 62%);
+  }
+
+  /* ── 控制列（深色 UI） ── */
+  .mw-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .mw-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    flex: 1;
+  }
+  .mw-filter,
+  .mw-select {
+    padding: 0.42rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: #dbe4ea;
+    background: rgb(255 255 255 / 6%);
+    border: 1px solid rgb(255 255 255 / 22%);
+    border-radius: 999px;
+    transition: border-color 0.12s ease, background 0.12s ease;
+  }
+  .mw-filter:hover,
+  .mw-select:hover {
+    border-color: rgb(255 255 255 / 55%);
+  }
+  .mw-filter.is-on {
+    font-weight: 700;
+    color: #16202e;
+    background: #eaf4f7;
+    border-color: #eaf4f7;
+  }
+  .mw-filter--now {
+    color: #ffd23f;
+    background: rgb(255 210 63 / 12%);
+    border-color: rgb(255 210 63 / 45%);
+    font-weight: 700;
+  }
+  .mw-filter--now.is-on {
+    color: #2a2622;
+    background: #ffd23f;
+    border-color: #ffd23f;
+  }
+  .mw-select {
+    max-width: 16rem;
+  }
+  .mw-select option {
+    color: #16202e;
+  }
+  .mw-refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-left: auto;
+    padding: 0.45rem 1.05rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #16202e;
+    cursor: pointer;
+    background: #eaf4f7;
+    border: none;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+  .mw-refresh[hidden] {
+    display: none;
+  }
+  .mw-refresh:hover {
+    background: #fff;
+  }
+  .mw-refresh__icon {
+    width: 1.1em;
+    height: 1.1em;
+    flex-shrink: 0;
+  }
+
+  /* 選某期時浮出的一行 */
+  .mw-rail {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem 0.8rem;
+    margin: 0.25rem 0 1.5rem;
+    padding: 0.5rem 0.1rem 0.75rem;
+    border-bottom: 1px solid rgb(255 255 255 / 14%);
+  }
+  .mw-rail[hidden] {
+    display: none;
+  }
+  .mw-rail__title {
+    font-family: var(--font-display, sans-serif);
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #f2f6f8;
+  }
+  .mw-rail__count {
+    font-size: 0.78rem;
+    color: rgb(233 244 247 / 60%);
+  }
+  .mw-btn {
+    margin-left: auto;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: #eaf4f7;
+    background: rgb(255 255 255 / 6%);
+    border: 1px solid rgb(255 255 255 / 22%);
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .mw-btn:hover {
+    border-color: rgb(255 255 255 / 55%);
+  }
+  .mw-empty {
+    margin: 0 0 1.25rem;
+    padding: 1.5rem 0;
+    font-size: 0.9rem;
+    color: rgb(233 244 247 / 55%);
+    text-align: center;
+  }
+  .mw-empty[hidden] {
+    display: none;
+  }
+
+  /* ── 打散的牆：masonry ── */
+  .mw-wall {
+    column-count: 3;
+    column-gap: 1.5rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+  @media (max-width: 920px) {
+    .mw-wall { column-count: 2; }
+  }
+  @media (max-width: 560px) {
+    .mw-wall { column-count: 1; }
+  }
+
+  .mw-memo {
+    display: inline-block;
+    width: 100%;
+    margin: 0 0 1.5rem;
+    break-inside: avoid;
+  }
+  /* 便利貼：淡彩底 + 深墨字，浮在深牆上（對比強、有實體便條感） */
+  .mw-card {
+    display: block;
+    padding: 1.5rem 1.5rem 1.25rem;
+    color: #2a2622;
+    text-decoration: none;
+    background: #fbd7e2;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgb(0 0 0 / 28%);
+    transform: rotate(-1.2deg);
+    transition: transform 0.14s ease, box-shadow 0.14s ease;
+  }
+  .mw-memo:nth-child(3n) .mw-card { transform: rotate(1deg); }
+  .mw-memo:nth-child(4n) .mw-card { transform: rotate(-0.5deg); }
+  .mw-memo:nth-child(5n) .mw-card { transform: rotate(0.7deg); }
+  .mw-card:hover {
+    transform: translateY(-3px) rotate(0deg);
+    box-shadow: 0 12px 28px rgb(0 0 0 / 38%);
+  }
+  .mw-memo[data-variant="1"] .mw-card { background: #d4eaf6; }
+  .mw-memo[data-variant="2"] .mw-card { background: #fbf0c4; }
+  .mw-memo[data-variant="3"] .mw-card { background: #dff0d0; }
+  .mw-memo[data-variant="4"] .mw-card { background: #e7e0fa; }
+  .mw-memo[data-variant="5"] .mw-card { background: #fce5cf; }
+
+  .mw-quote {
+    margin: 0;
+    font-family: var(--font-reading);
+    font-size: 1.06rem;
+    line-height: 1.78;
+    font-weight: 500;
+  }
+  .mw-cardmeta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 1.1rem;
+  }
+  .mw-author {
+    font-family: var(--font-reading);
+    font-size: 0.76rem;
+    font-weight: 700;
+  }
+  .mw-original {
+    font-size: 0.68rem;
+    color: rgb(42 38 34 / 60%);
+  }
+
+  /* 釘住的本期卡：深紫灰 + 金邊，在深牆上有輪廓 */
+  .mw-memo--pinned .mw-card--pinned {
+    position: relative;
+    padding: 1.5rem 1.1rem 1.1rem;
+    color: #fff;
+    background: linear-gradient(150deg, #5d566b, #6c6573);
+    border: 1px solid rgb(255 210 63 / 45%);
+    border-radius: 12px;
+    box-shadow: 0 10px 26px rgb(0 0 0 / 32%);
+    transform: rotate(-1.2deg);
+  }
+  .mw-pin {
+    position: absolute;
+    top: -0.55rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.2rem;
+  }
+  .mw-pinned__eyebrow {
+    margin: 0 0 0.25rem;
+    font-size: 0.74rem;
+    letter-spacing: 0.14em;
+    color: #ffd23f;
+  }
+  .mw-pinned__title {
+    margin: 0 0 0.4rem;
+    font-family: var(--font-display, sans-serif);
+    font-size: 1.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+  }
+  .mw-pinned__desc {
+    margin: 0 0 0.85rem;
+    font-size: 0.86rem;
+    line-height: 1.6;
+    color: rgb(255 255 255 / 82%);
+  }
+  .mw-pinned__cta {
+    display: inline-block;
+    padding: 0.38rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #2a2622;
+    text-decoration: none;
+    background: #ffd23f;
+    border-radius: 999px;
+  }
+</style>
+
+<script>
+  const WINDOW = 12; // 內嵌 section：一次顯示 12 張，「再看幾則」換一批
+  const CURRENT_KEY = "__current__";
+  const wall = document.getElementById("mw-wall");
+  const shuffleBtn = document.getElementById("mw-shuffle");
+  const filters = document.getElementById("mw-filters");
+  const rail = document.getElementById("mw-rail");
+  const railTitle = document.getElementById("mw-rail-title");
+  const railCount = document.getElementById("mw-rail-count");
+  const railBtn = document.getElementById("mw-rail-btn") as HTMLAnchorElement | null;
+  const wallEmpty = document.getElementById("mw-empty");
+  const select = document.getElementById("mw-select") as HTMLSelectElement | null;
+
+  const pinnedEl = (wall?.querySelector(".mw-memo--pinned") as HTMLElement | null) ?? null;
+  const allQuotes = wall
+    ? (Array.from(wall.querySelectorAll(".mw-memo:not(.mw-memo--pinned)")) as HTMLElement[])
+    : [];
+  let currentCampaign = "";
+
+  function shuffled(arr: HTMLElement[]): HTMLElement[] {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function render() {
+    if (!wall) return;
+    const isPast = currentCampaign !== "" && currentCampaign !== CURRENT_KEY;
+    let shown: HTMLElement[];
+    if (currentCampaign === "") {
+      shown = shuffled(allQuotes).slice(0, WINDOW);
+    } else if (currentCampaign === CURRENT_KEY) {
+      shown = [];
+    } else {
+      shown = shuffled(allQuotes.filter((m) => m.dataset.campaign === currentCampaign));
+    }
+    const showSet = new Set(shown);
+    allQuotes.forEach((m) => {
+      m.style.display = showSet.has(m) ? "" : "none";
+    });
+    const showPinned = currentCampaign === "" || currentCampaign === CURRENT_KEY;
+    if (pinnedEl) pinnedEl.style.display = showPinned ? "" : "none";
+    const order: HTMLElement[] = [];
+    if (pinnedEl && showPinned) order.push(pinnedEl);
+    order.push(...shown);
+    order.forEach((el) => wall.appendChild(el));
+    if (wallEmpty) wallEmpty.hidden = !(isPast && shown.length === 0);
+    if (shuffleBtn) shuffleBtn.hidden = currentCampaign !== "";
+  }
+
+  function updateRail(name: string, ev: string, month: string, isAnnounce: boolean) {
+    if (!rail) return;
+    const isPast = name !== "" && name !== CURRENT_KEY;
+    if (isPast && railBtn) {
+      if (railTitle) railTitle.textContent = name;
+      if (railCount) railCount.textContent = month ? `活動日期：${month}` : "";
+      railBtn.textContent = isAnnounce ? "閱讀當期公告 →" : "閱讀當期七日書所有文章 →";
+      railBtn.href = ev || "#";
+      rail.hidden = false;
+    } else {
+      rail.hidden = true;
+    }
+  }
+
+  function selectCampaign(name: string, ev: string, month: string, isAnnounce: boolean) {
+    currentCampaign = name;
+    render();
+    updateRail(name, ev, month, isAnnounce);
+  }
+
+  shuffleBtn?.addEventListener("click", render);
+
+  const allChip = filters?.querySelector('.mw-filter[data-campaign=""]');
+  filters?.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLElement).closest(".mw-filter") as HTMLElement | null;
+    if (!btn) return;
+    filters.querySelectorAll(".mw-filter").forEach((b) => b.classList.remove("is-on"));
+    btn.classList.add("is-on");
+    if (select) select.value = "";
+    selectCampaign(btn.dataset.campaign || "", btn.dataset.event || "", "", false);
+  });
+
+  select?.addEventListener("change", () => {
+    filters?.querySelectorAll(".mw-filter").forEach((b) => b.classList.remove("is-on"));
+    if (!select.value) {
+      allChip?.classList.add("is-on");
+      selectCampaign("", "", "", false);
+      return;
+    }
+    const opt = select.options[select.selectedIndex];
+    selectCampaign(
+      select.value,
+      opt.dataset.event || "",
+      opt.dataset.month || "",
+      opt.dataset.announce === "true",
+    );
+  });
+
+  render();
+</script>

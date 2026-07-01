@@ -14,9 +14,10 @@ export default defineConfig({
   trailingSlash: "always",
   output: "static",
   build: { format: "directory" },
-  // 舊的站外金句牆 /memo-wall 轉址到博物館底下的新版 /museum/memo-wall/
+  // 金句牆已收進博物館主頁（/museum/#memo-wall），舊的獨立頁網址一律轉址過去，避免舊連結 404
   redirects: {
-    "/memo-wall": "/museum/memo-wall/",
+    "/memo-wall": "/museum/#memo-wall",
+    "/museum/memo-wall": "/museum/#memo-wall",
   },
   integrations: [sitemap()],
 });

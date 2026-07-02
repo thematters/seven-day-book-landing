@@ -1,0 +1,561 @@
+---
+// 金句牆 —— 內嵌博物館主頁的深色版 section 組件（/museum/#memo-wall）。
+// 下拉改為「依主題面向瀏覽」：只列 6 個大面向，某期活動的金句自動歸到所屬面向。
+// 資料來源：quote-wall.ts（GitHub Action 抓真金句）；目前用歷年精選文章 summary 當範例。
+import { quoteWall, quoteWallCount } from "../data/quote-wall";
+import { featuredArticles } from "../data/freewrite-featured";
+import { memoWallCurrent } from "../data/memo-wall-current";
+import { FACETS, themeToFacet } from "../data/memo-wall-facets";
+
+// 可上金句牆的往期，新 → 舊。hash = 活動頁；href = 公告頁（最早 3 期）；month = 寫作月份。
+const CAMPAIGNS: { name: string; hash: string; href?: string; month: string }[] = [
+  { name: "無用之用", hash: "nxy5zqcjs7lt", month: "2026 年 6 月" },
+  { name: "我的職場人格", hash: "wem6xy6u7okv", month: "2026 年 5 月" },
+  { name: "氣味博物館", hash: "aiafcgbu89p2", month: "2026 年 4 月" },
+  { name: "我的人生帳本", hash: "q48dv6ve4g2m", month: "2026 年 3 月" },
+  { name: "數位雲端的我", hash: "4v5mndkbz44v", month: "2026 年 2 月" },
+  { name: "衣櫥裡的自我", hash: "nqbeo3cdn585", month: "2026 年 1 月" },
+  { name: "說聲告別，走向新的自己", hash: "ox9fmcz6zxxj", month: "2025 年 12 月" },
+  { name: "重構生活", hash: "3uskpxsbzmz5", month: "2025 年 11 月" },
+  { name: "曖昧時刻", hash: "owt3jxplay6z", month: "2025 年 10 月" },
+  { name: "標記回憶的位置與意義", hash: "rt04oolqbexh", month: "2025 年 9 月" },
+  { name: "關於人生，我想說的是", hash: "5zhf2bpty274", month: "2025 年 8 月" },
+  { name: "長女症候群，燃燒自我的故事", hash: "h2ya9xxjubd2", month: "2025 年 7 月" },
+  { name: "What if 人生有如果", hash: "efkk0l9hcg96", month: "2025 年 6 月" },
+  { name: "書寫人生的靈魂提問", hash: "26uhbm3uh6rg", month: "2025 年 5 月" },
+  { name: "書寫地方", hash: "4nqnizsygmcn", month: "2025 年 4 月" },
+  { name: "我的家庭故事", hash: "f7rpyecg32mg", month: "2025 年 3 月" },
+  { name: "人間鬼故事", hash: "x4rv6dwgk68o", month: "2025 年 2 月" },
+  { name: "我的（不）完美人生", hash: "eqsfuc3qph6u", month: "2025 年 1 月" },
+  { name: "物的體系，我的物件錄", hash: "8t5liudbtpup", month: "2024 年 12 月" },
+  { name: "島嶼精神，另類人生", hash: "scx3f16y37v6", month: "2024 年 11 月" },
+  { name: "我的成長軌跡", hash: "ia800figcq9y", month: "2024 年 9 月" },
+  { name: "我的人生飯桌", hash: "5sdzhvyf3imb", month: "2024 年 8 月" },
+  { name: "愛與親密關係", hash: "", href: "https://matters.town/a/kbv6vz8uhxb8", month: "2024 年 7 月" },
+  { name: "家與故鄉", hash: "", href: "https://matters.town/a/u3qna0i5t2m5", month: "2024 年 6 月" },
+  { name: "空間與地方", hash: "", href: "https://matters.town/a/e6tu274xo8q1", month: "2024 年 4 月" },
+];
+const orderOf = new Map(CAMPAIGNS.map((c, i) => [c.name, i]));
+const currentName = memoWallCurrent.title;
+const currentEvent = memoWallCurrent.eventHref;
+const currentMonth = memoWallCurrent.month;
+const campaignKey = (label: string) => {
+  const hit = CAMPAIGNS.find((c) => label.includes(c.name) || c.name.includes(label));
+  return hit ? hit.name : label;
+};
+const articleUrl = (hash: string) => (hash ? `https://matters.town/a/${hash}` : "#");
+const facetOf = (key: string) => themeToFacet[key] ?? "";
+
+// 範例金句：歷年精選文章 summary，用 campaignHash 對屆數、挑 14–46 字、去重、排題目句。
+const hashToName = new Map(CAMPAIGNS.filter((c) => c.hash).map((c) => [c.hash, c.name]));
+const usingSample = quoteWallCount === 0;
+const rawSource = usingSample
+  ? (() => {
+      const seen = new Set<string>();
+      return featuredArticles
+        .filter((a) => {
+          if (!hashToName.has(a.campaignHash)) return false;
+          const s = a.summary || "";
+          if (s.length < 14 || s.length > 46 || seen.has(s)) return false;
+          if (/^七日書|Day ?\d|^第[一二三四五六七]天|^本期|寫一[個篇]|分享一[個篇]/.test(s)) return false;
+          seen.add(s);
+          return true;
+        })
+        .map((a, i) => ({
+          id: `s-${i}`,
+          content: a.summary,
+          author: a.author.displayName,
+          campaignName: hashToName.get(a.campaignHash)!,
+          articleHash: a.shortHash,
+        }));
+    })()
+  : quoteWall.map((q) => ({
+      id: q.id,
+      content: q.content,
+      author: q.author,
+      campaignName: q.campaignName,
+      articleHash: q.articleHash,
+    }));
+
+const wallQuotes = rawSource
+  .map((q) => ({ ...q, key: campaignKey(q.campaignName) }))
+  .sort((a, b) => (orderOf.get(a.key) ?? 99) - (orderOf.get(b.key) ?? 99));
+---
+
+<section class="mw" id="memo-wall" aria-labelledby="mw-title">
+  <div class="mw__inner">
+    <header class="mw__head">
+      <p class="mw__eyebrow">文友親手摘下的金句</p>
+      <h2 id="mw-title">金句牆</h2>
+      <p class="mw__lead">
+        讀到喜歡的句子，按「選金句」就貼上這面牆 —— 跨屆典藏文友摘下的話。
+      </p>
+    </header>
+
+    <div class="mw-controls">
+      <div class="mw-filters" id="mw-filters">
+        <button class="mw-filter is-on" data-facet="" type="button">全部</button>
+        <div class="mw-facet" id="mw-facet">
+          <button
+            class="mw-facet__btn"
+            id="mw-facet-btn"
+            type="button"
+            aria-haspopup="listbox"
+            aria-expanded="false">
+            <span id="mw-facet-label">依主題面向瀏覽</span>
+            <svg class="mw-facet__caret" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </button>
+          <ul class="mw-facet__menu" id="mw-facet-menu" role="listbox" aria-label="主題面向" hidden>
+            {
+              FACETS.map((f) => (
+                <li>
+                  <button class="mw-facet__opt" role="option" type="button" data-facet={f.key}>
+                    <span class="mw-facet__dot" style={`background:${f.dot}`} aria-hidden="true" />
+                    {f.label}
+                  </button>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+      <button id="mw-shuffle" class="mw-refresh" type="button">
+        <svg class="mw-refresh__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+          <path
+            d="M5 9.66667C6.52174 7.44493 8.13478 5 12 5C15.8652 5 19 8.13478 19 12C19 15.8652 15.8652 19 12 19C10.0852 19 8.34969 18.2307 7.08572 16.9844C6.47482 16.382 5.97407 15.6682 5.61648 14.876M5 9.66667V5.77778M5 9.66667H8.88889"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+        再看幾則
+      </button>
+    </div>
+
+    <p class="mw-empty" id="mw-empty" hidden>
+      這個面向還沒有金句 —— 之後文友選了喜歡的句子，就會出現在這裡。
+    </p>
+
+    <ul class="mw-wall" id="mw-wall">
+      <li class="mw-memo mw-memo--pinned" data-pinned>
+        <div class="mw-card mw-card--pinned">
+          <span class="mw-pin" aria-hidden="true">📌</span>
+          <p class="mw-pinned__eyebrow">{currentMonth}・本期主題</p>
+          <p class="mw-pinned__title">{currentName}</p>
+          <p class="mw-pinned__desc">
+            本期正在進行 —— 讀到喜歡的句子，按「選金句」就能貼上這面牆。
+          </p>
+          <a class="mw-pinned__cta" href={currentEvent}>參與本期寫作 →</a>
+        </div>
+      </li>
+      {
+        wallQuotes.map((q, i) => (
+          <li class="mw-memo" data-variant={i % 6} data-facet={facetOf(q.key)}>
+            <a class="mw-card" href={articleUrl(q.articleHash)} target="_blank" rel="noreferrer">
+              <blockquote class="mw-quote">{q.content}</blockquote>
+              <figcaption class="mw-cardmeta">
+                <span class="mw-author">— {q.author}</span>
+                <span class="mw-original" aria-hidden="true">原文 ↗</span>
+              </figcaption>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* 深色 section（融入博物館深底）；便利貼保留淡彩、浮在深牆上 */
+  .mw {
+    padding: clamp(2.5rem, 6vw, 4.5rem) 0;
+  }
+  .mw__inner {
+    max-width: 78rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 2.5rem);
+  }
+  .mw__head {
+    margin-bottom: 1.75rem;
+  }
+  .mw__eyebrow {
+    margin: 0 0 0.4rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.18em;
+    color: #ffd23f;
+  }
+  .mw__head h2 {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-display, sans-serif);
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: #f2f6f8;
+  }
+  .mw__lead {
+    margin: 0;
+    max-width: 40rem;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: rgb(233 244 247 / 62%);
+  }
+
+  /* ── 控制列（深色 UI） ── */
+  .mw-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .mw-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+    flex: 1;
+  }
+  .mw-filter {
+    padding: 0.42rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: #dbe4ea;
+    background: rgb(255 255 255 / 6%);
+    border: 1px solid rgb(255 255 255 / 22%);
+    border-radius: 999px;
+    transition: border-color 0.12s ease, background 0.12s ease;
+  }
+  .mw-filter:hover {
+    border-color: rgb(255 255 255 / 55%);
+  }
+  .mw-filter.is-on {
+    font-weight: 700;
+    color: #16202e;
+    background: #eaf4f7;
+    border-color: #eaf4f7;
+  }
+
+  /* 自訂下拉：依主題面向瀏覽 */
+  .mw-facet {
+    position: relative;
+  }
+  .mw-facet__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.42rem 0.85rem 0.42rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: #dbe4ea;
+    background: rgb(255 255 255 / 6%);
+    border: 1px solid rgb(255 255 255 / 22%);
+    border-radius: 999px;
+    transition: border-color 0.12s ease;
+  }
+  .mw-facet__btn:hover,
+  .mw-facet__btn[aria-expanded="true"] {
+    border-color: rgb(255 255 255 / 55%);
+  }
+  .mw-facet__caret {
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+  }
+  .mw-facet__btn[aria-expanded="true"] .mw-facet__caret {
+    transform: rotate(180deg);
+  }
+  .mw-facet__menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 20;
+    min-width: 210px;
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    background: #202d3e;
+    border: 1px solid rgb(255 255 255 / 16%);
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgb(0 0 0 / 40%);
+  }
+  .mw-facet__menu[hidden] {
+    display: none;
+  }
+  .mw-facet__opt {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 0.55rem 0.65rem;
+    font-size: 0.92rem;
+    text-align: left;
+    color: #dbe4ea;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .mw-facet__opt:hover,
+  .mw-facet__opt.is-on {
+    background: rgb(255 255 255 / 8%);
+    color: #f6f9fb;
+  }
+  .mw-facet__dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .mw-refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-left: auto;
+    padding: 0.45rem 1.05rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #16202e;
+    cursor: pointer;
+    background: #eaf4f7;
+    border: none;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+  .mw-refresh:hover {
+    background: #fff;
+  }
+  .mw-refresh__icon {
+    width: 1.1em;
+    height: 1.1em;
+    flex-shrink: 0;
+  }
+
+  .mw-empty {
+    margin: 0 0 1.25rem;
+    padding: 1.5rem 0;
+    font-size: 0.9rem;
+    color: rgb(233 244 247 / 55%);
+    text-align: center;
+  }
+  .mw-empty[hidden] {
+    display: none;
+  }
+
+  /* ── 打散的牆：masonry ── */
+  .mw-wall {
+    column-count: 3;
+    column-gap: 1.5rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+  @media (max-width: 920px) {
+    .mw-wall { column-count: 2; }
+  }
+  @media (max-width: 560px) {
+    .mw-wall { column-count: 1; }
+  }
+
+  .mw-memo {
+    display: inline-block;
+    width: 100%;
+    margin: 0 0 1.5rem;
+    break-inside: avoid;
+  }
+  /* 便利貼：淡彩底 + 深墨字，浮在深牆上（對比強、有實體便條感） */
+  .mw-card {
+    display: block;
+    padding: 1.5rem 1.5rem 1.25rem;
+    color: #2a2622;
+    text-decoration: none;
+    background: #fbd7e2;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgb(0 0 0 / 28%);
+    /* 旋轉角度用變數帶，讓 :hover 的 transform 不會被 nth-child 規則的權重壓過去 */
+    --mw-rot: -1.2deg;
+    transform: rotate(var(--mw-rot));
+    transition: transform 0.14s ease, box-shadow 0.14s ease;
+  }
+  .mw-memo:nth-child(3n) .mw-card { --mw-rot: 1deg; }
+  .mw-memo:nth-child(4n) .mw-card { --mw-rot: -0.5deg; }
+  .mw-memo:nth-child(5n) .mw-card { --mw-rot: 0.7deg; }
+  .mw-card:hover {
+    transform: translateY(-4px) rotate(0deg);
+    box-shadow: 0 12px 28px rgb(0 0 0 / 38%);
+  }
+  .mw-memo[data-variant="1"] .mw-card { background: #d4eaf6; }
+  .mw-memo[data-variant="2"] .mw-card { background: #fbf0c4; }
+  .mw-memo[data-variant="3"] .mw-card { background: #dff0d0; }
+  .mw-memo[data-variant="4"] .mw-card { background: #e7e0fa; }
+  .mw-memo[data-variant="5"] .mw-card { background: #fce5cf; }
+
+  .mw-quote {
+    margin: 0;
+    /* 源泉圓體：繁簡通吃的圓體（粉圓不含簡體，金句常有簡體）；載入前 fallback 粉圓 */
+    font-family: "GenSenRounded", var(--font-reading);
+    font-size: 1.06rem;
+    line-height: 1.78;
+    font-weight: 500;
+  }
+  .mw-cardmeta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 1.1rem;
+  }
+  .mw-author {
+    font-family: "GenSenRounded", var(--font-reading);
+    font-size: 0.76rem;
+    font-weight: 700;
+  }
+  .mw-original {
+    font-size: 0.68rem;
+    color: rgb(42 38 34 / 60%);
+  }
+
+  /* 釘住的本期卡：深紫灰 + 金邊，在深牆上有輪廓 */
+  .mw-memo--pinned .mw-card--pinned {
+    position: relative;
+    padding: 1.5rem 1.1rem 1.1rem;
+    color: #fff;
+    background: linear-gradient(150deg, #5d566b, #6c6573);
+    border: 1px solid rgb(255 210 63 / 45%);
+    border-radius: 12px;
+    box-shadow: 0 10px 26px rgb(0 0 0 / 32%);
+    transform: rotate(-1.2deg);
+  }
+  .mw-pin {
+    position: absolute;
+    top: -0.55rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.2rem;
+  }
+  .mw-pinned__eyebrow {
+    margin: 0 0 0.25rem;
+    font-size: 0.74rem;
+    letter-spacing: 0.14em;
+    color: #ffd23f;
+  }
+  .mw-pinned__title {
+    margin: 0 0 0.4rem;
+    font-family: var(--font-display, sans-serif);
+    font-size: 1.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+  }
+  .mw-pinned__desc {
+    margin: 0 0 0.85rem;
+    font-size: 0.86rem;
+    line-height: 1.6;
+    color: rgb(255 255 255 / 82%);
+  }
+  .mw-pinned__cta {
+    display: inline-block;
+    padding: 0.38rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #2a2622;
+    text-decoration: none;
+    background: #ffd23f;
+    border-radius: 999px;
+  }
+</style>
+
+<script>
+  const WINDOW = 12; // 一次顯示 12 張，「再看幾則」換一批
+  const wall = document.getElementById("mw-wall");
+  const shuffleBtn = document.getElementById("mw-shuffle");
+  const filters = document.getElementById("mw-filters");
+  const facetWrap = document.getElementById("mw-facet");
+  const facetBtn = document.getElementById("mw-facet-btn");
+  const facetMenu = document.getElementById("mw-facet-menu");
+  const facetLabel = document.getElementById("mw-facet-label");
+  const wallEmpty = document.getElementById("mw-empty");
+  const allChip = filters?.querySelector('.mw-filter[data-facet=""]');
+
+  const FACET_LABELS: Record<string, string> = {};
+  facetMenu?.querySelectorAll(".mw-facet__opt").forEach((o) => {
+    const el = o as HTMLElement;
+    FACET_LABELS[el.dataset.facet || ""] = (el.textContent || "").trim();
+  });
+
+  const pinnedEl = (wall?.querySelector(".mw-memo--pinned") as HTMLElement | null) ?? null;
+  const allQuotes = wall
+    ? (Array.from(wall.querySelectorAll(".mw-memo:not(.mw-memo--pinned)")) as HTMLElement[])
+    : [];
+  let currentFacet = "";
+
+  function shuffled(arr: HTMLElement[]): HTMLElement[] {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function render() {
+    if (!wall) return;
+    const pool =
+      currentFacet === ""
+        ? allQuotes
+        : allQuotes.filter((m) => m.dataset.facet === currentFacet);
+    const shown = shuffled(pool).slice(0, WINDOW);
+    const showSet = new Set(shown);
+    allQuotes.forEach((m) => {
+      m.style.display = showSet.has(m) ? "" : "none";
+    });
+    const showPinned = currentFacet === "";
+    if (pinnedEl) pinnedEl.style.display = showPinned ? "" : "none";
+    const order: HTMLElement[] = [];
+    if (pinnedEl && showPinned) order.push(pinnedEl);
+    order.push(...shown);
+    order.forEach((el) => wall.appendChild(el));
+    if (wallEmpty) wallEmpty.hidden = !(currentFacet !== "" && shown.length === 0);
+  }
+
+  function openMenu() {
+    facetMenu?.removeAttribute("hidden");
+    facetBtn?.setAttribute("aria-expanded", "true");
+  }
+  function closeMenu() {
+    facetMenu?.setAttribute("hidden", "");
+    facetBtn?.setAttribute("aria-expanded", "false");
+  }
+
+  function selectFacet(facet: string) {
+    currentFacet = facet;
+    if (facetLabel) facetLabel.textContent = facet ? FACET_LABELS[facet] : "依主題面向瀏覽";
+    facetMenu?.querySelectorAll(".mw-facet__opt").forEach((o) =>
+      o.classList.toggle("is-on", (o as HTMLElement).dataset.facet === facet),
+    );
+    allChip?.classList.toggle("is-on", facet === "");
+    render();
+    closeMenu();
+  }
+
+  facetBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (facetMenu?.hasAttribute("hidden")) openMenu();
+    else closeMenu();
+  });
+  facetMenu?.addEventListener("click", (e) => {
+    const opt = (e.target as HTMLElement).closest(".mw-facet__opt") as HTMLElement | null;
+    if (!opt) return;
+    selectFacet(opt.dataset.facet || "");
+  });
+  allChip?.addEventListener("click", () => selectFacet(""));
+  shuffleBtn?.addEventListener("click", render);
+  document.addEventListener("click", (e) => {
+    if (facetWrap && !facetWrap.contains(e.target as Node)) closeMenu();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeMenu();
+  });
+
+  render();
+</script>

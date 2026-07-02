@@ -68,6 +68,14 @@ const pageTitle =
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" />
+<!--
+  金句牆內文字型：GenSenRounded 源泉圓體 TW（ButTaiwan，衍生自思源黑體）
+  授權：SIL Open Font License 1.1（見 public/fonts/GenSenRounded-SIL_OFL_1.1.txt），可商用
+  緣由：粉圓（open-huninn）不含簡體，金句是使用者產生、常含簡體，故金句本文＋署名改用繁簡通吃的源泉圓體
+  原始檔：GenSenRounded2TW-M.otf（15 MB 全字集）→ subset 後 woff2（~600 KB）
+  Subset 範圍：freewrite-featured + quote-wall 全文中文字 + ASCII + 常用標點；金句更新時重跑 scripts/subset-gensen.sh
+  不 preload：只有博物館金句牆用到，載入該頁時才下載
+-->
 <style is:global set:html={`
   @font-face {
     font-family: 'jf-openhuninn';
@@ -75,5 +83,12 @@ const pageTitle =
     font-weight: 400;
     font-display: swap;
     src: url('${withBase("fonts/jf-openhuninn-2.1.subset.woff2")}') format('woff2');
+  }
+  @font-face {
+    font-family: 'GenSenRounded';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('${withBase("fonts/gensen-rounded-tw.subset.woff2")}') format('woff2');
   }
 `}></style>

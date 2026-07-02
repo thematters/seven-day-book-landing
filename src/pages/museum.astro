@@ -2,6 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import MattersWordmark from "../components/MattersWordmark.astro";
 import SevenDayBookLogo from "../components/SevenDayBookLogo.astro";
+import MemoWall from "../components/MemoWall.astro";
 import {
   allThemes,
   contactEmail,
@@ -114,10 +115,10 @@ const promptIso = (mdStr: string) => {
       </a>
 
       <nav class="sitebar__nav" aria-label="頁面導覽">
+        <a href="#memo-wall">金句牆</a>
         <a href="#marathoners">名人堂</a>
         <a href="#my-journey">我的旅程</a>
         <a href="#current-issue">本月七題</a>
-        <a href={withBase("museum/memo-wall/")}>金句牆</a>
         <a href="#featured">歷年精選</a>
         <a href="#lectures">名家講座</a>
         <a href={homeHref}>七日書介紹</a>
@@ -163,6 +164,8 @@ const promptIso = (mdStr: string) => {
           <img class="museum-banner__scribble museum-banner__scribble--bl" src={withBase("images/freewrite/scribble-bl.svg")} alt="" />
         </div>
       </section>
+
+      <MemoWall />
 
       <section
         id="marathoners"

@@ -393,7 +393,8 @@ const wallQuotes = rawSource
 
   .mw-quote {
     margin: 0;
-    font-family: var(--font-reading);
+    /* 源泉圓體：繁簡通吃的圓體（粉圓不含簡體，金句常有簡體）；載入前 fallback 粉圓 */
+    font-family: "GenSenRounded", var(--font-reading);
     font-size: 1.06rem;
     line-height: 1.78;
     font-weight: 500;
@@ -406,7 +407,7 @@ const wallQuotes = rawSource
     margin-top: 1.1rem;
   }
   .mw-author {
-    font-family: var(--font-reading);
+    font-family: "GenSenRounded", var(--font-reading);
     font-size: 0.76rem;
     font-weight: 700;
   }

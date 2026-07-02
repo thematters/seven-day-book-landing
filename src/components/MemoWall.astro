@@ -80,15 +80,6 @@ const rawSource = usingSample
 const wallQuotes = rawSource
   .map((q) => ({ ...q, key: campaignKey(q.campaignName) }))
   .sort((a, b) => (orderOf.get(a.key) ?? 99) - (orderOf.get(b.key) ?? 99));
-
-// 每個面向收錄哪些往期主題（本期除外）—— 給選面向時的說明文字用
-const facetThemes: Record<string, string[]> = {};
-for (const c of CAMPAIGNS) {
-  if (c.name === currentName) continue;
-  const f = themeToFacet[c.name];
-  if (!f) continue;
-  (facetThemes[f] ??= []).push(c.name);
-}
 ---
 
 <section class="mw" id="memo-wall" aria-labelledby="mw-title">
@@ -142,9 +133,6 @@ for (const c of CAMPAIGNS) {
         再看幾則
       </button>
     </div>
-
-    <p class="mw-facetnote" id="mw-facetnote" hidden></p>
-    <script id="mw-facet-data" type="application/json" is:inline set:html={JSON.stringify(facetThemes)} />
 
     <p class="mw-empty" id="mw-empty" hidden>
       這個面向還沒有金句 —— 之後文友選了喜歡的句子，就會出現在這裡。
@@ -344,22 +332,6 @@ for (const c of CAMPAIGNS) {
     flex-shrink: 0;
   }
 
-  /* 選面向時浮出的說明列 */
-  .mw-facetnote {
-    margin: 0 0 1.4rem;
-    padding: 0 0 0.9rem;
-    font-size: 0.85rem;
-    line-height: 1.7;
-    color: rgb(233 244 247 / 62%);
-    border-bottom: 1px solid rgb(255 255 255 / 14%);
-  }
-  .mw-facetnote[hidden] {
-    display: none;
-  }
-  .mw-facetnote b {
-    color: #f2f6f8;
-    font-weight: 700;
-  }
   .mw-empty {
     margin: 0 0 1.25rem;
     padding: 1.5rem 0;
@@ -401,14 +373,16 @@ for (const c of CAMPAIGNS) {
     background: #fbd7e2;
     border-radius: 12px;
     box-shadow: 0 6px 18px rgb(0 0 0 / 28%);
-    transform: rotate(-1.2deg);
+    /* 旋轉角度用變數帶，讓 :hover 的 transform 不會被 nth-child 規則的權重壓過去 */
+    --mw-rot: -1.2deg;
+    transform: rotate(var(--mw-rot));
     transition: transform 0.14s ease, box-shadow 0.14s ease;
   }
-  .mw-memo:nth-child(3n) .mw-card { transform: rotate(1deg); }
-  .mw-memo:nth-child(4n) .mw-card { transform: rotate(-0.5deg); }
-  .mw-memo:nth-child(5n) .mw-card { transform: rotate(0.7deg); }
+  .mw-memo:nth-child(3n) .mw-card { --mw-rot: 1deg; }
+  .mw-memo:nth-child(4n) .mw-card { --mw-rot: -0.5deg; }
+  .mw-memo:nth-child(5n) .mw-card { --mw-rot: 0.7deg; }
   .mw-card:hover {
-    transform: translateY(-3px) rotate(0deg);
+    transform: translateY(-4px) rotate(0deg);
     box-shadow: 0 12px 28px rgb(0 0 0 / 38%);
   }
   .mw-memo[data-variant="1"] .mw-card { background: #d4eaf6; }
@@ -499,7 +473,6 @@ for (const c of CAMPAIGNS) {
   const facetBtn = document.getElementById("mw-facet-btn");
   const facetMenu = document.getElementById("mw-facet-menu");
   const facetLabel = document.getElementById("mw-facet-label");
-  const facetNote = document.getElementById("mw-facetnote");
   const wallEmpty = document.getElementById("mw-empty");
   const allChip = filters?.querySelector('.mw-filter[data-facet=""]');
 
@@ -508,12 +481,6 @@ for (const c of CAMPAIGNS) {
     const el = o as HTMLElement;
     FACET_LABELS[el.dataset.facet || ""] = (el.textContent || "").trim();
   });
-  let FACET_THEMES: Record<string, string[]> = {};
-  try {
-    FACET_THEMES = JSON.parse(document.getElementById("mw-facet-data")?.textContent || "{}");
-  } catch (e) {
-    FACET_THEMES = {};
-  }
 
   const pinnedEl = (wall?.querySelector(".mw-memo--pinned") as HTMLElement | null) ?? null;
   const allQuotes = wall
@@ -550,17 +517,6 @@ for (const c of CAMPAIGNS) {
     if (wallEmpty) wallEmpty.hidden = !(currentFacet !== "" && shown.length === 0);
   }
 
-  function setFacetNote() {
-    if (!facetNote) return;
-    if (currentFacet === "") {
-      facetNote.hidden = true;
-      return;
-    }
-    const themes = FACET_THEMES[currentFacet] || [];
-    facetNote.innerHTML = `<b>${FACET_LABELS[currentFacet]}</b>　收錄 ${themes.join("・")}`;
-    facetNote.hidden = false;
-  }
-
   function openMenu() {
     facetMenu?.removeAttribute("hidden");
     facetBtn?.setAttribute("aria-expanded", "true");
@@ -578,7 +534,6 @@ for (const c of CAMPAIGNS) {
     );
     allChip?.classList.toggle("is-on", facet === "");
     render();
-    setFacetNote();
     closeMenu();
   }
 

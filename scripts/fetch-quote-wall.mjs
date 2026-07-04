@@ -31,21 +31,26 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, "..");
 
-const ENDPOINT = "https://server.matters.town/graphql";
+// 端點可用環境變數覆蓋，方便對測試站（icu）測試；預設仍是正式站
+const ENDPOINT =
+  process.env.MATTERS_GRAPHQL_ENDPOINT || "https://server.matters.town/graphql";
 // 七日書各期 campaign 清單（沿用 curate 腳本同一份來源）
 const FEATURED_JSON = path.join(REPO_ROOT, "research/freewrite-featured.json");
 const OUT_TS = path.join(REPO_ROOT, "src/data/quote-wall.ts");
 
-// 每期最多抓幾則（牆是隨機抽樣展示，不需要全部；可調）
-const PER_CAMPAIGN_LIMIT = 100;
+// 每期最多抓幾則（牆是隨機抽樣展示，不需要全部）。
+// 注意：Matters GraphQL 的 quotes 連線 first 上限為 50，超過會 400（validation error）。
+const PER_CAMPAIGN_LIMIT = 50;
 
+// 注意：quotes 的 first 是自訂型別 first_Int_min_0_max_50，不能用 $first: Int! 變數帶
+// （會 GRAPHQL_VALIDATION_FAILED / 400），只能把數字字面值直接寫進查詢。
 const QUOTES_QUERY = `
-  query ($shortHash: String!, $first: Int!) {
+  query ($shortHash: String!) {
     campaign(input: { shortHash: $shortHash }) {
       ... on WritingChallenge {
         name(input: { language: zh_hant })
         quoteCount
-        quotes(input: { first: $first }) {
+        quotes(input: { first: ${PER_CAMPAIGN_LIMIT} }) {
           edges {
             node {
               id
@@ -73,7 +78,7 @@ async function fetchQuotes(shortHash) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: QUOTES_QUERY,
-        variables: { shortHash, first: PER_CAMPAIGN_LIMIT },
+        variables: { shortHash },
       }),
     });
     if (!res.ok) {
@@ -122,8 +127,15 @@ function toItem(node, campaignName) {
 
 async function main() {
   const write = process.argv.includes("--write");
-  const campaigns = loadCampaigns();
-  console.log(`抓取 ${campaigns.length} 期的金句牆…`);
+  // 測試用：TEST_CAMPAIGNS=hash1,hash2 → 只查這幾個活動（搭配 MATTERS_GRAPHQL_ENDPOINT 指向 icu）
+  const testHashes = (process.env.TEST_CAMPAIGNS || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const campaigns = testHashes.length
+    ? testHashes.map((shortHash) => ({ shortHash, name: "" }))
+    : loadCampaigns();
+  console.log(`抓取 ${campaigns.length} 期的金句牆…（端點：${ENDPOINT}）`);
 
   const items = [];
   for (const camp of campaigns) {

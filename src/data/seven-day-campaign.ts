@@ -351,10 +351,24 @@ export const allThemes = [
     series: "S26",
     monthLabel: "2026 / 7",
     name: "集體記憶",
-    phase: "進行中",
+    phase: "完結",
     announceCover: `${CDN}/embed/3cfa2e85-e7a6-4579-af3f-cf2e5db0817c.png/public`,
     announceHref: "https://matters.town/a/xxha4s8cvlm5",
     announceSummary: "集體記憶，是我們如何帶著過往，活在當下。它不只是歷史課本上的大事件，更是那些我們共同經歷過的日常：一起守候的某個畫面、曾經流行過的物件、那個你至今仍會專程前往的場所。這些大眾共有的片段，無論是溫暖的民間情懷，還是夾雜著複雜情緒的群體往事，皆化為我們理解當下生活的基礎。本期七日書，邀請你寫下你的集體記憶。",
+    wrapCover: `/public`,
+    wrapHref: "https://matters.town/a/k6m2lc2l7q4o",
+    wrapSummary: "「集體記憶」七日書經已結束，今次總共有 80 位文友參與，並歡迎其中第一次參與的 15 位作者。在這七天中，大家分享了許多集體記憶的故事，那些陪伴過自己青春時代的玩物、一去再去充滿回憶的地方、對一個城市的集體紀錄，甚或是置身於感到格格不入的場景之中。讓我們一再重返，從過去走到現在。",
+    participants: 80,
+    newcomers: 15,
+  },
+  {
+    series: "S27",
+    monthLabel: "2026 / 8",
+    name: "身心靈",
+    phase: "進行中",
+    announceCover: `${CDN}/embed/74b3581f-f874-4fca-8724-601d11c707a8.png/public/public`,
+    announceHref: "https://matters.town/a/64qe3la7gn3v",
+    announceSummary: "所謂「身心靈」，不是一套完美的修煉，更多時，是我們如何誠實地對待自己的肉身與靈魂。它或許藏在那些以為早已過去卻隱痛依舊的往事裡，藏在對他人的羨慕、自我感到滿足的時刻裡。本期邀請你一同寫下身心靈故事的啟發。",
   },
 ];
 
@@ -363,37 +377,37 @@ export const pastThemes = allThemes.slice(0, -1).reverse();
 // historicalThemes 為向後相容別名，與 allThemes 倒序排列（最新在前）
 export const historicalThemes = [...allThemes].reverse();
 
-const CURRENT_COVER = `${CDN}/embed/3cfa2e85-e7a6-4579-af3f-cf2e5db0817c.png/public`;
+const CURRENT_COVER = `${CDN}/embed/74b3581f-f874-4fca-8724-601d11c707a8.png/public/public`;
 
 export const currentIssue = {
-  title: "集體記憶",
+  title: "身心靈",
   status: "進行中",
-  period: "2026/7/6 - 2026/7/13",
+  period: "2026/8/3 - 2026/8/10",
   participants: "—",
-  eventHref: "https://matters.town/e/a6weg482vsxe",
-  announcementHref: "https://matters.town/a/xxha4s8cvlm5",
+  eventHref: "https://matters.town/e/gs5j74wajx6p",
+  announcementHref: "https://matters.town/a/64qe3la7gn3v",
   cover: CURRENT_COVER,
   heroCover: CURRENT_COVER,
   originalCover: CURRENT_COVER,
   summary:
-    "集體記憶不只是歷史課本上的大事件，更是我們共同經歷的日常——一起守候的畫面、曾經流行的物件、至今仍會專程前往的場所。本期七日書，邀請你撿起大眾共有的時代片段，寫下與時代浪潮、文化交融的故事。",
+    "所謂「身心靈」，不是一套完美的修煉，更多時，是我們如何誠實地對待自己的肉身與靈魂。它或許藏在那些以為早已過去卻隱痛依舊的往事裡，藏在對他人的羨慕、自我感到滿足的時刻裡。本期邀請你一同寫下身心靈故事的啟發。",
   // state 由 page 上 inline script 根據 today vs prompt.date 動態算（past/today/locked）
   // 這裡 hardcode "upcoming" 表示「報名期，寫作還沒開始」
   prompts: [
-    { day: "Day 1", date: "7/6", state: "upcoming", title: "青春時代的風行物",
-      prompt: "分享一件青春時代在同輩間風行的物件——球鞋、背包、貼紙簿、潮流玩物。那時你們圍著它發生了什麼故事？這個集體符號，如何牽扯出當時的人際相處？" },
-    { day: "Day 2", date: "7/7", state: "upcoming", title: "一起觀看的場景",
-      prompt: "回想一個畫面、一聲前奏或一段旋律，它能讓你瞬間聯想到曾經「一起觀看或參與」的集體場景。在那個同步經歷的當下，彼此身處同一頻率，它為你帶來怎樣的集體經驗？" },
-    { day: "Day 3", date: "7/8", state: "upcoming", title: "專程前往的場所",
-      prompt: "分享一個你現在其實「已經不需要去」，卻因為連接著某種群體記憶而專程前往的場所。它如何見證了你與某個群體的關係？在它於當下生活漸漸褪色之際，藏著你哪種無法割捨的情懷？" },
-    { day: "Day 4", date: "7/9", state: "upcoming", title: "曾依賴的通訊方式",
-      prompt: "分享一種你曾經依賴的通訊方式或數碼軟體——部落格、MSN，或任何工具。以前的聯絡需要漫長的等待與猜測，那種等待回音的「空白」，相比當下的即時通訊，讓你對人與人的「連結」與「節奏」有著怎樣的理解？" },
-    { day: "Day 5", date: "7/10", state: "upcoming", title: "席捲而來的異國潮流",
-      prompt: "談談你經歷過、塑造了你的某個席捲而來的異國文化或生活潮流——日劇、美式速食、韓流，或某種 well-being 觀念。這種由另一個國家帶來的異國氛圍，如何啟蒙了你對外面世界的想像與感官？" },
-    { day: "Day 6", date: "7/11", state: "upcoming", title: "親歷的歷史事件",
-      prompt: "回想一件你在螢幕前目睹、或親身見證過的重大社會歷史事件。在那之後，城市的肌理與氛圍都不同了。這份共同記憶，如何重塑了你對「家園」或「群體」的感情，甚或改變了你此後的價值觀？" },
-    { day: "Day 7", date: "7/12", state: "upcoming", title: "揮之不去的集體記憶",
-      prompt: "分享一個你「不要想有」、存有張力和距離感，卻始終揮之不去的集體記憶。集體記憶可以是由上至下的，這個令你格格不入甚至抗拒的往事，是一個怎樣的記憶？它為你帶來了怎樣的拉扯？" },
+    { day: "Day 1", date: "8/3", state: "upcoming", title: "寫一件你以為早已放下、其實仍隱隱作痛的事",
+      prompt: "寫一件你以為早已放下、其實仍隱隱作痛的事。" },
+    { day: "Day 2", date: "8/4", state: "upcoming", title: "寫一個你曾經羨慕別人的時刻，而那份羨慕，其實照見了你的內心渴望或缺失",
+      prompt: "寫一個你曾經羨慕別人的時刻，而那份羨慕，其實照見了你的內心渴望或缺失。" },
+    { day: "Day 3", date: "8/5", state: "upcoming", title: "描述一個你感到被某種比自己更大的力量「接住」的瞬間",
+      prompt: "描述一個你感到被某種比自己更大的力量「接住」的瞬間。 它可以是信仰、大自然、一場儀式或任何事情。在那刻，彷彿有什麼在穩穩托著你，讓你的心安定下來。那是一種怎樣的場景？" },
+    { day: "Day 4", date: "8/6", state: "upcoming", title: "分享一個你允許自己「擺爛」或停下來的經驗",
+      prompt: "分享一個你允許自己「擺爛」或停下來的經驗。 可能是找理由請假、睡覺不管事、取消所有行程。停下來的時候，你感受到的是罪惡感、鬆一口氣，還是怎樣？這次經驗讓你認識了怎樣的自己？" },
+    { day: "Day 5", date: "8/7", state: "upcoming", title: "寫一個你與身體某個部位之間的故事",
+      prompt: "寫一個你與身體某個部位之間的故事。 它可能是一道疤、胎記、一個你總遮掩的地方，又或是一個曾經讓你自豪、如今卻感到陌生的部位。它承載著怎樣的自我？後來，你怎樣學會與之共處？" },
+    { day: "Day 6", date: "8/8", state: "upcoming", title: "分享一個你覺得「這樣就很滿足了」的時刻",
+      prompt: "分享一個你覺得「這樣就很滿足了」的時刻。" },
+    { day: "Day 7", date: "8/9", state: "upcoming", title: "如果你的內心有一間房子，描述它現在的模樣",
+      prompt: "如果你的內心有一間房子，描述它現在的模樣。 房子裡面有甚麼東西？是整齊、雜亂、還是怎樣的？寫完這七天，你最想先動手整理的，是哪一個角落？" },
   ],
 };
 
